@@ -6,6 +6,9 @@
 
 namespace my::test {
 
+using testing::A;
+using testing::An;
+
 // NOTE: non-standard MOCK-technique used.
 struct DestructionTestMock
 {
@@ -93,6 +96,39 @@ TEST(DefaultAllocatorTests, destroyShouldCallDestructorOnGivenPointer)
     // NOTE: Cleanup part - we need to deallocate the memory without calling destructor second time
     // sut.deallocate should have equivalent behaviour but it's not part of the test
     ::operator delete(objectToDestroy);
+}
+
+TEST(DefaultAllocatorTests, valueTypeAliasShouldBeDefinedAndPointToUnderlyingType)
+{
+    DefaultAllocator<int>::value_type shouldBeInt;
+    DefaultAllocator<double>::value_type shouldBeDouble;
+    DefaultAllocator<std::string>::value_type shouldBeString;
+
+    EXPECT_THAT(shouldBeInt, An<int>());
+    EXPECT_THAT(shouldBeDouble, An<double>());
+    EXPECT_THAT(shouldBeString, An<std::string>());
+}
+
+TEST(DefaultAllocatorTests, sizeTypeAliasShouldBeEqualToStdSizeType)
+{
+    DefaultAllocator<int>::size_type stdSizeTypeEq1;
+    DefaultAllocator<double>::size_type stdSizeTypeEq2;
+    DefaultAllocator<std::string>::size_type stdSizeTypeEq3;
+
+    EXPECT_THAT(stdSizeTypeEq1, An<std::size_t>());
+    EXPECT_THAT(stdSizeTypeEq2, An<std::size_t>());
+    EXPECT_THAT(stdSizeTypeEq3, An<std::size_t>());
+}
+
+TEST(DefaultAllocatorTests, differenceTypeAliasShouldBeEqualToStdPtrdiffT)
+{
+    DefaultAllocator<int>::difference_type ptrDiffT_eq1;
+    DefaultAllocator<double>::difference_type ptrDiffT_eq2;
+    DefaultAllocator<std::string>::difference_type ptrDiffT_eq3;
+
+    EXPECT_THAT(ptrDiffT_eq1, An<std::ptrdiff_t>());
+    EXPECT_THAT(ptrDiffT_eq2, An<std::ptrdiff_t>());
+    EXPECT_THAT(ptrDiffT_eq3, An<std::ptrdiff_t>());
 }
 
 }   // namespace my::test

@@ -12,7 +12,7 @@ struct DefaultAllocator
     using size_type = std::size_t;   // //TODO: VERIFY if used
     using difference_type = std::ptrdiff_t;
 
-    [[nodiscard]] constexpr Type* allocate(std::size_t n) const;
+    [[nodiscard]] constexpr Type* allocate(size_type n) const;
     constexpr void deallocate(Type* ptr) const;
 
     template <typename... Args>
@@ -22,7 +22,7 @@ struct DefaultAllocator
 };
 
 template <typename Type>
-[[nodiscard]] constexpr Type* DefaultAllocator<Type>::allocate(std::size_t n) const
+[[nodiscard]] constexpr Type* DefaultAllocator<Type>::allocate(size_type n) const
 {
     return static_cast<Type*>(::operator new(n * sizeof(Type)));
 }
