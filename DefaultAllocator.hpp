@@ -12,36 +12,36 @@ struct DefaultAllocator
     using size_type = std::size_t;   // //TODO: VERIFY if used
     using difference_type = std::ptrdiff_t;
 
-    [[nodiscard]] constexpr Type* allocate(size_type n) const;
-    constexpr void deallocate(Type* ptr) const;
+    [[nodiscard]] static constexpr Type* allocate(size_type n);
+    static constexpr void deallocate(Type* ptr);
 
     template <typename... Args>
-    void construct(Type* ptr, Args&&... args) const;
+    static void construct(Type* ptr, Args&&... args);
 
-    void destroy(Type* ptr) const;
+    static void destroy(Type* ptr);
 };
 
 template <typename Type>
-[[nodiscard]] constexpr Type* DefaultAllocator<Type>::allocate(size_type n) const
+[[nodiscard]] constexpr Type* DefaultAllocator<Type>::allocate(size_type n)
 {
     return static_cast<Type*>(::operator new(n * sizeof(Type)));
 }
 
 template <typename Type>
-constexpr void DefaultAllocator<Type>::deallocate(Type* ptr) const
+constexpr void DefaultAllocator<Type>::deallocate(Type* ptr)
 {
     ::operator delete(ptr);
 }
 
 template <typename Type>
 template <typename... Args>
-void DefaultAllocator<Type>::construct(Type* ptr, Args&&... args) const
+void DefaultAllocator<Type>::construct(Type* ptr, Args&&... args)
 {
     ::new (( void* ) ptr) Type(std::forward<Args>(args)...);
 }
 
 template <typename Type>
-void DefaultAllocator<Type>::destroy(Type* ptr) const
+void DefaultAllocator<Type>::destroy(Type* ptr)
 {
     ptr->~Type();
 }
