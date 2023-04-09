@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <utility>
 
 namespace my {
 
@@ -11,20 +12,13 @@ struct DefaultAllocator
     using size_type = std::size_t;   // //TODO: VERIFY if used
     using difference_type = std::ptrdiff_t;
 
-    // constexpr DefaultAllocator() noexcept = default;  //TODO: VERIFY if needed
-
-    // TODO:
     [[nodiscard]] constexpr Type* allocate(std::size_t n) const;
+    constexpr void deallocate(Type* ptr) const;
 
-    // TODO:
-    constexpr void deallocate(Type* p) const;
+    template <typename... Args>
+    void construct(Type* ptr, Args&&... args) const;
 
-    // TODO:
-    // template <class U, class... Args>
-    // void construct(U* p, Args&&... args);
-
-    // TODO:
-    // void destroy( pointer p );
+    void destroy(Type* ptr) const;
 };
 
 template <typename Type>
@@ -32,10 +26,24 @@ template <typename Type>
 {
     return static_cast<Type*>(::operator new(n * sizeof(Type)));
 }
+
 template <typename Type>
-constexpr void DefaultAllocator<Type>::deallocate(Type* p) const
+constexpr void DefaultAllocator<Type>::deallocate(Type* ptr) const
 {
-    ::operator delete(p);
+    ::operator delete(ptr);
+}
+
+template <typename Type>
+template <typename... Args>
+void DefaultAllocator<Type>::construct(Type* ptr, Args&&... args) const
+{
+    ::new (( void* ) ptr) Type(std::forward<Args>(args)...);
+}
+
+template <typename Type>
+void DefaultAllocator<Type>::destroy(Type* ptr) const
+{
+    ptr->~Type();
 }
 
 }   // namespace my
