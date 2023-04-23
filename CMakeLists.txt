@@ -53,5 +53,5 @@ target_compile_features(DefaultAllocator-ut
                        PRIVATE
                        cxx_std_20)
 
-gtest_discover_tests(Vector-ut)
-gtest_discover_tests(DefaultAllocator-ut)
+add_test(NAME DefaultAllocatorTests COMMAND DefaultAllocator-ut)
+add_test(NAME VectorTests COMMAND Vector-ut)
