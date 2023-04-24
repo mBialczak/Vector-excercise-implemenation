@@ -2,6 +2,8 @@
 
 #include "DefaultAllocator.hpp"
 
+#include <iterator>
+
 namespace my {
 
 template <typename Type, typename Allocator = DefaultAllocator<Type>>
@@ -17,13 +19,14 @@ class Vector
 
     // TODO: VERIFY functions to implement
     //  ============= CONSTRUCTOR ================
-    // constexpr vector() noexcept(noexcept(Allocator()));
+    // TODO: tests to complete
+    constexpr Vector() noexcept(noexcept(Allocator()));
+    // TODO: tests to complete
+    constexpr explicit Vector(const Allocator& alloc) noexcept;
 
-    // constexpr explicit vector(const Allocator& alloc) noexcept;
-
-    // constexpr vector(size_type count,
-    //                  const T& value,
-    //                  const Allocator& alloc = Allocator());
+    constexpr Vector(size_type count,
+                     const Type& value,
+                     const Allocator& alloc = Allocator());
 
     // constexpr explicit vector(size_type count,
     //                           const Allocator& alloc = Allocator());
@@ -61,7 +64,7 @@ class Vector
     // constexpr void assign( std::initializer_list<T> ilist );
 
     // ============= get_allocator function ===========
-    // constexpr allocator_type get_allocator() const noexcept;
+    constexpr allocator_type get_allocator() const noexcept;
 
     // ============= at function =============
     // constexpr reference at( size_type pos );
@@ -106,7 +109,7 @@ class Vector
 
     // ============== capacity functions =============
     // [[nodiscard]] constexpr bool empty() const noexcept;
-    // constexpr size_type size() const noexcept;
+    constexpr size_type size() const noexcept;
     // constexpr size_type max_size() const noexcept;
     // constexpr void reserve(size_type new_cap);
     // constexpr size_type capacity() const noexcept;
@@ -147,11 +150,57 @@ class Vector
     Type* begin_;
     Type* end_;
     Type* capacity_;
-    static DefaultAllocator<Type> allocator;   // TODO: VERIFY name and sense of storing
+    static allocator_type allocator_;   // TODO: VERIFY name and sense of storing
+    // DefaultAllocator<Type> allocator;   // TODO: VERIFY name and sense of storing
 };
 
-// template <typename Type, typename Allocator>
-// DefaultAllocator<Type> Vector<Type, Allocator>::allocator;
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::Vector() noexcept(noexcept(Allocator()))
+    : begin_(nullptr)
+    , end_(nullptr)
+    , capacity_(nullptr)
+{
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::Vector(const Allocator& alloc) noexcept
+    : Vector()
+{
+    // TODO: VERIFY
+    //  allocator_ = alloc;
+}
+// TODO: finish
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::Vector(size_type count,
+                                          const Type& value,
+                                          const Allocator& alloc)
+    : begin_(alloc.allocate(count))
+    , end_(std::next(begin_, count))
+    , capacity_(end_)
+{
+    // TODO: VERIFY
+    //  allocator_ = alloc;
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::allocator_type
+    Vector<Type, Allocator>::get_allocator() const noexcept
+{
+    // TODO: VERIFY
+    //  return allocator_;
+    return allocator_;
+}
+
+// TODO: make sensible
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::size_type
+    Vector<Type, Allocator>::size() const noexcept
+{
+    return 0;
+}
+// TODO: VERIFY seems not needed. Due to default constructible allocator?
+//  template <typename Type, typename Allocator>
+//  DefaultAllocator<Type> Vector<Type, Allocator>::allocator;
 
 // TODO:
 // =========== specialization for std::swap

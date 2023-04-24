@@ -27,12 +27,12 @@ struct DummyAllocator
 
 TEST(VectorMemorySizeTest, sizeOfVectorShouldBeEqualTo24)
 {
-    Vector<int> sut1;
+    Vector<int> sut;
     Vector<double> sut2;
     Vector<std::string> sut3;
     std::size_t requiredSize { 24 };
 
-    EXPECT_EQ(sizeof(sut1), requiredSize);
+    EXPECT_EQ(sizeof(sut), requiredSize);
     EXPECT_EQ(sizeof(sut2), requiredSize);
     EXPECT_EQ(sizeof(sut3), requiredSize);
 }
@@ -96,4 +96,81 @@ TEST(VectorTypeAliasTest, constIteratorTypeAliasShouldBeDefinedAndMeetExpectatio
     //     auto sutConstInter = Vector<int>::const_iterator{}
     //     EXPECT_TRUE(std::is_const_v<Vector<int>::const_iterator>);
 }
+// ============= DefaultConstructorTests =====================
+// TODO: VERIFY
+// TEST(DefaultConstructorTests, shouldBeAbleToCreateVectorUsingDefaultConstructor)
+// {
+//     Vector<int> sut;
+//     Vector<double> sut2;
+//     Vector<std::string> sut3;
+// }
+
+TEST(DefaultConstructorTests, sizeOfDefaultConstructedVectorShouldBeZero)
+{
+    Vector<int> sut;
+    Vector<double> sut2;
+    Vector<std::string> sut3;
+
+    EXPECT_EQ(sut.size(), 0);
+    EXPECT_EQ(sut2.size(), 0);
+    EXPECT_EQ(sut3.size(), 0);
+}
+// TODO:
+//  capacity of def.constr. should be zero
+//  consider test for comparing end() and begin()
+
+// TODO:  ========== constexpr explicit Vector(const Allocator& alloc) noexcept; ============================
+TEST(ConstructorTakingOnlyAllocatorTests, passedAllocatorShouldBeRemembered)
+{
+    DummyAllocator<int> allocatorInt;
+    DummyAllocator<std::string> allocatorString;
+
+    Vector<int, DummyAllocator<int>> sutInt(allocatorInt);
+    Vector<std::string, DummyAllocator<std::string>> sutString(allocatorString);
+
+    EXPECT_THAT(sutInt.get_allocator(), A<DummyAllocator<int>>());
+    EXPECT_THAT(sutString.get_allocator(), A<DummyAllocator<std::string>>());
+}
+
+TEST(ConstructorTakingOnlyAllocatorTests, sizeShouldBeZero)
+{
+    DummyAllocator<int> allocatorInt;
+    DummyAllocator<std::string> allocatorString;
+
+    Vector<int, DummyAllocator<int>> sut(allocatorInt);
+    Vector<std::string, DummyAllocator<std::string>> sut2(allocatorString);
+
+    EXPECT_EQ(sut.size(), 0);
+    EXPECT_EQ(sut2.size(), 0);
+}
+
+// TODO: =======  constexpr Vector(size_type count, const T& value,const Allocator& alloc = Allocator()); == test
+TEST(ConstructorTakingCountValueAndAllocatorTests, sizeShouldBeEqualToCount)
+{
+    const std::size_t sutIntSize { 1 };
+    const std::size_t sutDoubleSize { 10 };
+    const std::size_t sutStringSize { 5 };
+
+    Vector sutInt(sutIntSize, 3, DefaultAllocator<int> {});
+    Vector sutDouble(sutDoubleSize, 555.0, DefaultAllocator<double> {});
+    Vector sutString(sutStringSize, std::string { "ConstructorTest" }, DefaultAllocator<std::string> {});
+
+    EXPECT_EQ(sutInt.size(), sutIntSize);
+    EXPECT_EQ(sutDouble.size(), sutDoubleSize);
+    EXPECT_EQ(sutString.size(), sutStringSize);
+}
+
+// TODO:
+// test size
+// test capacity
+// test default value for allocator
+// test type of allocator passed
+// test all elements have value declared
+
+// TODO: ============== size() tests ============
+// TODO: test size after adding objects
+// TODO: test size after adding if capacity should increase
+// TODO: test size after removing objects
+
+// TODO: consider get_allocator tests
 }   // namespace my::test
