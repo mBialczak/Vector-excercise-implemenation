@@ -16,13 +16,29 @@ struct DummyAllocator
     using size_type = std::size_t;
 
     [[nodiscard]] static constexpr Type* allocate(size_type n) { }
-    static constexpr void deallocate(Type* ptr) { }
+    static constexpr void deallocate([[maybe_unused]] Type* ptr)
+    {
+        // calledOnDeallocate();
+    }
 
     template <typename... Args>
-    static void construct(Type* ptr, Args&&... args)
+    static void construct([[maybe_unused]] Type* ptr, Args&&... args)
     { }
 
-    static void destroy(Type* ptr) { }
+    static void destroy([[maybe_unused]] Type* ptr)
+    {
+        // calledOnDeallocate();
+    }
+
+    // TODO: VERIFY
+    MOCK_METHOD(void, calledOnDestroy, ());
+    MOCK_METHOD(void, calledOnDeallocate, ());
+    // MOCK_METHOD(Type*, allocate, (std::size_t n));
+    // MOCK_METHOD(void, deallocate, (Type * ptr));
+    // MOCK_METHOD(void, destroy, (Type * ptr));
+
+    // template <typename... Args>
+    // MOCK_METHOD(void, construct, (Type * ptr, testing::Args&&... args));
 };
 
 TEST(VectorMemorySizeTest, sizeOfVectorShouldBeEqualTo24)
@@ -160,12 +176,52 @@ TEST(ConstructorTakingCountValueAndAllocatorTests, sizeShouldBeEqualToCount)
     EXPECT_EQ(sutString.size(), sutStringSize);
 }
 
+TEST(ConstructorTakingCountValueAndAllocatorTests, passedValueShouldBeInitializeAllAllocatedElements)
+{
+    const std::size_t sutIntSize { 1 };
+    const int sutIntExpectedElementsValue { 3 };
+
+    const std::size_t sutDoubleSize { 10 };
+    const double sutDoubleExpectedElementsValue { 555.0 };
+
+    const std::size_t sutStringSize { 5 };
+    const std::string sutStringExpectedElementsValue { "ConstructorTest" };
+
+    Vector sutInt(sutIntSize, sutIntExpectedElementsValue);
+    Vector sutDouble(sutDoubleSize, 555.0, DefaultAllocator<double> {});
+    Vector sutString(sutStringSize, sutStringExpectedElementsValue, DefaultAllocator<std::string> {});
+
+    for (const auto& el : sutInt) {
+        EXPECT_EQ(el, sutIntExpectedElementsValue);
+    }
+    // for (auto it = sutInt.cbegin(); it != sutInt.cend(); ++it) {
+    //     EXPECT_EQ(*it, sutIntExpectedElementsValue);
+    // }
+    // TODO: VERIFY
+    // auto i { 1 };
+    for (const auto& el : sutDouble) {
+        // std::cout << std::to_string(i) << " run\n";
+        // ++i;
+        EXPECT_DOUBLE_EQ(el, sutDoubleExpectedElementsValue);
+    }
+
+    for (const auto& el : sutString) {
+        EXPECT_EQ(el, sutStringExpectedElementsValue);
+    }
+}
+
+// TODO: =========== DESTRUCTOR TESTS ============
+// - should call destructor of stored object
 // TODO:
-// test size
 // test capacity
 // test default value for allocator
 // test type of allocator passed
 // test all elements have value declared
+
+// TODO: ============ constexpr iterator begin() noexcept TEST ======
+// TODO: ============ constexpr iterator cbegin() noexcept TEST ======
+// TODO: ============ constexpr iterator end() noexcept TEST ======
+// TODO: ============ constexpr iterator cend() noexcept TEST ======
 
 // TODO: ============== size() tests ============
 // TODO: test size after adding objects
