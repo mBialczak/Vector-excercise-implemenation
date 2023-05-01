@@ -3,6 +3,8 @@
 #include "DefaultAllocator.hpp"
 
 #include <iterator>
+// TODO: REMOVE
+#include <iostream>
 
 namespace my {
 
@@ -19,17 +21,13 @@ class Vector
 
     // TODO: VERIFY functions to implement
     //  ============= CONSTRUCTOR ================
-    // TODO: tests to complete
     constexpr Vector() noexcept(noexcept(Allocator()));
-    // TODO: tests to complete
     constexpr explicit Vector(const Allocator& alloc) noexcept;
-
     constexpr Vector(size_type count,
                      const Type& value,
                      const Allocator& alloc = Allocator());
-
-    // constexpr explicit vector(size_type count,
-    //                           const Allocator& alloc = Allocator());
+    constexpr explicit Vector(size_type count,
+                              const Allocator& alloc = Allocator());
 
     // constexpr vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
 
@@ -168,7 +166,7 @@ constexpr Vector<Type, Allocator>::Vector([[maybe_unused]] const Allocator& allo
     // TODO: VERIFY
     // allocator_ = alloc;
 }
-// TODO: finish
+
 template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::Vector(size_type count,
                                           const Type& value,
@@ -177,11 +175,20 @@ constexpr Vector<Type, Allocator>::Vector(size_type count,
     , end_(std::next(begin_, count))
     , capacity_(end_)
 {
-    // allocator_ = alloc;
     for (auto it = begin_; it != end_; ++it) {
-        // TODO: VERIFY
-        //  allocator_.construct(it, value);
         Allocator::construct(it, value);
+    }
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::Vector(size_type count,
+                                          const Allocator& alloc)
+    : begin_(alloc.allocate(count))
+    , end_(std::next(begin_, count))
+    , capacity_(end_)
+{
+    for (auto it = begin_; it != end_; ++it) {
+        Allocator::construct(it, Type {});
     }
 }
 
