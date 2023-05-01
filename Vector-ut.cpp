@@ -9,38 +9,66 @@ namespace my::test {
 using testing::A;
 using testing::An;
 
-// NOTE: dummy allocator just for testing. Does not allocate anything
+// TODO: VERIFY
+struct AllocatorCallDetectorMock
+{
+    virtual ~AllocatorCallDetectorMock() = default;
+    // MOCK_METHOD(void, detectDestructorCall, ()); // TODO: REMOVE
+    MOCK_METHOD(void, detectDeallocateCall, ());
+};
 template <typename Type>
-struct DummyAllocator
+// TODO: make ome explenation notes;
+struct CustomTestingAllocator
 {
     using size_type = std::size_t;
 
-    [[nodiscard]] static constexpr Type* allocate(size_type n) { }
+    [[nodiscard]] static constexpr Type* allocate(size_type n)
+    {
+        return static_cast<Type*>(::operator new(n * sizeof(Type)));
+    }
+
     static constexpr void deallocate([[maybe_unused]] Type* ptr)
     {
-        // calledOnDeallocate();
+        ::operator delete(ptr);
+        if (callDetectionHelper_) {
+            callDetectionHelper_->detectDeallocateCall();
+        }
     }
 
     template <typename... Args>
     static void construct([[maybe_unused]] Type* ptr, Args&&... args)
-    { }
+    {
+        ::new (( void* ) ptr) Type(std::forward<Args>(args)...);
+    }
 
     static void destroy([[maybe_unused]] Type* ptr)
     {
-        // calledOnDeallocate();
+        ptr->~Type();
     }
-
     // TODO: VERIFY
-    MOCK_METHOD(void, calledOnDestroy, ());
-    MOCK_METHOD(void, calledOnDeallocate, ());
-    // MOCK_METHOD(Type*, allocate, (std::size_t n));
-    // MOCK_METHOD(void, deallocate, (Type * ptr));
-    // MOCK_METHOD(void, destroy, (Type * ptr));
-
-    // template <typename... Args>
-    // MOCK_METHOD(void, construct, (Type * ptr, testing::Args&&... args));
+    void setCallDetectionHelper(AllocatorCallDetectorMock* detectionHelper)
+    {
+        callDetectionHelper_ = detectionHelper;
+    }
+    // TODO: VERIFY
+    static AllocatorCallDetectorMock* callDetectionHelper_;
 };
 
+template <typename Type>
+AllocatorCallDetectorMock* CustomTestingAllocator<Type>::callDetectionHelper_ { nullptr };
+
+class DummyWithDestructionDetection
+{
+  public:
+    ~DummyWithDestructionDetection()
+    {
+        detectDestructorCall();
+    }
+
+    MOCK_METHOD(void, detectDestructorCall, ());
+};
+
+// ===== tests for type aliases ======
 TEST(VectorMemorySizeTest, sizeOfVectorShouldBeEqualTo24)
 {
     Vector<int> sut;
@@ -77,13 +105,13 @@ TEST(VectorTypeAliasTest, allocatorTypeAliasShouldBeDefinedAndPointToDefaultAllo
 
 TEST(VectorTypeAliasTest, allocatorTypeAliasShouldBeDefinedAndPointToExplicitlyPassedAllocator)
 {
-    Vector<int, DummyAllocator<int>>::allocator_type allocatorForInt;
-    Vector<double, DummyAllocator<double>>::allocator_type allocatorForDouble;
-    Vector<std::string, DummyAllocator<std::string>>::allocator_type allocatorForString;
+    Vector<int, CustomTestingAllocator<int>>::allocator_type allocatorForInt;
+    Vector<double, CustomTestingAllocator<double>>::allocator_type allocatorForDouble;
+    Vector<std::string, CustomTestingAllocator<std::string>>::allocator_type allocatorForString;
 
-    EXPECT_THAT(allocatorForInt, A<DummyAllocator<int>>());
-    EXPECT_THAT(allocatorForDouble, A<DummyAllocator<double>>());
-    EXPECT_THAT(allocatorForString, A<DummyAllocator<std::string>>());
+    EXPECT_THAT(allocatorForInt, A<CustomTestingAllocator<int>>());
+    EXPECT_THAT(allocatorForDouble, A<CustomTestingAllocator<double>>());
+    EXPECT_THAT(allocatorForString, A<CustomTestingAllocator<std::string>>());
 }
 
 TEST(VectorTypeAliasTest, sizeTypeAliasShouldBeDefinedAndPointToStdSizeType)
@@ -105,22 +133,14 @@ TEST(VectorTypeAliasTest, iteratorTypeAliasShouldBeDefinedAndMeetExpectations)
 
 TEST(VectorTypeAliasTest, constIteratorTypeAliasShouldBeDefinedAndMeetExpectations)
 {
+    Vector<int> sut { 10, 5 };
+    auto constBeginIterator = sut.cbegin();
+
     EXPECT_TRUE(std::random_access_iterator<Vector<int>::const_iterator>);
     EXPECT_TRUE(std::contiguous_iterator<Vector<int>::const_iterator>);
-
-    // TODO: complete when accessor functions are available
-    //     auto sutConstInter = Vector<int>::const_iterator{}
-    //     EXPECT_TRUE(std::is_const_v<Vector<int>::const_iterator>);
+    EXPECT_TRUE(( std::is_same_v<decltype(constBeginIterator), const int*> ) );
 }
 // ============= DefaultConstructorTests =====================
-// TODO: VERIFY
-// TEST(DefaultConstructorTests, shouldBeAbleToCreateVectorUsingDefaultConstructor)
-// {
-//     Vector<int> sut;
-//     Vector<double> sut2;
-//     Vector<std::string> sut3;
-// }
-
 TEST(DefaultConstructorTests, sizeOfDefaultConstructedVectorShouldBeZero)
 {
     Vector<int> sut;
@@ -131,37 +151,68 @@ TEST(DefaultConstructorTests, sizeOfDefaultConstructedVectorShouldBeZero)
     EXPECT_EQ(sut2.size(), 0);
     EXPECT_EQ(sut3.size(), 0);
 }
-// TODO:
-//  capacity of def.constr. should be zero
-//  consider test for comparing end() and begin()
 
-// TODO:  ========== constexpr explicit Vector(const Allocator& alloc) noexcept; ============================
-TEST(ConstructorTakingOnlyAllocatorTests, passedAllocatorShouldBeRemembered)
+TEST(DefaultConstructorTests, capacityOfDefaultConstructedVectorShouldBeZero)
 {
-    DummyAllocator<int> allocatorInt;
-    DummyAllocator<std::string> allocatorString;
+    Vector<int> sut;
+    Vector<double> sut2;
+    Vector<std::string> sut3;
 
-    Vector<int, DummyAllocator<int>> sutInt(allocatorInt);
-    Vector<std::string, DummyAllocator<std::string>> sutString(allocatorString);
-
-    EXPECT_THAT(sutInt.get_allocator(), A<DummyAllocator<int>>());
-    EXPECT_THAT(sutString.get_allocator(), A<DummyAllocator<std::string>>());
+    EXPECT_EQ(sut.capacity(), 0);
+    EXPECT_EQ(sut2.capacity(), 0);
+    EXPECT_EQ(sut3.capacity(), 0);
 }
 
-TEST(ConstructorTakingOnlyAllocatorTests, sizeShouldBeZero)
+TEST(DefaultConstructorTests, iteratorsReturnedByBeginAndEndShouldBeEqual)
 {
-    DummyAllocator<int> allocatorInt;
-    DummyAllocator<std::string> allocatorString;
+    Vector<int> sut;
+    Vector<double> sut2;
+    Vector<std::string> sut3;
 
-    Vector<int, DummyAllocator<int>> sut(allocatorInt);
-    Vector<std::string, DummyAllocator<std::string>> sut2(allocatorString);
+    EXPECT_EQ(sut.begin(), sut.end());
+    EXPECT_EQ(sut2.begin(), sut2.end());
+    EXPECT_EQ(sut3.begin(), sut3.end());
+}
+
+//  ========== tests for: constexpr explicit Vector(const Allocator& alloc) noexcept; ==================
+TEST(ConstructorTakingOnlyAllocatorTests, passedAllocatorShouldBeRemembered)
+{
+    CustomTestingAllocator<int> allocatorInt;
+    CustomTestingAllocator<std::string> allocatorString;
+
+    Vector<int, CustomTestingAllocator<int>> sutInt(allocatorInt);
+    Vector<std::string, CustomTestingAllocator<std::string>> sutString(allocatorString);
+
+    EXPECT_THAT(sutInt.get_allocator(), A<CustomTestingAllocator<int>>());
+    EXPECT_THAT(sutString.get_allocator(), A<CustomTestingAllocator<std::string>>());
+}
+
+TEST(ConstructorTakingOnlyAllocatorTests, sizeAndCapacityShouldBeZero)
+{
+    CustomTestingAllocator<int> allocatorInt;
+    CustomTestingAllocator<std::string> allocatorString;
+
+    Vector<int, CustomTestingAllocator<int>> sut(allocatorInt);
+    Vector<std::string, CustomTestingAllocator<std::string>> sut2(allocatorString);
 
     EXPECT_EQ(sut.size(), 0);
     EXPECT_EQ(sut2.size(), 0);
 }
 
-// TODO: =======  constexpr Vector(size_type count, const T& value,const Allocator& alloc = Allocator()); == test
-TEST(ConstructorTakingCountValueAndAllocatorTests, sizeShouldBeEqualToCount)
+TEST(ConstructorTakingOnlyAllocatorTests, iteratorsReturnedByBeginAndEndShouldBeEqual)
+{
+    CustomTestingAllocator<int> allocatorInt;
+    CustomTestingAllocator<std::string> allocatorString;
+
+    Vector<int, CustomTestingAllocator<int>> sut(allocatorInt);
+    Vector<std::string, CustomTestingAllocator<std::string>> sut2(allocatorString);
+
+    EXPECT_EQ(sut.begin(), sut.end());
+    EXPECT_EQ(sut2.begin(), sut2.end());
+}
+
+//  ===== tests for:  constexpr Vector(size_type count, const T& value,const Allocator& alloc = Allocator())
+TEST(ConstructorTakingCountValueAndAllocatorTests, sizeShouldBeEqualToCountAndCapacityAfterConstruction)
 {
     const std::size_t sutIntSize { 1 };
     const std::size_t sutDoubleSize { 10 };
@@ -174,9 +225,13 @@ TEST(ConstructorTakingCountValueAndAllocatorTests, sizeShouldBeEqualToCount)
     EXPECT_EQ(sutInt.size(), sutIntSize);
     EXPECT_EQ(sutDouble.size(), sutDoubleSize);
     EXPECT_EQ(sutString.size(), sutStringSize);
+
+    EXPECT_EQ(sutInt.capacity(), sutIntSize);
+    EXPECT_EQ(sutDouble.capacity(), sutDoubleSize);
+    EXPECT_EQ(sutString.capacity(), sutStringSize);
 }
 
-TEST(ConstructorTakingCountValueAndAllocatorTests, passedValueShouldBeInitializeAllAllocatedElements)
+TEST(ConstructorTakingCountValueAndAllocatorTests, shouldInitializeAllocatedElementsWithProvidedValue)
 {
     const std::size_t sutIntSize { 1 };
     const int sutIntExpectedElementsValue { 3 };
@@ -194,14 +249,8 @@ TEST(ConstructorTakingCountValueAndAllocatorTests, passedValueShouldBeInitialize
     for (const auto& el : sutInt) {
         EXPECT_EQ(el, sutIntExpectedElementsValue);
     }
-    // for (auto it = sutInt.cbegin(); it != sutInt.cend(); ++it) {
-    //     EXPECT_EQ(*it, sutIntExpectedElementsValue);
-    // }
-    // TODO: VERIFY
-    // auto i { 1 };
+
     for (const auto& el : sutDouble) {
-        // std::cout << std::to_string(i) << " run\n";
-        // ++i;
         EXPECT_DOUBLE_EQ(el, sutDoubleExpectedElementsValue);
     }
 
@@ -210,23 +259,35 @@ TEST(ConstructorTakingCountValueAndAllocatorTests, passedValueShouldBeInitialize
     }
 }
 
-// TODO: =========== DESTRUCTOR TESTS ============
-// - should call destructor of stored object
-// TODO:
-// test capacity
-// test default value for allocator
-// test type of allocator passed
-// test all elements have value declared
+TEST(ConstructorTakingCountValueAndAllocatorTests, shouldCorrectlyDeduceAllocatorTypeUsed)
+{
+    Vector sut(5, 7, CustomTestingAllocator<int> {});
+    Vector sutDefault(20, 30);
 
-// TODO: ============ constexpr iterator begin() noexcept TEST ======
-// TODO: ============ constexpr iterator cbegin() noexcept TEST ======
-// TODO: ============ constexpr iterator end() noexcept TEST ======
-// TODO: ============ constexpr iterator cend() noexcept TEST ======
+    EXPECT_THAT(sut.get_allocator(), A<CustomTestingAllocator<int>>());
+    EXPECT_THAT(sutDefault.get_allocator(), A<DefaultAllocator<int>>());
+}
+
+// TODO: =========== DESTRUCTOR TESTS ============
+// TEST(DestructorTests, shouldDeallocateMemoryThroughAllocator)
+// {
+// }
+
+// TEST(DestructorTests, shouldCallDestructorOnElmentsThroughAllocator)
+// {
+// }
 
 // TODO: ============== size() tests ============
 // TODO: test size after adding objects
 // TODO: test size after adding if capacity should increase
 // TODO: test size after removing objects
 
-// TODO: consider get_allocator tests
+// ============== TESTS MOST LIKELY TO SKIP
+// TODO: ============ constexpr iterator begin() noexcept TEST ======
+// TODO: ============ constexpr iterator cbegin() noexcept TEST ======
+// TODO: ============ constexpr iterator end() noexcept TEST ======
+// TODO: ============ constexpr iterator cend() noexcept TEST ======
+// TODO: ============ get_allocator tests ============
+// TODO: ============ capacity () tests ============
+
 }   // namespace my::test

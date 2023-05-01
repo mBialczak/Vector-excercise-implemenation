@@ -111,7 +111,7 @@ class Vector
     constexpr size_type size() const noexcept;
     // constexpr size_type max_size() const noexcept;
     // constexpr void reserve(size_type new_cap);
-    // constexpr size_type capacity() const noexcept;
+    constexpr size_type capacity() const noexcept;
     // constexpr void shrink_to_fit();
     // // ============== modifiers ======================
     // constexpr void clear() noexcept;
@@ -149,7 +149,7 @@ class Vector
     Type* begin_;
     Type* end_;
     Type* capacity_;
-    static allocator_type allocator_;   // TODO: VERIFY name and sense of storing
+    // static allocator_type allocator_;   // TODO: VERIFY name and sense of storing
     // DefaultAllocator<Type> allocator;   // TODO: VERIFY name and sense of storing
 };
 
@@ -162,11 +162,11 @@ constexpr Vector<Type, Allocator>::Vector() noexcept(noexcept(Allocator()))
 }
 
 template <typename Type, typename Allocator>
-constexpr Vector<Type, Allocator>::Vector(const Allocator& alloc) noexcept
+constexpr Vector<Type, Allocator>::Vector([[maybe_unused]] const Allocator& alloc) noexcept
     : Vector()
 {
     // TODO: VERIFY
-    allocator_ = alloc;
+    // allocator_ = alloc;
 }
 // TODO: finish
 template <typename Type, typename Allocator>
@@ -177,9 +177,11 @@ constexpr Vector<Type, Allocator>::Vector(size_type count,
     , end_(std::next(begin_, count))
     , capacity_(end_)
 {
-    allocator_ = alloc;
+    // allocator_ = alloc;
     for (auto it = begin_; it != end_; ++it) {
-        allocator_.construct(it, value);
+        // TODO: VERIFY
+        //  allocator_.construct(it, value);
+        Allocator::construct(it, value);
     }
 }
 
@@ -187,7 +189,8 @@ template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::allocator_type
     Vector<Type, Allocator>::get_allocator() const noexcept
 {
-    return allocator_;
+    // return allocator_;
+    return Allocator {};
 }
 
 template <typename Type, typename Allocator>
@@ -196,7 +199,13 @@ constexpr Vector<Type, Allocator>::size_type
 {
     return std::distance(begin_, end_);
 }
-// TODO: VERIFY
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::size_type
+    Vector<Type, Allocator>::capacity() const noexcept
+{
+    return std::distance(begin_, capacity_);
+}
 
 template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::iterator
@@ -248,10 +257,13 @@ constexpr Vector<Type, Allocator>::~Vector()
     }
 
     for (auto it = begin_; it != end(); ++it) {
-        allocator_.destroy(it);
+        // TODO: VERIFY
+        //  allocator_.destroy(it);
+        Allocator::destroy(it);
     }
-
-    allocator_.deallocate(begin_);
+    // TODO: VERIFY
+    //  allocator_.deallocate(begin_);
+    Allocator::deallocate(begin_);
 }
 
 // TODO: VERIFY seems not needed. Due to default constructible allocator?
