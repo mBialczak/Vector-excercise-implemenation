@@ -259,7 +259,7 @@ TEST(ConstructorTakingCountValueAndAllocatorTests, shouldInitializeAllocatedElem
     }
 }
 
-TEST(ConstructorTakingCountValueAndAllocatorTests, shouldCorrectlyDeduceAllocatorTypeUsed)
+TEST(ConstructorTakingCountValueAndAllocatorTests, shouldCorrectlyDeduceAllocatorTypePassed)
 {
     Vector sut(5, 7, CustomTestingAllocator<int> {});
     Vector sutDefault { 20, 30 };
@@ -268,9 +268,6 @@ TEST(ConstructorTakingCountValueAndAllocatorTests, shouldCorrectlyDeduceAllocato
     EXPECT_THAT(sutDefault.get_allocator(), A<DefaultAllocator<int>>());
 }
 
-//  TODO: === tests for: constexpr explicit Vector(size_type count, const Allocator& alloc = Allocator() ===
-// TODO:
-// shouldCorrectlyDeduceAllocatorTypeUsed
 TEST(ConstructorTakingCountAndAllocatorTests, sizeShouldBeEqualToCountAndCapacityAfterConstruction)
 {
     const std::size_t sutIntSize { 1 };
@@ -290,7 +287,7 @@ TEST(ConstructorTakingCountAndAllocatorTests, sizeShouldBeEqualToCountAndCapacit
     EXPECT_EQ(sutString.capacity(), sutStringSize);
 }
 
-TEST(ConstructorTakingCountAndAllocatorTests, allElementsShouldHaveDefaultValure)
+TEST(ConstructorTakingCountAndAllocatorTests, allElementsShouldHaveDefaultValue)
 {
     const std::size_t sutIntSize { 1 };
     const std::size_t sutDoubleSize { 10 };
@@ -312,7 +309,7 @@ TEST(ConstructorTakingCountAndAllocatorTests, allElementsShouldHaveDefaultValure
     }
 }
 
-TEST(ConstructorTakingCountAndAllocatorTests, shouldCorrectlyDeduceAllocatorTypeUsed)
+TEST(ConstructorTakingCountAndAllocatorTests, shouldRememberAllocatorPassed)
 {
     Vector<int, CustomTestingAllocator<int>> sut(5, CustomTestingAllocator<int> {});
     Vector<int> sutDefault { 20 };
@@ -320,6 +317,60 @@ TEST(ConstructorTakingCountAndAllocatorTests, shouldCorrectlyDeduceAllocatorType
     EXPECT_THAT(sut.get_allocator(), A<CustomTestingAllocator<int>>());
     EXPECT_THAT(sutDefault.get_allocator(), A<DefaultAllocator<int>>());
 }
+
+// ==== tests for: constexpr vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
+
+TEST(ConstructorTakingInputIteratorsTests, sizeOfConstructedVectorShouldBeSameAsContainersOriginatingIterators)
+{
+    std::array<int, 4> originalContainer { 5, 10, 15, 20 };
+    std::array<std::string, 4> originalContainer2 { "First", "Second", "Third", "Fourth" };
+
+    Vector<int> sutInt { originalContainer.begin(), originalContainer.end(), DefaultAllocator<int> {} };
+    Vector<std::string> sutString { originalContainer2.begin(), originalContainer2.end() };
+
+    EXPECT_EQ(originalContainer.size(), sutInt.size());
+    EXPECT_EQ(originalContainer2.size(), sutString.size());
+}
+
+TEST(ConstructorTakingInputIteratorsTests, elementsStoredShouldBeEqualToElementsPassedThroughIterators)
+{
+    std::array<int, 4> originalContainer { 5, 10, 15, 20 };
+    std::array<std::string, 4> originalContainer2 { "First", "Second", "Third", "Fourth" };
+    auto iterOriginal { originalContainer.begin() };
+    auto iterOriginal2 { originalContainer2.begin() };
+
+    Vector<int> sutInt { originalContainer.begin(), originalContainer.end(), DefaultAllocator<int> {} };
+    auto iterSutInt { sutInt.begin() };
+    Vector<std::string> sutString { originalContainer2.begin(), originalContainer2.end() };
+    auto iterSutString { sutString.begin() };
+
+    while (iterOriginal != originalContainer.end() && iterSutInt != sutInt.end()) {
+        EXPECT_EQ(*iterSutInt, *iterOriginal);
+        ++iterOriginal;
+        ++iterSutInt;
+    }
+
+    while (iterOriginal2 != originalContainer2.end() && iterSutString != sutString.end()) {
+        EXPECT_EQ(*iterSutString, *iterOriginal2);
+        ++iterOriginal2;
+        ++iterSutString;
+    }
+}
+
+TEST(ConstructorTakingInputIteratorsTests, shouldRememberAllocatorPassed)
+{
+    std::array<int, 4> originalContainer { 5, 10, 15, 20 };
+    std::array<std::string, 4> originalContainer2 { "First", "Second", "Third", "Fourth" };
+
+    Vector<int, CustomTestingAllocator<int>> sutCustom { originalContainer.begin(),
+                                                         originalContainer.end(),
+                                                         CustomTestingAllocator<int> {} };
+    Vector<std::string> sutDefault { originalContainer2.begin(), originalContainer2.end() };
+
+    EXPECT_THAT(sutCustom.get_allocator(), A<CustomTestingAllocator<int>>());
+    EXPECT_THAT(sutDefault.get_allocator(), A<DefaultAllocator<std::string>>());
+}
+
 // TODO: =========== DESTRUCTOR TESTS ============
 // TEST(DestructorTests, shouldDeallocateMemoryThroughAllocator)
 // {

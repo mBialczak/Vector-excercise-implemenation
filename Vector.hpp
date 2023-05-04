@@ -29,7 +29,9 @@ class Vector
     constexpr explicit Vector(size_type count,
                               const Allocator& alloc = Allocator());
 
-    // constexpr vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
+    template <typename InputIt>
+    requires std::input_iterator<InputIt>
+    constexpr Vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
 
     // constexpr vector(const vector& other);
 
@@ -193,10 +195,28 @@ constexpr Vector<Type, Allocator>::Vector(size_type count,
 }
 
 template <typename Type, typename Allocator>
+template <typename InputIt>
+requires std::input_iterator<InputIt>
+constexpr Vector<Type, Allocator>::Vector(InputIt first,
+                                          InputIt last,
+                                          const Allocator& alloc)
+    : begin_(alloc.allocate(std::distance(first, last)))
+    , end_(std::next(begin_, std::distance(first, last)))
+    , capacity_(end_)
+{
+    auto it = begin_;
+    while (first != last) {
+        Allocator::construct(it, Type { *first });
+        ++it;
+        ++first;
+    }
+}
+
+template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::allocator_type
     Vector<Type, Allocator>::get_allocator() const noexcept
 {
-    // return allocator_;
+    // return allocator_; // TODO: REMOVE
     return Allocator {};
 }
 
