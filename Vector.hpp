@@ -33,7 +33,7 @@ class Vector
     requires std::input_iterator<InputIt>
     constexpr Vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
 
-    // constexpr vector(const vector& other);
+    // constexpr Vector(const vector& other);
 
     // constexpr vector(const vector& other, const Allocator& alloc);
 
@@ -41,8 +41,8 @@ class Vector
 
     // constexpr vector(vector&& other, const Allocator& alloc);
 
-    // constexpr vector(std::initializer_list<T> init,
-    //                  const Allocator& alloc = Allocator());
+    constexpr Vector(std::initializer_list<Type> init,
+                     const Allocator& alloc = Allocator());
 
     // ============= DESTRUCTOR ===================
     constexpr ~Vector();
@@ -159,6 +159,8 @@ constexpr Vector<Type, Allocator>::Vector() noexcept(noexcept(Allocator()))
     , end_(nullptr)
     , capacity_(nullptr)
 {
+    // TODO: REMOVE
+    std::cout << "DefaultConstructor called\n";
 }
 
 template <typename Type, typename Allocator>
@@ -167,6 +169,7 @@ constexpr Vector<Type, Allocator>::Vector([[maybe_unused]] const Allocator& allo
 {
     // TODO: VERIFY
     // allocator_ = alloc;
+    std::cout << "CONSTRUCTOR: ConstructorTakingOnlyAllocatorTests\n";
 }
 
 template <typename Type, typename Allocator>
@@ -177,6 +180,9 @@ constexpr Vector<Type, Allocator>::Vector(size_type count,
     , end_(std::next(begin_, count))
     , capacity_(end_)
 {
+    // TODO: REMOVE
+    std::cout << "CONSTRUCTOR: ConstructorTakingCountValueAndAllocatorTests\n";
+
     for (auto it = begin_; it != end_; ++it) {
         Allocator::construct(it, value);
     }
@@ -189,6 +195,9 @@ constexpr Vector<Type, Allocator>::Vector(size_type count,
     , end_(std::next(begin_, count))
     , capacity_(end_)
 {
+    // TODO: REMOVE
+    std::cout << "CONSTRUCTOR: ConstructorTakingCountAndAllocatorTests\n";
+
     for (auto it = begin_; it != end_; ++it) {
         Allocator::construct(it, Type {});
     }
@@ -204,11 +213,35 @@ constexpr Vector<Type, Allocator>::Vector(InputIt first,
     , end_(std::next(begin_, std::distance(first, last)))
     , capacity_(end_)
 {
-    auto it = begin_;
+    // TODO: REMOVE
+    std::cout << "CONSTRUCTOR: ConstructorTakingInputIteratorsTests\n";
+
+    auto iter = begin_;
     while (first != last) {
-        Allocator::construct(it, Type { *first });
-        ++it;
+        Allocator::construct(iter, Type { *first });
+        ++iter;
         ++first;
+    }
+}
+// TODO: finish
+// template <typename Type, typename Allocator>
+// constexpr Vector<Type, Allocator>::Vector(const vector& other)
+// {
+// }
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::Vector(std::initializer_list<Type> init,
+                                          const Allocator& alloc)
+    : begin_(alloc.allocate(std::distance(init.begin(), init.end())))
+    , end_(std::next(begin_, std::distance(init.begin(), init.end())))
+    , capacity_(end_)
+{
+    // TODO: REMOVE
+    std::cout << "CONSTRUCTOR: ConstructorTakingInitializerListTests\n";
+    for (auto iter = begin_;
+         const auto& el : init) {
+        Allocator::construct(iter, Type { el });
+        ++iter;
     }
 }
 
