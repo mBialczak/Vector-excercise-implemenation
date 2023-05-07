@@ -312,7 +312,7 @@ TEST(ConstructorTakingCountAndAllocatorTests, allElementsShouldHaveDefaultValue)
     }
 }
 
-TEST(ConstructorTakingCountAndAllocatorTests, shouldRememberAllocatorPassed)
+TEST(ConstructorTakingCountAndAllocatorTests, shouldRememberCorrectAllocator)
 {
     Vector<int, CustomTestingAllocator<int>> sut(5, CustomTestingAllocator<int> {});
     Vector<int> sutDefault(20);
@@ -347,6 +347,9 @@ TEST(ConstructorTakingInputIteratorsTests, elementsStoredShouldBeEqualToElements
     Vector<std::string> sutString { originalContainer2.begin(), originalContainer2.end() };
     auto iterSutString { sutString.begin() };
 
+    ASSERT_EQ(sutInt.size(), originalContainer.size());
+    ASSERT_EQ(sutString.size(), sutString.size());
+
     while (iterOriginal != originalContainer.end() && iterSutInt != sutInt.end()) {
         EXPECT_EQ(*iterSutInt, *iterOriginal);
         ++iterOriginal;
@@ -360,7 +363,7 @@ TEST(ConstructorTakingInputIteratorsTests, elementsStoredShouldBeEqualToElements
     }
 }
 
-TEST(ConstructorTakingInputIteratorsTests, shouldRememberAllocatorPassed)
+TEST(ConstructorTakingInputIteratorsTests, shouldRememberCorrectAllocator)
 {
     std::array<int, 4> originalContainer { 5, 10, 15, 20 };
     std::array<std::string, 4> originalContainer2 { "First", "Second", "Third", "Fourth" };
@@ -373,15 +376,6 @@ TEST(ConstructorTakingInputIteratorsTests, shouldRememberAllocatorPassed)
     EXPECT_THAT(sutCustom.get_allocator(), A<CustomTestingAllocator<int>>());
     EXPECT_THAT(sutDefault.get_allocator(), A<DefaultAllocator<std::string>>());
 }
-
-// TODO: === tests for:  constexpr Vector(const vector& other);
-// sizeAndCapacityOfCopyAndOriginalShouldBeEqual
-// iteratorsOfCopyShouldNotBeEqualToThoseFromOriginal
-// elementsInOriginalAndCopyShouldBeEqual
-// TEST(CopyConstructorTests, sizeAndCapacityOfCopyAndOriginalShouldBeEqual)
-//  {
-//     Vector sutIntOriginal
-// }
 
 // === tests for constexpr Vector(std::initializer_list<T> init, const Allocator& alloc = Allocator()); ===
 TEST(ConstructorTakingInitializerListTests, sizeAndCapacityShouldBeEqualToSizeOfInitializerList)
@@ -419,7 +413,7 @@ TEST(ConstructorTakingInitializerListTests, elementsShouldBeSameAsThoseInInIniti
     EXPECT_EQ(*beginSutString, stringElement2);
 }
 
-TEST(ConstructorTakingInitializerListTests, shouldRememberAllocatorPassed)
+TEST(ConstructorTakingInitializerListTests, shouldRememberCorrectAllocator)
 {
     std::string stringElement { "first element" };
     std::string stringElement2 { "second element" };
@@ -431,9 +425,207 @@ TEST(ConstructorTakingInitializerListTests, shouldRememberAllocatorPassed)
     EXPECT_THAT(sutString.get_allocator(), A<CustomTestingAllocator<std::string>>());
 }
 
+// TODO: === tests for:  constexpr Vector(const vector& other);
+// TODO: add size and capacity comparison for case where capacity is different then size
+TEST(CopyConstructorTests, sizeAndCapacityOfCopyAndOriginalShouldBeEqual)
+{
+    Vector originalInts { 5, 10, 15, 20 };
+    Vector<std::string> originalStrings { "five", "ten", "fifteen", "twenty" };
+
+    Vector sutInt { originalInts };
+    Vector sutString { originalStrings };
+
+    EXPECT_EQ(originalInts.size(), sutInt.size());
+    EXPECT_EQ(originalInts.capacity(), sutInt.capacity());
+    EXPECT_EQ(originalStrings.size(), sutString.size());
+    EXPECT_EQ(originalStrings.capacity(), sutString.capacity());
+}
+
+TEST(CopyConstructorTests, iteratorsOfCopyShouldNotBeEqualToThoseFromOriginal)
+{
+    Vector originalInts { 5, 10, 15, 20 };
+    Vector<std::string> originalStrings { "five", "ten", "fifteen", "twenty" };
+
+    Vector sutInt { originalInts };
+    Vector sutString { originalStrings };
+    // TODO: add reverse etc. when available
+    EXPECT_NE(originalInts.begin(), sutInt.begin());
+    EXPECT_NE(originalInts.cbegin(), sutInt.cbegin());
+    EXPECT_NE(originalInts.end(), sutInt.end());
+    EXPECT_NE(originalInts.cend(), sutInt.cend());
+    EXPECT_NE(originalStrings.begin(), sutString.end());
+    EXPECT_NE(originalStrings.cbegin(), sutString.cend());
+    EXPECT_NE(originalStrings.end(), sutString.end());
+    EXPECT_NE(originalStrings.cend(), sutString.cend());
+}
+
+TEST(CopyConstructorTests, elementsInOriginalAndCopyShouldBeEqual)
+{
+    Vector originalInts { 5, 10, 15, 20 };
+    Vector<std::string> originalStrings { "five", "ten", "fifteen", "twenty" };
+    auto originalIntIterator = originalInts.begin();
+    auto originalStringIterator = originalStrings.begin();
+
+    Vector sutInt { originalInts };
+    Vector sutString { originalStrings };
+    auto sutIntIterator = sutInt.begin();
+    auto sutStringsIterator = sutString.begin();
+
+    while (originalIntIterator != originalInts.end()) {
+        EXPECT_EQ(*originalIntIterator, *sutIntIterator);
+        ++originalIntIterator;
+        ++sutIntIterator;
+    }
+
+    while (originalStringIterator != originalStrings.end()) {
+        EXPECT_EQ(*originalStringIterator, *sutStringsIterator);
+        ++originalStringIterator;
+        ++sutStringsIterator;
+    }
+}
+
+// TODO: === tests for: constexpr Vector(const Vector& other, const Allocator& alloc);
+// TODO: add size and capacity comparison for case where capacity is different then size
+TEST(CopyConstructorWithAllocatorArgumentTests, shouldRememberCorrectAllocator)
+{
+    Vector intsDefaultAllocator { 5, 10, 15, 20 };
+    Vector<std::string> stringsDefaultAllocator { "five", "ten", "fifteen", "twenty" };
+
+    Vector sutIntsCustomAlloc { intsDefaultAllocator, CustomTestingAllocator<int> {} };
+    Vector sutStringsCustomAlloc { stringsDefaultAllocator, CustomTestingAllocator<std::string> {} };
+
+    EXPECT_THAT(intsDefaultAllocator.get_allocator(), A<DefaultAllocator<int>>());
+    EXPECT_THAT(stringsDefaultAllocator.get_allocator(), A<DefaultAllocator<std::string>>());
+
+    EXPECT_THAT(sutIntsCustomAlloc.get_allocator(), A<CustomTestingAllocator<int>>());
+    EXPECT_THAT(sutStringsCustomAlloc.get_allocator(), A<CustomTestingAllocator<std::string>>());
+}
+
+TEST(CopyConstructorWithAllocatorArgumentTests, sizeAndCapacityOfCopyAndOriginalShouldBeEqual)
+{
+    Vector intsDefaultAllocator { 5, 10, 15, 20 };
+    Vector<std::string> stringsDefaultAllocator { "five", "ten", "fifteen", "twenty", "twenty-five" };
+
+    Vector sutIntsCustomAlloc { intsDefaultAllocator, CustomTestingAllocator<int> {} };
+    Vector sutStringsCustomAlloc { stringsDefaultAllocator, CustomTestingAllocator<std::string> {} };
+
+    EXPECT_EQ(intsDefaultAllocator.size(), sutIntsCustomAlloc.size());
+    EXPECT_EQ(intsDefaultAllocator.capacity(), sutIntsCustomAlloc.capacity());
+
+    EXPECT_EQ(stringsDefaultAllocator.size(), sutStringsCustomAlloc.size());
+    EXPECT_EQ(stringsDefaultAllocator.capacity(), sutStringsCustomAlloc.capacity());
+}
+
+TEST(CopyConstructorWithAllocatorArgumentTests, iteratorsOfCopyShouldNotBeEqualToThoseFromOriginal)
+{
+    Vector intsDefaultAllocator { 5, 10, 15, 20 };
+    Vector<std::string> stringsDefaultAllocator { "five", "ten", "fifteen", "twenty", "twenty-five" };
+
+    Vector sutIntsCustomAlloc { intsDefaultAllocator, CustomTestingAllocator<int> {} };
+    Vector sutStringsCustomAlloc { stringsDefaultAllocator, CustomTestingAllocator<std::string> {} };
+
+    // TODO: add reverse etc. when available
+    EXPECT_NE(intsDefaultAllocator.begin(), sutIntsCustomAlloc.begin());
+    EXPECT_NE(intsDefaultAllocator.cbegin(), sutIntsCustomAlloc.cbegin());
+    EXPECT_NE(intsDefaultAllocator.end(), sutIntsCustomAlloc.end());
+
+    EXPECT_NE(stringsDefaultAllocator.begin(), sutStringsCustomAlloc.begin());
+    EXPECT_NE(stringsDefaultAllocator.cbegin(), sutStringsCustomAlloc.cbegin());
+    EXPECT_NE(stringsDefaultAllocator.end(), sutStringsCustomAlloc.end());
+}
+
+TEST(CopyConstructorWithAllocatorArgumentTests, elementsInOriginalAndCopyShouldBeEqual)
+{
+    Vector intsDefaultAllocator { 5, 10, 15, 20 };
+    auto intsDefaultIterator { intsDefaultAllocator.begin() };
+    Vector<std::string> stringsDefaultAllocator { "five", "ten", "fifteen", "twenty", "twenty-five" };
+    auto stringsDefaultIterator { stringsDefaultAllocator.begin() };
+
+    Vector sutIntsCustomAlloc { intsDefaultAllocator, CustomTestingAllocator<int> {} };
+    auto sutIntsCustomIterator { sutIntsCustomAlloc.begin() };
+    Vector sutStringsCustomAlloc { stringsDefaultAllocator, CustomTestingAllocator<std::string> {} };
+    auto sutStringsIterator { sutStringsCustomAlloc.begin() };
+
+    while (intsDefaultIterator != intsDefaultAllocator.end()) {
+        EXPECT_EQ(*intsDefaultIterator, *sutIntsCustomIterator);
+        ++intsDefaultIterator;
+        ++sutIntsCustomIterator;
+    }
+
+    while (stringsDefaultIterator != stringsDefaultAllocator.end()) {
+        EXPECT_EQ(*stringsDefaultIterator, *sutStringsIterator);
+        ++stringsDefaultIterator;
+        ++sutStringsIterator;
+    }
+}
+
+// TODO:  === test for: constexpr Vector(Vector&& other) noexcept;
+TEST(MoveConstructorTests, elementsInConstructedVectorShouldBeEqualToSourceVectorsElements)
+{
+    std::array intsToCompare = { 5, 10, 15, 20, 25 };
+    Vector<int> sourceIntsSut(intsToCompare.begin(), intsToCompare.end());
+    std::array stringsToCompare = { "five", "ten", "fifteen", "twenty", "twenty-five" };
+    Vector<std::string> sourceStringsSut(stringsToCompare.begin(), stringsToCompare.end());
+
+    Vector intsMovedSut { std::move(sourceIntsSut) };
+    Vector stringsMovedSut { std::move(sourceStringsSut) };
+
+    for (auto toCompareIter = intsToCompare.begin();
+         const auto& el : intsMovedSut) {
+        EXPECT_EQ(el, *toCompareIter);
+        ++toCompareIter;
+    }
+
+    for (auto toCompareIter = stringsToCompare.begin();
+         const auto& el : stringsMovedSut) {
+        EXPECT_EQ(el, *toCompareIter);
+        ++toCompareIter;
+    }
+}
+
+TEST(MoveConstructorTests, internalPointersShouldBeNullptrInMovedVector)
+{
+    Vector<int> sourceIntsSut { 5, 10, 15, 20, 25 };
+    Vector<std::string> sourceStringsSut { "five", "ten", "fifteen", "twenty", "twenty-five" };
+    ASSERT_NE(sourceIntsSut.begin(), nullptr);
+    ASSERT_NE(sourceIntsSut.end(), nullptr);
+    ASSERT_NE(sourceStringsSut.begin(), nullptr);
+    ASSERT_NE(sourceStringsSut.end(), nullptr);
+
+    Vector movedIntsSut(std::move(sourceIntsSut));
+    Vector movedStringsSut(std::move(sourceStringsSut));
+
+    EXPECT_EQ(sourceIntsSut.begin(), nullptr);
+    EXPECT_EQ(sourceIntsSut.end(), nullptr);
+    EXPECT_EQ(sourceStringsSut.begin(), nullptr);
+    EXPECT_EQ(sourceStringsSut.end(), nullptr);
+}
+
+TEST(MoveConstructorTests, internalPointersInConstructedVectorShouldBeEqualToThoseInSourceBeforeMoving)
+{
+    Vector<int> sourceIntsSut { 5, 10, 15, 20, 25 };
+    auto beginSourceIntsCopy = sourceIntsSut.begin();
+    auto endSourceIntsCopy = sourceIntsSut.end();
+    Vector<std::string> sourceStringsSut { "five", "ten", "fifteen", "twenty", "twenty-five" };
+    auto beginSourceStringsCopy = sourceStringsSut.begin();
+    auto endSourceStringsCopy = sourceStringsSut.end();
+
+    ASSERT_NE(beginSourceIntsCopy, nullptr);
+    ASSERT_NE(endSourceIntsCopy, nullptr);
+    ASSERT_NE(beginSourceStringsCopy, nullptr);
+    ASSERT_NE(endSourceStringsCopy, nullptr);
+
+    Vector sutIntsMoved(std::move(sourceIntsSut));
+    Vector sutStringsMoved(std::move(sourceStringsSut));
+
+    ASSERT_EQ(sutIntsMoved.begin(), beginSourceIntsCopy);
+    ASSERT_EQ(sutIntsMoved.end(), endSourceIntsCopy);
+    ASSERT_EQ(sutStringsMoved.begin(), beginSourceStringsCopy);
+    ASSERT_EQ(sutStringsMoved.end(), endSourceStringsCopy);
+}
+
 // TODO: =========== DESTRUCTOR TESTS ============
 // TEST(DestructorTests, sizeAndCapacityOfCopyAndOriginalShouldBeEqual)
-
 // {
 // }
 

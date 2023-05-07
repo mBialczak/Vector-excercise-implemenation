@@ -23,6 +23,7 @@ class Vector
     //  ============= CONSTRUCTOR ================
     constexpr Vector() noexcept(noexcept(Allocator()));
     constexpr explicit Vector(const Allocator& alloc) noexcept;
+
     constexpr Vector(size_type count,
                      const Type& value,
                      const Allocator& alloc = Allocator());
@@ -33,16 +34,17 @@ class Vector
     requires std::input_iterator<InputIt>
     constexpr Vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
 
-    // constexpr Vector(const vector& other);
-
-    // constexpr vector(const vector& other, const Allocator& alloc);
-
-    // constexpr vector(vector&& other) noexcept;
-
-    // constexpr vector(vector&& other, const Allocator& alloc);
-
     constexpr Vector(std::initializer_list<Type> init,
                      const Allocator& alloc = Allocator());
+
+    constexpr Vector(const Vector& other);
+
+    template <typename OtherAllocator>
+    constexpr Vector(const Vector<Type, OtherAllocator>& other, const Allocator& alloc);
+
+    constexpr Vector(Vector&& other) noexcept;
+
+    // constexpr vector(vector&& other, const Allocator& alloc);
 
     // ============= DESTRUCTOR ===================
     constexpr ~Vector();
@@ -169,7 +171,7 @@ constexpr Vector<Type, Allocator>::Vector([[maybe_unused]] const Allocator& allo
 {
     // TODO: VERIFY
     // allocator_ = alloc;
-    std::cout << "CONSTRUCTOR: ConstructorTakingOnlyAllocatorTests\n";
+    std::cout << "CONSTRUCTOR: ConstructorTakingOnlyAllocator\n";
 }
 
 template <typename Type, typename Allocator>
@@ -181,7 +183,7 @@ constexpr Vector<Type, Allocator>::Vector(size_type count,
     , capacity_(end_)
 {
     // TODO: REMOVE
-    std::cout << "CONSTRUCTOR: ConstructorTakingCountValueAndAllocatorTests\n";
+    std::cout << "CONSTRUCTOR: ConstructorTakingCountValueAndAllocator\n";
 
     for (auto it = begin_; it != end_; ++it) {
         Allocator::construct(it, value);
@@ -196,16 +198,17 @@ constexpr Vector<Type, Allocator>::Vector(size_type count,
     , capacity_(end_)
 {
     // TODO: REMOVE
-    std::cout << "CONSTRUCTOR: ConstructorTakingCountAndAllocatorTests\n";
+    std::cout << "CONSTRUCTOR: ConstructorTakingCountAndAllocator\n";
 
     for (auto it = begin_; it != end_; ++it) {
         Allocator::construct(it, Type {});
     }
 }
-
+// TODO: VERIFY
 template <typename Type, typename Allocator>
 template <typename InputIt>
 requires std::input_iterator<InputIt>
+// requires std::iterator<InputIt>
 constexpr Vector<Type, Allocator>::Vector(InputIt first,
                                           InputIt last,
                                           const Allocator& alloc)
@@ -214,7 +217,7 @@ constexpr Vector<Type, Allocator>::Vector(InputIt first,
     , capacity_(end_)
 {
     // TODO: REMOVE
-    std::cout << "CONSTRUCTOR: ConstructorTakingInputIteratorsTests\n";
+    std::cout << "CONSTRUCTOR: ConstructorTakingInputIterators\n";
 
     auto iter = begin_;
     while (first != last) {
@@ -223,11 +226,6 @@ constexpr Vector<Type, Allocator>::Vector(InputIt first,
         ++first;
     }
 }
-// TODO: finish
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::Vector(const vector& other)
-// {
-// }
 
 template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::Vector(std::initializer_list<Type> init,
@@ -237,12 +235,56 @@ constexpr Vector<Type, Allocator>::Vector(std::initializer_list<Type> init,
     , capacity_(end_)
 {
     // TODO: REMOVE
-    std::cout << "CONSTRUCTOR: ConstructorTakingInitializerListTests\n";
+    std::cout << "CONSTRUCTOR: ConstructorTakingInitializerList\n";
     for (auto iter = begin_;
          const auto& el : init) {
         Allocator::construct(iter, Type { el });
         ++iter;
     }
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::Vector(const Vector& other)
+    : begin_(Allocator::allocate(other.capacity()))
+    , end_(std::next(begin_, other.size()))
+    , capacity_(std::next(begin_, other.capacity()))
+{
+    // TODO: REMOVE
+    std::cout << "CONSTRUCTOR: CopyConstructor\n";
+    for (auto iter = begin_;
+         const auto& el : other) {
+        Allocator::construct(iter, Type { el });
+        ++iter;
+    }
+}
+
+template <typename Type, typename Allocator>
+template <typename OtherAllocator>
+constexpr Vector<Type, Allocator>::Vector(const Vector<Type, OtherAllocator>& other, const Allocator& alloc)
+    // TODO: VERIFY
+    : begin_(alloc.allocate(other.capacity()))
+    , end_(std::next(begin_, other.size()))
+    , capacity_(std::next(begin_, other.capacity()))
+{
+    // TODO: REMOVE
+    std::cout << "CONSTRUCTOR: CopyConstructorWithAllocatorArgument\n";
+    for (auto iter = begin_;
+         const auto& el : other) {
+        Allocator::construct(iter, Type { el });
+        ++iter;
+    }
+}
+// TODO: VERIFY
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::Vector(Vector&& other) noexcept
+    : begin_(other.begin_)
+    , end_(other.end())
+    , capacity_(other.end())
+{
+    std::cout << "CONSTRUCTOR: MoveConstructor\n";
+    other.begin_ = nullptr;
+    other.end_ = nullptr;
+    other.capacity_ = nullptr;
 }
 
 template <typename Type, typename Allocator>
