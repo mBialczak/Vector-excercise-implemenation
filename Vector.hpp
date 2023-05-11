@@ -44,9 +44,9 @@ class Vector
 
     constexpr Vector(Vector&& other) noexcept;
 
-    // constexpr vector(vector&& other, const Allocator& alloc);
+    template <typename OtherAllocator>
+    constexpr Vector(Vector<Type, OtherAllocator>&& other, const Allocator& alloc);
 
-    // ============= DESTRUCTOR ===================
     constexpr ~Vector();
     // TODO: VERIFY end
 
@@ -145,6 +145,10 @@ class Vector
     // template <class T, class Alloc>
     // constexpr operator<=>(const std::vector<T, Alloc>& lhs,
     //                       const std::vector<T, Alloc>& rhs);
+
+    template <typename OtherType, typename OtherAllocator>
+    requires std::is_convertible_v<OtherType, Type>
+    friend class Vector;
 
   private:
     // TODO: VERIFY
@@ -274,7 +278,7 @@ constexpr Vector<Type, Allocator>::Vector(const Vector<Type, OtherAllocator>& ot
         ++iter;
     }
 }
-// TODO: VERIFY
+
 template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::Vector(Vector&& other) noexcept
     : begin_(other.begin_)
@@ -285,6 +289,37 @@ constexpr Vector<Type, Allocator>::Vector(Vector&& other) noexcept
     other.begin_ = nullptr;
     other.end_ = nullptr;
     other.capacity_ = nullptr;
+}
+
+template <typename Type, typename Allocator>
+template <typename OtherAllocator>
+constexpr Vector<Type, Allocator>::Vector(Vector<Type, OtherAllocator>&& other,
+                                          [[maybe_unused]] const Allocator& alloc)
+    : begin_(other.begin_)
+    , end_(other.end())
+    , capacity_(other.end())
+{
+    std::cout << "CONSTRUCTOR: MoveConstructorWithAllocatorArgument\n";
+    other.begin_ = nullptr;
+    other.end_ = nullptr;
+    other.capacity_ = nullptr;
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::~Vector()
+{
+    if (begin_ == iterator {}) {
+        return;
+    }
+
+    for (auto it = begin_; it != end(); ++it) {
+        // TODO: VERIFY
+        //  allocator_.destroy(it);
+        Allocator::destroy(it);
+    }
+    // TODO: VERIFY
+    //  allocator_.deallocate(begin_);
+    Allocator::deallocate(begin_);
 }
 
 template <typename Type, typename Allocator>
@@ -349,23 +384,6 @@ constexpr Vector<Type, Allocator>::const_iterator
     Vector<Type, Allocator>::cend() const noexcept
 {
     return end_;
-}
-
-template <typename Type, typename Allocator>
-constexpr Vector<Type, Allocator>::~Vector()
-{
-    if (begin_ == iterator {}) {
-        return;
-    }
-
-    for (auto it = begin_; it != end(); ++it) {
-        // TODO: VERIFY
-        //  allocator_.destroy(it);
-        Allocator::destroy(it);
-    }
-    // TODO: VERIFY
-    //  allocator_.deallocate(begin_);
-    Allocator::deallocate(begin_);
 }
 
 // TODO: VERIFY seems not needed. Due to default constructible allocator?

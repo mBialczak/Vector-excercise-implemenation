@@ -8,16 +8,45 @@ namespace my::test {
 
 using testing::A;
 using testing::An;
+using testing::NiceMock;
+// TODO: VERIFY
+using testing::Return;
 
 // TODO: VERIFY
+template <typename Type>
 struct AllocatorCallDetectorMock
 {
     virtual ~AllocatorCallDetectorMock() = default;
-    // MOCK_METHOD(void, detectDestructorCall, ()); // TODO: REMOVE
     MOCK_METHOD(void, detectDeallocateCall, ());
+    MOCK_METHOD(void, detectDestroyCall, ( Type* ) );
 };
+
+// TODO: VERIFY and comment most likely
+// template <typename Type>
+// struct DummyCallDetectorBase
+// {
+//     virtual ~DummyCallDetectorBase() = default;
+//     virtual void detectDeallocateCall() = 0;
+//     virtual void detectDestroyCall(Type*) = 0;
+// };
+// TODO: VERIFY
+//  template <typename Type>
+//  struct AllocatorCallDetectorMock
+// template <typename Type>
+// struct AllocatorCallDetectorMock : public DummyCallDetectorBase<Type>
+// {
+//     AllocatorCallDetectorMock()
+//     {
+//         ON_CALL(*this, detectDeallocateCall()).WillByDefault(Return());
+//         ON_CALL(*this, detectDestroyCall(An<int*>())).WillByDefault(Return());
+//     }
+//     virtual ~AllocatorCallDetectorMock() override = default;
+//     // MOCK_METHOD(void, detectDestructorCall, ()); // TODO: REMOVE
+//     MOCK_METHOD(void, detectDeallocateCall, (), (override));
+//     MOCK_METHOD(void, detectDestroyCall, ( Type* ), (override));
+// };
 template <typename Type>
-// TODO: make ome explenation notes;
+// TODO: make some explenation notes;
 struct CustomTestingAllocator
 {
     using size_type = std::size_t;
@@ -44,18 +73,21 @@ struct CustomTestingAllocator
     static void destroy([[maybe_unused]] Type* ptr)
     {
         ptr->~Type();
+        if (callDetectionHelper_) {
+            callDetectionHelper_->detectDestroyCall(ptr);
+        }
     }
     // TODO: VERIFY
-    void setCallDetectionHelper(AllocatorCallDetectorMock* detectionHelper)
+    void setCallDetectionHelper(AllocatorCallDetectorMock<Type>* detectionHelper)
     {
         callDetectionHelper_ = detectionHelper;
     }
     // TODO: VERIFY
-    static AllocatorCallDetectorMock* callDetectionHelper_;
+    static AllocatorCallDetectorMock<Type>* callDetectionHelper_;
 };
 // TODO: VERIFY if needed
 template <typename Type>
-AllocatorCallDetectorMock* CustomTestingAllocator<Type>::callDetectionHelper_ { nullptr };
+AllocatorCallDetectorMock<Type>* CustomTestingAllocator<Type>::callDetectionHelper_ { nullptr };
 
 // TODO: VERIFY if needed
 struct DummyWithDestructionDetection
@@ -559,7 +591,7 @@ TEST(CopyConstructorWithAllocatorArgumentTests, elementsInOriginalAndCopyShouldB
     }
 }
 
-// TODO:  === test for: constexpr Vector(Vector&& other) noexcept;
+//  === test for: constexpr Vector(Vector&& other) noexcept;
 TEST(MoveConstructorTests, elementsInConstructedVectorShouldBeEqualToSourceVectorsElements)
 {
     std::array intsToCompare = { 5, 10, 15, 20, 25 };
@@ -624,13 +656,117 @@ TEST(MoveConstructorTests, internalPointersInConstructedVectorShouldBeEqualToTho
     ASSERT_EQ(sutStringsMoved.end(), endSourceStringsCopy);
 }
 
-// TODO: =========== DESTRUCTOR TESTS ============
-// TEST(DestructorTests, sizeAndCapacityOfCopyAndOriginalShouldBeEqual)
-// {
-// }
+// === tests for:  constexpr Vector(Vector&& other, const Allocator& alloc);
+TEST(MoveConstructorWithAllocatorArgumentTests, shouldRememberCorrectAllocator)
+{
+    Vector intsDefaultAllocator { 5, 10, 15, 20 };
+    Vector<std::string> stringsDefaultAllocator { "five", "ten", "fifteen", "twenty" };
 
-// TEST(DestructorTests, shouldCallDestructorOnElmentsThroughAllocator)
+    Vector sutIntsMovedCustomAlloc { std::move(intsDefaultAllocator), CustomTestingAllocator<int> {} };
+    Vector sutStringsMovedCustomAlloc { std::move(stringsDefaultAllocator), CustomTestingAllocator<std::string> {} };
+
+    EXPECT_THAT(intsDefaultAllocator.get_allocator(), A<DefaultAllocator<int>>());
+    EXPECT_THAT(stringsDefaultAllocator.get_allocator(), A<DefaultAllocator<std::string>>());
+
+    EXPECT_THAT(sutIntsMovedCustomAlloc.get_allocator(), A<CustomTestingAllocator<int>>());
+    EXPECT_THAT(sutStringsMovedCustomAlloc.get_allocator(), A<CustomTestingAllocator<std::string>>());
+}
+
+TEST(MoveConstructorWithAllocatorArgumentTests, elementsInConstructedVectorShouldBeEqualToSourceVectorsElements)
+{
+    std::array intsToCompare = { 5, 10, 15, 20, 25 };
+    Vector<int> sourceIntsSut(intsToCompare.begin(), intsToCompare.end());
+    std::array stringsToCompare = { "five", "ten", "fifteen", "twenty", "twenty-five" };
+    Vector<std::string> sourceStringsSut(stringsToCompare.begin(), stringsToCompare.end());
+
+    Vector intsMovedSut { std::move(sourceIntsSut), CustomTestingAllocator<int> {} };
+    Vector stringsMovedSut { std::move(sourceStringsSut), CustomTestingAllocator<std::string> {} };
+
+    for (auto toCompareIter = intsToCompare.begin();
+         const auto& el : intsMovedSut) {
+        EXPECT_EQ(el, *toCompareIter);
+        ++toCompareIter;
+    }
+
+    for (auto toCompareIter = stringsToCompare.begin();
+         const auto& el : stringsMovedSut) {
+        EXPECT_EQ(el, *toCompareIter);
+        ++toCompareIter;
+    }
+}
+
+TEST(MoveConstructorWithAllocatorArgumentTests, internalPointersShouldBeNullptrInMovedVector)
+{
+    Vector<int> sourceIntsSut { 5, 10, 15, 20, 25 };
+    Vector<std::string> sourceStringsSut { "five", "ten", "fifteen", "twenty", "twenty-five" };
+    ASSERT_NE(sourceIntsSut.begin(), nullptr);
+    ASSERT_NE(sourceIntsSut.end(), nullptr);
+    ASSERT_NE(sourceStringsSut.begin(), nullptr);
+    ASSERT_NE(sourceStringsSut.end(), nullptr);
+
+    Vector movedIntsSut(std::move(sourceIntsSut), CustomTestingAllocator<int> {});
+    Vector movedStringsSut(std::move(sourceStringsSut), CustomTestingAllocator<std::string> {});
+
+    EXPECT_EQ(sourceIntsSut.begin(), nullptr);
+    EXPECT_EQ(sourceIntsSut.end(), nullptr);
+    EXPECT_EQ(sourceStringsSut.begin(), nullptr);
+    EXPECT_EQ(sourceStringsSut.end(), nullptr);
+}
+
+TEST(MoveConstructorWithAllocatorArgumentTests,
+     internalPointersInConstructedVectorShouldBeEqualToThoseInSourceBeforeMoving)
+{
+    Vector<int> sourceIntsSut { 5, 10, 15, 20, 25 };
+    auto beginSourceIntsCopy = sourceIntsSut.begin();
+    auto endSourceIntsCopy = sourceIntsSut.end();
+    Vector<std::string> sourceStringsSut { "five", "ten", "fifteen", "twenty", "twenty-five" };
+    auto beginSourceStringsCopy = sourceStringsSut.begin();
+    auto endSourceStringsCopy = sourceStringsSut.end();
+
+    ASSERT_NE(beginSourceIntsCopy, nullptr);
+    ASSERT_NE(endSourceIntsCopy, nullptr);
+    ASSERT_NE(beginSourceStringsCopy, nullptr);
+    ASSERT_NE(endSourceStringsCopy, nullptr);
+
+    Vector sutIntsMoved(std::move(sourceIntsSut), CustomTestingAllocator<int> {});
+    Vector sutStringsMoved(std::move(sourceStringsSut), CustomTestingAllocator<std::string> {});
+
+    ASSERT_EQ(sutIntsMoved.begin(), beginSourceIntsCopy);
+    ASSERT_EQ(sutIntsMoved.end(), endSourceIntsCopy);
+    ASSERT_EQ(sutStringsMoved.begin(), beginSourceStringsCopy);
+    ASSERT_EQ(sutStringsMoved.end(), endSourceStringsCopy);
+}
+
+// TODO: =========== DESTRUCTOR TESTS ============
+
+TEST(DestructorTests, shouldCallDeallocate)
+{
+    AllocatorCallDetectorMock<int> callDetector;
+    CustomTestingAllocator<int> intAllocator;
+    intAllocator.setCallDetectionHelper(&callDetector);
+
+    Vector sourceIntsSut({ 5, 10, 15, 20, 25 }, intAllocator);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall());
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+        .Times(sourceIntsSut.size());
+}
+
+TEST(DestructorTests, shouldCallDestroyForEachElement)
+{
+    AllocatorCallDetectorMock<int> callDetector;
+    CustomTestingAllocator<int> intAllocator;
+    intAllocator.setCallDetectionHelper(&callDetector);
+
+    Vector sourceIntsSut({ 5, 10, 15, 20, 25 }, intAllocator);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall());
+    EXPECT_CALL(*intAllocator.callDetectionHelper_,
+                detectDestroyCall(An<int*>()))
+        .Times(sourceIntsSut.size());
+}
+
+// TEST(DestructorTests, shouldCallAllocatorsDestroyForEachElement)
 // {
+// AllocatorCallDetectorMock
 // }
 
 // TODO: ============== size() tests ============
