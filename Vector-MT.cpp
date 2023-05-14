@@ -10,6 +10,8 @@ using testing::A;
 using testing::An;
 using testing::NiceMock;
 // TODO: VERIFY
+using testing::_;
+using testing::AnyNumber;
 using testing::Return;
 
 // TODO: VERIFY
@@ -17,6 +19,9 @@ template <typename Type>
 struct AllocatorCallDetectorMock
 {
     virtual ~AllocatorCallDetectorMock() = default;
+    MOCK_METHOD(Type*, detectAllocateCall, (std::size_t));
+    // TODO: VERIFY
+    MOCK_METHOD(void, detectConstructCall, (Type*, Type));
     MOCK_METHOD(void, detectDeallocateCall, ());
     MOCK_METHOD(void, detectDestroyCall, ( Type* ) );
 };
@@ -51,8 +56,17 @@ struct CustomTestingAllocator
 {
     using size_type = std::size_t;
 
+    // TODO: VERIFY
+    ~CustomTestingAllocator()
+    {
+        callDetectionHelper_ = nullptr;
+    }
+
     [[nodiscard]] static constexpr Type* allocate(size_type n)
     {
+        if (callDetectionHelper_) {
+            callDetectionHelper_->detectAllocateCall(n);
+        }
         return static_cast<Type*>(::operator new(n * sizeof(Type)));
     }
 
@@ -68,6 +82,10 @@ struct CustomTestingAllocator
     static void construct([[maybe_unused]] Type* ptr, Args&&... args)
     {
         ::new (( void* ) ptr) Type(std::forward<Args>(args)...);
+
+        if (callDetectionHelper_) {
+            callDetectionHelper_->detectConstructCall(ptr, args...);
+        }
     }
 
     static void destroy([[maybe_unused]] Type* ptr)
@@ -299,6 +317,24 @@ TEST(ConstructorTakingCountValueAndAllocatorTests, shouldCorrectlyDeduceAllocato
 
     EXPECT_THAT(sut.get_allocator(), A<CustomTestingAllocator<int>>());
     EXPECT_THAT(sutDefault.get_allocator(), A<DefaultAllocator<int>>());
+}
+// TODO: VERIFY
+TEST(ConstructorTakingCountValueAndAllocatorTests, shouldCallAllocateAndConstruct)
+{
+    AllocatorCallDetectorMock<int> callDetector;
+    CustomTestingAllocator<int> intAllocator;
+    intAllocator.setCallDetectionHelper(&callDetector);
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(4);
+
+    Vector sut { 4, 5, intAllocator };
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(AnyNumber());
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+        .Times(AnyNumber());
 }
 
 // === tests for constexpr explicit Vector(size_type count, const Allocator& alloc = Allocator());
@@ -744,6 +780,11 @@ TEST(DestructorTests, shouldCallDeallocate)
     AllocatorCallDetectorMock<int> callDetector;
     CustomTestingAllocator<int> intAllocator;
     intAllocator.setCallDetectionHelper(&callDetector);
+    // TODO: VERIFY
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(5);
 
     Vector sourceIntsSut({ 5, 10, 15, 20, 25 }, intAllocator);
     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall());
@@ -756,6 +797,11 @@ TEST(DestructorTests, shouldCallDestroyForEachElement)
     AllocatorCallDetectorMock<int> callDetector;
     CustomTestingAllocator<int> intAllocator;
     intAllocator.setCallDetectionHelper(&callDetector);
+    // TODO: VERIFY
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(5);
 
     Vector sourceIntsSut({ 5, 10, 15, 20, 25 }, intAllocator);
     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall());
