@@ -318,7 +318,7 @@ TEST(ConstructorTakingCountValueAndAllocatorTests, shouldCorrectlyDeduceAllocato
     EXPECT_THAT(sut.get_allocator(), A<CustomTestingAllocator<int>>());
     EXPECT_THAT(sutDefault.get_allocator(), A<DefaultAllocator<int>>());
 }
-// TODO: VERIFY
+
 TEST(ConstructorTakingCountValueAndAllocatorTests, shouldCallAllocateAndConstruct)
 {
     AllocatorCallDetectorMock<int> callDetector;
@@ -389,6 +389,24 @@ TEST(ConstructorTakingCountAndAllocatorTests, shouldRememberCorrectAllocator)
     EXPECT_THAT(sutDefault.get_allocator(), A<DefaultAllocator<int>>());
 }
 
+TEST(ConstructorTakingCountAndAllocatorTests, shouldCallAllocateAndConstruct)
+{
+    AllocatorCallDetectorMock<std::string> callDetector;
+    CustomTestingAllocator<std::string> stringAllocator;
+    stringAllocator.setCallDetectionHelper(&callDetector);
+
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectConstructCall(An<std::string*>(), An<std::string>()))
+        .Times(4);
+
+    Vector<std::string, CustomTestingAllocator<std::string>> sut { 4, stringAllocator };
+
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectDeallocateCall()).Times(AnyNumber());
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectDestroyCall(An<std::string*>()))
+        .Times(AnyNumber());
+}
+
 // ==== tests for: constexpr vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
 
 TEST(ConstructorTakingInputIteratorsTests, sizeOfConstructedVectorShouldBeSameAsContainersOriginatingIterators)
@@ -445,6 +463,27 @@ TEST(ConstructorTakingInputIteratorsTests, shouldRememberCorrectAllocator)
     EXPECT_THAT(sutDefault.get_allocator(), A<DefaultAllocator<std::string>>());
 }
 
+TEST(ConstructorTakingInputIteratorsTests, shouldCallAllocateAndConstruct)
+{
+    AllocatorCallDetectorMock<std::string> callDetector;
+    CustomTestingAllocator<std::string> stringAllocator;
+    stringAllocator.setCallDetectionHelper(&callDetector);
+    std::array<std::string, 4> originalContainer { "First", "Second", "Third", "Fourth" };
+
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectConstructCall(An<std::string*>(), An<std::string>()))
+        .Times(4);
+
+    Vector<std::string, CustomTestingAllocator<std::string>> sutCustom { originalContainer.begin(),
+                                                                         originalContainer.end(),
+                                                                         stringAllocator };
+
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectDeallocateCall()).Times(AnyNumber());
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectDestroyCall(An<std::string*>()))
+        .Times(AnyNumber());
+}
+
 // === tests for constexpr Vector(std::initializer_list<T> init, const Allocator& alloc = Allocator()); ===
 TEST(ConstructorTakingInitializerListTests, sizeAndCapacityShouldBeEqualToSizeOfInitializerList)
 {
@@ -493,6 +532,27 @@ TEST(ConstructorTakingInitializerListTests, shouldRememberCorrectAllocator)
     EXPECT_THAT(sutString.get_allocator(), A<CustomTestingAllocator<std::string>>());
 }
 
+TEST(ConstructorTakingInitializerListTests, shouldCallAllocateAndConstruct)
+{
+    AllocatorCallDetectorMock<std::string> callDetector;
+    CustomTestingAllocator<std::string> stringAllocator;
+    stringAllocator.setCallDetectionHelper(&callDetector);
+
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectConstructCall(An<std::string*>(), An<std::string>()))
+        .Times(4);
+
+    Vector sut({ std::string { "First" },
+                 std::string { "Second" },
+                 std::string { "Third" },
+                 std::string { "Fourth" } },
+               stringAllocator);
+
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectDeallocateCall()).Times(AnyNumber());
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectDestroyCall(An<std::string*>()))
+        .Times(AnyNumber());
+}
 // TODO: === tests for:  constexpr Vector(const vector& other);
 // TODO: add size and capacity comparison for case where capacity is different then size
 TEST(CopyConstructorTests, sizeAndCapacityOfCopyAndOriginalShouldBeEqual)
@@ -625,6 +685,29 @@ TEST(CopyConstructorWithAllocatorArgumentTests, elementsInOriginalAndCopyShouldB
         ++stringsDefaultIterator;
         ++sutStringsIterator;
     }
+}
+
+TEST(CopyConstructorWithAllocatorArgumentTests, shouldCallAllocateAndConstruct)
+{
+    AllocatorCallDetectorMock<std::string> callDetector;
+    CustomTestingAllocator<std::string> stringAllocator;
+    stringAllocator.setCallDetectionHelper(&callDetector);
+
+    Vector originalSut({ std::string { "First" },
+                         std::string { "Second" },
+                         std::string { "Third" },
+                         std::string { "Fourth" } });
+
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectConstructCall(An<std::string*>(), An<std::string>()))
+        .Times(4);
+
+    Vector sut { originalSut, stringAllocator };
+
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectDeallocateCall()).Times(AnyNumber());
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectDestroyCall(An<std::string*>()))
+        .Times(AnyNumber());
 }
 
 //  === test for: constexpr Vector(Vector&& other) noexcept;
@@ -771,6 +854,29 @@ TEST(MoveConstructorWithAllocatorArgumentTests,
     ASSERT_EQ(sutIntsMoved.end(), endSourceIntsCopy);
     ASSERT_EQ(sutStringsMoved.begin(), beginSourceStringsCopy);
     ASSERT_EQ(sutStringsMoved.end(), endSourceStringsCopy);
+}
+
+TEST(MoveConstructorWithAllocatorArgumentTests, shouldNotCallAllocateAndConstruct)
+{
+    AllocatorCallDetectorMock<std::string> callDetector;
+    CustomTestingAllocator<std::string> stringAllocator;
+    stringAllocator.setCallDetectionHelper(&callDetector);
+
+    Vector originalSut({ std::string { "First" },
+                         std::string { "Second" },
+                         std::string { "Third" },
+                         std::string { "Fourth" } });
+
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(0);
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectConstructCall(An<std::string*>(), An<std::string>()))
+        .Times(0);
+
+    Vector sut { std::move(originalSut), stringAllocator };
+
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectDeallocateCall()).Times(AnyNumber());
+    EXPECT_CALL(*stringAllocator.callDetectionHelper_, detectDestroyCall(An<std::string*>()))
+        .Times(AnyNumber());
 }
 
 // TODO: =========== DESTRUCTOR TESTS ============

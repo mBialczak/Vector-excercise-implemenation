@@ -190,7 +190,7 @@ constexpr Vector<Type, Allocator>::Vector(size_type count,
     std::cout << "CONSTRUCTOR: ConstructorTakingCountValueAndAllocator\n";
 
     for (auto it = begin_; it != end_; ++it) {
-        Allocator::construct(it, value);
+        alloc.construct(it, value);
     }
 }
 
@@ -205,7 +205,9 @@ constexpr Vector<Type, Allocator>::Vector(size_type count,
     std::cout << "CONSTRUCTOR: ConstructorTakingCountAndAllocator\n";
 
     for (auto it = begin_; it != end_; ++it) {
-        Allocator::construct(it, Type {});
+        // TODO: VERIFY
+        //  Allocator::construct(it, Type {});
+        alloc.construct(it, Type {});
     }
 }
 // TODO: VERIFY
