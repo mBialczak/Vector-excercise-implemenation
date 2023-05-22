@@ -3,6 +3,7 @@
 #include "DefaultAllocator.hpp"
 
 #include <iterator>
+#include <limits>
 // TODO: REMOVE
 #include <iostream>
 
@@ -111,7 +112,7 @@ class Vector
     // ============== capacity functions =============
     // [[nodiscard]] constexpr bool empty() const noexcept;
     constexpr size_type size() const noexcept;
-    // constexpr size_type max_size() const noexcept;
+    constexpr size_type max_size() const noexcept;
     // constexpr void reserve(size_type new_cap);
     constexpr size_type capacity() const noexcept;
     // constexpr void shrink_to_fit();
@@ -337,6 +338,12 @@ constexpr Vector<Type, Allocator>::size_type
     Vector<Type, Allocator>::size() const noexcept
 {
     return std::distance(begin_, end_);
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::size_type Vector<Type, Allocator>::max_size() const noexcept
+{
+    return std::numeric_limits<difference_type>::max() / sizeof(Type);
 }
 
 template <typename Type, typename Allocator>

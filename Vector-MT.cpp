@@ -107,6 +107,11 @@ struct CustomTestingAllocator
 template <typename Type>
 AllocatorCallDetectorMock<Type>* CustomTestingAllocator<Type>::callDetectionHelper_ { nullptr };
 
+struct Size64Type
+{
+    char a, b, c, d;
+};
+
 // TODO: VERIFY if needed
 struct DummyWithDestructionDetection
 {
@@ -916,10 +921,28 @@ TEST(DestructorTests, shouldCallDestroyForEachElement)
         .Times(sourceIntsSut.size());
 }
 
-// TEST(DestructorTests, shouldCallAllocatorsDestroyForEachElement)
-// {
-// AllocatorCallDetectorMock
-// }
+// === tests for  constexpr size_type max_size() const noexcept;
+// TODO: VERIFY
+// NOTE: for simplicity the assumption about implementation is that max_size() will return
+//       std::numeric_limits<difference_type> / sizeof(T)
+
+TEST(MaxSizeTests, shouldReturnNumericLimitsDifferenceTypeForCharElement)
+{
+    auto expectedLimit = std::numeric_limits<Vector<char>::difference_type>::max();
+
+    Vector<char> sut;
+
+    EXPECT_EQ(sut.max_size(), expectedLimit);
+}
+
+TEST(MaxSizeTests, shouldReturnNumericLimitsDifferenceTypeDiffidedByElementSize)
+{
+    auto expectedLimit = std::numeric_limits<Vector<char>::difference_type>::max() / sizeof(Size64Type);
+
+    Vector<Size64Type> sut;
+
+    EXPECT_EQ(sut.max_size(), expectedLimit);
+}
 
 // TODO: ============== size() tests ============
 // TODO: test size after adding objects
