@@ -113,7 +113,7 @@ class Vector
     // [[nodiscard]] constexpr bool empty() const noexcept;
     constexpr size_type size() const noexcept;
     constexpr size_type max_size() const noexcept;
-    // constexpr void reserve(size_type new_cap);
+    constexpr void reserve(size_type new_cap);
     constexpr size_type capacity() const noexcept;
     // constexpr void shrink_to_fit();
     // // ============== modifiers ======================
@@ -344,6 +344,14 @@ template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::size_type Vector<Type, Allocator>::max_size() const noexcept
 {
     return std::numeric_limits<difference_type>::max() / sizeof(Type);
+}
+
+template <typename Type, typename Allocator>
+constexpr void Vector<Type, Allocator>::reserve(size_type new_cap)
+{
+    if (new_cap > max_size()) {
+        throw std::length_error { "More than max_size() elements requested" };
+    }
 }
 
 template <typename Type, typename Allocator>

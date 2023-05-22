@@ -922,10 +922,6 @@ TEST(DestructorTests, shouldCallDestroyForEachElement)
 }
 
 // === tests for  constexpr size_type max_size() const noexcept;
-// TODO: VERIFY
-// NOTE: for simplicity the assumption about implementation is that max_size() will return
-//       std::numeric_limits<difference_type> / sizeof(T)
-
 TEST(MaxSizeTests, shouldReturnNumericLimitsDifferenceTypeForCharElement)
 {
     auto expectedLimit = std::numeric_limits<Vector<char>::difference_type>::max();
@@ -935,7 +931,7 @@ TEST(MaxSizeTests, shouldReturnNumericLimitsDifferenceTypeForCharElement)
     EXPECT_EQ(sut.max_size(), expectedLimit);
 }
 
-TEST(MaxSizeTests, shouldReturnNumericLimitsDifferenceTypeDiffidedByElementSize)
+TEST(MaxSizeTests, shouldReturnNumericLimitsDifferenceTypeDividedByElementSize)
 {
     auto expectedLimit = std::numeric_limits<Vector<char>::difference_type>::max() / sizeof(Size64Type);
 
@@ -943,6 +939,30 @@ TEST(MaxSizeTests, shouldReturnNumericLimitsDifferenceTypeDiffidedByElementSize)
 
     EXPECT_EQ(sut.max_size(), expectedLimit);
 }
+
+// === tests for constexpr void reserve(size_type new_cap)
+// should increaseCapacity
+// shouldNotRequestCapacityIfIfRequestedSizeLessOrEqualCurrentCapacity
+// shouldNotChangeSize
+// shouldCallAllocateIfNewMemoryReserved
+// afterReserveAllocateShouldNotBeCalledIfSizeSmallerThanCapacity
+TEST(ReserveTests, shouldThrowLengthErrorIfRequestedMoreThanMaxSize)
+{
+    Vector<long double> sut { 3, 10.0 };
+    // constexpr Vector<long double> sut { 3, 10.0 };
+    constexpr auto maxSutSize = sut.max_size();
+
+    constexpr auto exceedingSize = maxSutSize + 1;
+    // TODO: REMOVE
+    // sut.reserve(exceedingSize);
+    // std::cout << maxSutSize << std::endl;
+    EXPECT_THROW(
+        { sut.reserve(exceedingSize); },
+        std::length_error);
+}
+
+TEST(ReserveTests, shouldIncreaseCapacityToRequestedNumber)
+{ }
 
 // TODO: ============== size() tests ============
 // TODO: test size after adding objects
