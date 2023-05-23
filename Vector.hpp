@@ -6,7 +6,8 @@
 #include <limits>
 // TODO: REMOVE
 #include <iostream>
-
+// TODO: VERIFY
+#include <concepts>
 namespace my {
 
 template <typename Type, typename Allocator = DefaultAllocator<Type>>
@@ -352,6 +353,25 @@ constexpr void Vector<Type, Allocator>::reserve(size_type new_cap)
     if (new_cap > max_size()) {
         throw std::length_error { "More than max_size() elements requested" };
     }
+    if (new_cap <= capacity()) {
+        return;
+    }
+
+    Type* newBegin = Allocator::allocate(new_cap);
+
+    if constexpr (std::move_constructible<Type>) {
+        std::move(begin_, end_, newBegin);
+    }
+    else {
+        std::copy(begin_, end_, newBegin);
+    }
+
+    auto size = std::distance(begin_, end_);
+    Type* previousBegin = begin_;
+    begin_ = newBegin;
+    end_ = std::next(begin_, size);
+    capacity_ = std::next(begin_, new_cap);
+    Allocator::deallocate(previousBegin);
 }
 
 template <typename Type, typename Allocator>

@@ -941,28 +941,92 @@ TEST(MaxSizeTests, shouldReturnNumericLimitsDifferenceTypeDividedByElementSize)
 }
 
 // === tests for constexpr void reserve(size_type new_cap)
-// should increaseCapacity
-// shouldNotRequestCapacityIfIfRequestedSizeLessOrEqualCurrentCapacity
-// shouldNotChangeSize
-// shouldCallAllocateIfNewMemoryReserved
-// afterReserveAllocateShouldNotBeCalledIfSizeSmallerThanCapacity
 TEST(ReserveTests, shouldThrowLengthErrorIfRequestedMoreThanMaxSize)
 {
     Vector<long double> sut { 3, 10.0 };
-    // constexpr Vector<long double> sut { 3, 10.0 };
     constexpr auto maxSutSize = sut.max_size();
 
     constexpr auto exceedingSize = maxSutSize + 1;
-    // TODO: REMOVE
-    // sut.reserve(exceedingSize);
-    // std::cout << maxSutSize << std::endl;
     EXPECT_THROW(
         { sut.reserve(exceedingSize); },
         std::length_error);
 }
 
-TEST(ReserveTests, shouldIncreaseCapacityToRequestedNumber)
-{ }
+TEST(ReserveTests, shouldIncreaseCapacityToRequestedNumberButNotSize)
+{
+    Vector<long double> sut { 3, 10.0 };
+    auto sizeBefore = sut.size();
+    auto capacityBefore = sut.capacity();
+
+    sut.reserve(10);
+    auto sizeAfter = sut.size();
+    auto capacityAfter = sut.capacity();
+
+    EXPECT_EQ(sizeBefore, 2);
+    EXPECT_EQ(capacityBefore, 2);
+    EXPECT_EQ(sizeAfter, 2);
+    EXPECT_EQ(capacityAfter, 10);
+}
+
+TEST(ReserveTests, shouldCallAllocateOnAllocatorIfIncreasingCapacityAndDeallocatePreviousMemory)
+{
+    CustomTestingAllocator<int> allocator;
+    AllocatorCallDetectorMock<int> callDetector;
+    allocator.setCallDetectionHelper(&callDetector);
+
+    EXPECT_CALL(callDetector, detectAllocateCall(4)).Times(1);
+    EXPECT_CALL(callDetector, detectConstructCall(An<int*>(), An<int>())).Times(4);
+    Vector sut { { 2, 4, 6, 8 },
+                 allocator };
+    auto capacityBefore = sut.capacity();
+
+    EXPECT_CALL(callDetector, detectAllocateCall(10)).Times(1);
+    // for previously allocated memory
+    EXPECT_CALL(callDetector, detectDeallocateCall());
+    sut.reserve(10);
+    auto capacityAfter = sut.capacity();
+
+    EXPECT_EQ(capacityBefore, 4);
+    EXPECT_EQ(capacityAfter, 10);
+
+    EXPECT_CALL(callDetector, detectDeallocateCall());
+    EXPECT_CALL(callDetector, detectDestroyCall(An<int*>())).Times(4);
+}
+
+TEST(ReserveTests, shouldPreserveValueOfElementsStoredBeforeAllocation)
+{
+    Vector<int> sutInt { 1, 10, 100 };
+    auto capacityBefore = sutInt.capacity();
+
+    sutInt.reserve(10);
+    auto capacityAfter = sutInt.capacity();
+    auto begin = sutInt.begin();
+    auto second = std::next(begin, 1);
+    auto third = std::next(second, 1);
+
+    EXPECT_EQ(capacityBefore, 3);
+    EXPECT_EQ(capacityAfter, 10);
+    EXPECT_EQ(*begin, 1);
+    EXPECT_EQ(*second, 10);
+    EXPECT_EQ(*third, 100);
+}
+
+TEST(ReserveTests, shouldNotChangeSizeAndCapacityIfSmallerCapacityRequested)
+{
+    Vector<long double> sut { 1.0, 2.0 };
+    auto sizeBefore = sut.size();
+    sut.reserve(10);
+    auto capacityBefore = sut.capacity();
+
+    sut.reserve(5);
+    auto sizeAfter = sut.size();
+    auto capacityAfter = sut.capacity();
+
+    EXPECT_EQ(sizeBefore, 2);
+    EXPECT_EQ(capacityBefore, 10);
+    EXPECT_EQ(sizeAfter, 2);
+    EXPECT_EQ(capacityAfter, 10);
+}
 
 // TODO: ============== size() tests ============
 // TODO: test size after adding objects
