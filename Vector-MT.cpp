@@ -917,6 +917,27 @@ TEST(DestructorTests, shouldCallDestroyForEachElement)
         .Times(sourceIntsSut.size());
 }
 
+// === tests for  constexpr size_type size() const noexcept;
+TEST(SizeTests, shouldReturnZeroForEmptyVector)
+{
+    Vector<int> sut;
+    Vector<double, CustomTestingAllocator<double>> sut2;
+
+    EXPECT_EQ(sut.size(), 0);
+    EXPECT_EQ(sut2.size(), 0);
+}
+
+TEST(SizeTests, shouldReturnActualSizeOfVector)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector sutDouble { 10.0, 20.0, 30.0 };
+    Vector<std::string> sutString { "One", "Two" };
+
+    EXPECT_EQ(sutInt.size(), 5);
+    EXPECT_EQ(sutDouble.size(), 3);
+    EXPECT_EQ(sutString.size(), 2);
+}
+
 // === tests for  constexpr size_type max_size() const noexcept;
 TEST(MaxSizeTests, shouldReturnNumericLimitsDifferenceTypeForCharElement)
 {
@@ -1089,7 +1110,7 @@ TEST(ShrinkToFitTests, shouldNotDecreaseCapacityIfNoMemoryToFree)
     EXPECT_EQ(sizeAfterShrink, startSize);
     EXPECT_EQ(capacityAfterShrink, startCapacity);
 }
-// TODO: ============== size() tests ============
+
 // TODO: test size after adding objects
 // TODO: test size after adding if capacity should increase
 // TODO: test size after removing objects
