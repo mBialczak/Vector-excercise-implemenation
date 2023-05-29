@@ -618,7 +618,6 @@ TEST(CopyConstructorTests, elementsInOriginalAndCopyShouldBeEqual)
 }
 
 // TODO: === tests for: constexpr Vector(const Vector& other, const Allocator& alloc);
-// TODO: add size and capacity comparison for case where capacity is different then size
 TEST(CopyConstructorWithAllocatorArgumentTests, shouldRememberCorrectAllocator)
 {
     Vector intsDefaultAllocator { 5, 10, 15, 20 };
@@ -884,14 +883,12 @@ TEST(MoveConstructorWithAllocatorArgumentTests, shouldNotCallAllocateAndConstruc
         .Times(AnyNumber());
 }
 
-// TODO: =========== DESTRUCTOR TESTS ============
-
+//  =========== DESTRUCTOR TESTS ============
 TEST(DestructorTests, shouldCallDeallocate)
 {
     AllocatorCallDetectorMock<int> callDetector;
     CustomTestingAllocator<int> intAllocator;
     intAllocator.setCallDetectionHelper(&callDetector);
-    // TODO: VERIFY
     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
@@ -908,7 +905,6 @@ TEST(DestructorTests, shouldCallDestroyForEachElement)
     AllocatorCallDetectorMock<int> callDetector;
     CustomTestingAllocator<int> intAllocator;
     intAllocator.setCallDetectionHelper(&callDetector);
-    // TODO: VERIFY
     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
@@ -1028,6 +1024,71 @@ TEST(ReserveTests, shouldNotChangeSizeAndCapacityIfSmallerCapacityRequested)
     EXPECT_EQ(capacityAfter, 10);
 }
 
+// === tests for constexpr void shrink_to_fit();
+TEST(ShrinkToFitTests, shouldDecreaseCapacityIfPossibleButNotTouchSize)
+{
+    Vector sut { 1, 2, 3, 4, 5 };
+    auto startSize { sut.size() };
+    auto startCapacity { sut.capacity() };
+    sut.reserve(100);
+    auto sizeAfterReserve { sut.size() };
+    auto capacityAfterReserve { sut.capacity() };
+
+    sut.shrink_to_fit();
+    auto sizeAfterShrink { sut.size() };
+    auto capacityAfterShrink { sut.capacity() };
+
+    ASSERT_EQ(startSize, 5);
+    ASSERT_EQ(sizeAfterReserve, 5);
+    ASSERT_EQ(startCapacity, 5);
+    ASSERT_EQ(capacityAfterReserve, 100);
+    EXPECT_EQ(sizeAfterShrink, startSize);
+    EXPECT_EQ(capacityAfterShrink, startCapacity);
+}
+
+TEST(ShrinkToFitTests, shouldMoveOrCopyElementsToSmallerMemoryChunkIfShrinkable)
+{
+    Vector sut { 1, 2, 3, 4, 5 };
+    auto originalSize { sut.size() };
+    auto originalCapacity { sut.capacity() };
+    sut.reserve(100);
+    auto beginAfterReserve { sut.begin() };
+    auto endAfterReserve { sut.end() };
+    auto sizeAfterReserve(sut.size());
+    auto capacityAfterReserve(sut.capacity());
+
+    sut.shrink_to_fit();
+    auto beginAfterShrink { sut.begin() };
+    auto endAfterShrink { sut.end() };
+    auto sizeAfterShrink { sut.size() };
+    auto capacityAfterShrink { sut.size() };
+
+    ASSERT_EQ(originalSize, 5);
+    ASSERT_EQ(originalCapacity, 5);
+    ASSERT_EQ(sizeAfterReserve, originalSize);
+    ASSERT_EQ(capacityAfterReserve, 100);
+
+    EXPECT_EQ(sizeAfterShrink, originalSize);
+    EXPECT_EQ(capacityAfterShrink, originalCapacity);
+    EXPECT_NE(beginAfterShrink, beginAfterReserve);
+    EXPECT_NE(endAfterShrink, endAfterReserve);
+}
+
+TEST(ShrinkToFitTests, shouldNotDecreaseCapacityIfNoMemoryToFree)
+{
+    Vector sut { 1, 2, 3, 4, 5 };
+    auto startSize { sut.size() };
+    auto startCapacity { sut.capacity() };
+
+    sut.shrink_to_fit();
+    auto sizeAfterShrink { sut.size() };
+    auto capacityAfterShrink { sut.capacity() };
+
+    ASSERT_EQ(startSize, 5);
+    ASSERT_EQ(startCapacity, 5);
+    EXPECT_EQ(sizeAfterShrink, startSize);
+    EXPECT_EQ(capacityAfterShrink, startCapacity);
+}
 // TODO: ============== size() tests ============
 // TODO: test size after adding objects
 // TODO: test size after adding if capacity should increase

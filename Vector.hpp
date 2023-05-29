@@ -116,7 +116,7 @@ class Vector
     constexpr size_type max_size() const noexcept;
     constexpr void reserve(size_type new_cap);
     constexpr size_type capacity() const noexcept;
-    // constexpr void shrink_to_fit();
+    constexpr void shrink_to_fit();
     // // ============== modifiers ======================
     // constexpr void clear() noexcept;
 
@@ -153,7 +153,7 @@ class Vector
     friend class Vector;
 
   private:
-    // TODO: VERIFY
+    void moveOrCopyToNewMemory(Type* newBegin);
     Type* begin_;
     Type* end_;
     Type* capacity_;
@@ -358,13 +358,7 @@ constexpr void Vector<Type, Allocator>::reserve(size_type new_cap)
     }
 
     Type* newBegin = Allocator::allocate(new_cap);
-
-    if constexpr (std::move_constructible<Type>) {
-        std::move(begin_, end_, newBegin);
-    }
-    else {
-        std::copy(begin_, end_, newBegin);
-    }
+    moveOrCopyToNewMemory(newBegin);
 
     auto size = std::distance(begin_, end_);
     Type* previousBegin = begin_;
@@ -372,6 +366,22 @@ constexpr void Vector<Type, Allocator>::reserve(size_type new_cap)
     end_ = std::next(begin_, size);
     capacity_ = std::next(begin_, new_cap);
     Allocator::deallocate(previousBegin);
+}
+
+template <typename Type, typename Allocator>
+constexpr void Vector<Type, Allocator>::shrink_to_fit()
+{
+    if (capacity_ == end_) {
+        return;
+    }
+
+    Type* newBegin = Allocator::allocate(size());
+    moveOrCopyToNewMemory(newBegin);
+    auto sizeToKeep = size();
+    Allocator::deallocate(begin_);
+    begin_ = newBegin;
+    end_ = std::next(begin_, sizeToKeep);
+    capacity_ = end_;
 }
 
 template <typename Type, typename Allocator>
@@ -437,5 +447,17 @@ constexpr Vector<Type, Allocator>::const_iterator
 
 // constexpr typename std::vector<T, Alloc>::size_type
 //     erase_if(std::vector<T, Alloc>& c, Pred pred);
+
+// private functions section
+template <typename Type, typename Allocator>
+void Vector<Type, Allocator>::moveOrCopyToNewMemory(Type* newBegin)
+{
+    if constexpr (std::move_constructible<Type>) {
+        std::move(begin_, end_, newBegin);
+    }
+    else {
+        std::copy(begin_, end_, newBegin);
+    }
+}
 
 }   // namespace my
