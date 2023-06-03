@@ -9,7 +9,7 @@
 // TODO: VERIFY
 #include <concepts>
 namespace my {
-
+// TODO: REMOVE spurious comments
 template <typename Type, typename Allocator = DefaultAllocator<Type>>
 class Vector
 {
@@ -23,8 +23,7 @@ class Vector
     using reference = Type&;
     using const_reference = const Type&;
 
-    // TODO: VERIFY functions to implement
-    //  ============= CONSTRUCTOR ================
+    //  ============= CONSTRUCTORS ================
     constexpr Vector() noexcept(noexcept(Allocator()));
     constexpr explicit Vector(const Allocator& alloc) noexcept;
 
@@ -52,9 +51,8 @@ class Vector
     constexpr Vector(Vector<Type, OtherAllocator>&& other, const Allocator& alloc);
 
     constexpr ~Vector();
-    // TODO: VERIFY end
 
-    // ============= ASSIGNMENT OPERATOR ==========
+    // ============= ASSIGNMENT OPERATORS ==========
     // constexpr vector& operator=(const vector& other);
 
     // constexpr vector& operator=(vector&& other) noexcept;
@@ -69,33 +67,23 @@ class Vector
 
     // constexpr void assign( std::initializer_list<T> ilist );
 
-    // ============= get_allocator function ===========
     // TODO: VERIFY consider tests
     constexpr allocator_type get_allocator() const noexcept;
 
-    // ============= at function =============
     constexpr reference at(size_type pos);
     constexpr const_reference at(size_type pos) const;
 
-    // ============= operator[] ==============
-    // constexpr reference operator[](size_type pos);
+    constexpr reference operator[](size_type pos);
+    constexpr const_reference operator[](size_type pos) const;
 
-    // constexpr const_reference operator[]( size_type pos ) const;
+    constexpr reference front();
+    constexpr const_reference front() const;
 
-    // ============= front function =============
-    // constexpr reference front();
+    constexpr reference back();
+    constexpr const_reference back() const;
 
-    // constexpr const_reference front() const;
-
-    // ============= back function ==============
-    // constexpr reference back();
-
-    // constexpr const_reference back() const;
-
-    // ============= data function ==============
-    // constexpr T* data() noexcept;
-
-    // constexpr const T* data() const noexcept;
+    constexpr Type* data() noexcept;
+    constexpr const Type* data() const noexcept;
 
     constexpr iterator begin() noexcept;
     constexpr const_iterator begin() const noexcept;
@@ -345,7 +333,7 @@ constexpr Vector<Type, Allocator>::reference
         throw std::out_of_range("requested out of range element with at()");
     }
 
-    return *std::next(begin_, pos);
+    return *(begin_ + pos);
 }
 
 template <typename Type, typename Allocator>
@@ -356,14 +344,70 @@ constexpr Vector<Type, Allocator>::const_reference
         throw std::out_of_range("requested out of range element with at()");
     }
 
-    return *std::next(begin_, pos);
+    return *(begin_ + pos);
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::reference
+    Vector<Type, Allocator>::operator[](size_type pos)
+{
+    return *(begin_ + pos);
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::const_reference
+    Vector<Type, Allocator>::operator[](size_type pos) const
+{
+    return *(begin_ + pos);
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::reference
+    Vector<Type, Allocator>::front()
+{
+    return *begin_;
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::const_reference
+    Vector<Type, Allocator>::front() const
+{
+    return *begin_;
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::reference
+    Vector<Type, Allocator>::back()
+{
+    return *(end_ - 1);
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::const_reference
+    Vector<Type, Allocator>::back() const
+{
+    return *(end_ - 1);
+}
+
+template <typename Type, typename Allocator>
+constexpr Type* Vector<Type, Allocator>::data() noexcept
+{
+    return begin_;
+}
+
+template <typename Type, typename Allocator>
+constexpr const Type* Vector<Type, Allocator>::data() const noexcept
+{
+    return begin_;
 }
 
 template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::size_type
     Vector<Type, Allocator>::size() const noexcept
 {
-    return std::distance(begin_, end_);
+    // TODO: VERIFY pick one
+    //  return std::distance(begin_, end_);
+    return end_ - begin_;
 }
 
 template <typename Type, typename Allocator>

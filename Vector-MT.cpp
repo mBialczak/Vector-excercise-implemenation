@@ -972,6 +972,132 @@ TEST(atTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
     EXPECT_EQ(valueAfterChange, 1000);
 }
 
+// === tests for constexpr reference operator[](size_type pos);
+// === tests for constexpr const_reference operator[]( size_type pos ) const;
+TEST(accessOperatorTests, shouldReturnReferenceToCorrectElement)
+{
+    Vector sut { 5, 10, 15, 20 };
+
+    EXPECT_EQ(sut[0], 5);
+    EXPECT_EQ(sut[1], 10);
+    EXPECT_EQ(sut[2], 15);
+    EXPECT_EQ(sut[3], 20);
+
+    EXPECT_TRUE(( std::is_same_v<decltype(sut[0]), int&> ) );
+}
+
+TEST(accessOperatorTests, shouldReturnConstReferenceToCorrectElement)
+{
+    const Vector sut { 5, 10, 15, 20 };
+
+    EXPECT_EQ(sut[0], 5);
+    EXPECT_EQ(sut[1], 10);
+    EXPECT_EQ(sut[2], 15);
+    EXPECT_EQ(sut[3], 20);
+
+    EXPECT_TRUE(( std::is_same_v<decltype(sut[0]), const int&> ) );
+}
+
+TEST(accessOperatorTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
+{
+    Vector sut { 5, 10, 15, 20 };
+    int valueBeforeChange = sut[1];
+
+    sut.at(1) = 1000;
+    int valueAfterChange = sut[1];
+
+    EXPECT_EQ(valueBeforeChange, 10);
+    EXPECT_EQ(valueAfterChange, 1000);
+}
+
+// === tests for constexpr reference front();
+// === tests for constexpr const_reference front() const;
+TEST(frontTests, shouldReturnReferenceToFirstElement)
+{
+    Vector sut { 5, 10, 15, 20 };
+
+    EXPECT_EQ(sut.front(), 5);
+
+    EXPECT_TRUE(( std::is_same_v<decltype(sut.front()), int&> ) );
+}
+
+TEST(frontTests, shouldReturnConstReferenceToFirstElement)
+{
+    const Vector sut { 5, 10, 15, 20 };
+
+    EXPECT_EQ(sut.front(), 5);
+
+    EXPECT_TRUE(( std::is_same_v<decltype(sut.front()), const int&> ) );
+}
+
+TEST(frontTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
+{
+    Vector sut { 5, 10, 15, 20 };
+    int valueBeforeChange = sut.front();
+
+    sut.front() = 1000;
+    int valueAfterChange = sut.front();
+
+    EXPECT_EQ(valueBeforeChange, 5);
+    EXPECT_EQ(valueAfterChange, 1000);
+}
+
+// === tests for constexpr reference back();
+// === tests constexpr const_reference back() const;
+TEST(backTests, shouldReturnReferenceToLastElement)
+{
+    Vector sut { 5, 10, 15, 20 };
+
+    EXPECT_EQ(sut.back(), 20);
+
+    EXPECT_TRUE(( std::is_same_v<decltype(sut.back()), int&> ) );
+}
+
+TEST(backTests, shouldReturnConstReferenceToLastElement)
+{
+    const Vector sut { 5, 10, 15, 20 };
+
+    EXPECT_EQ(sut.back(), 20);
+
+    EXPECT_TRUE(( std::is_same_v<decltype(sut.back()), const int&> ) );
+}
+
+TEST(backTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
+{
+    Vector sut { 5, 10, 15, 20 };
+    int valueBeforeChange = sut.back();
+
+    sut.back() = 1000;
+    int valueAfterChange = sut.back();
+
+    EXPECT_EQ(valueBeforeChange, 20);
+    EXPECT_EQ(valueAfterChange, 1000);
+}
+
+// === tests for constexpr T* data() noexcept;
+// === tests for constexpr const T* data() const noexcept;
+TEST(dataTests, forEmptyContainerShouldReturnNullptr)
+{
+    Vector<double> sut;
+
+    double* dataReturned { sut.data() };
+
+    ASSERT_EQ(sut.size(), 0);
+    EXPECT_EQ(dataReturned, nullptr);
+}
+
+TEST(dataTests, forNonEmptyContainerShouldReturnBeginOrConstBegin)
+{
+    Vector<double> sut { 1.0, 2.0, 3.0 };
+    const Vector<double> sutConst { 100.0, 200.0, 300.0 };
+
+    double* dataReturned { sut.data() };
+    const double* dataReturnedConst { sutConst.data() };
+
+    EXPECT_EQ(dataReturned, sut.begin());
+    EXPECT_EQ(dataReturnedConst, sutConst.begin());
+}
+
 // === tests for  constexpr size_type size() const noexcept;
 TEST(SizeTests, shouldReturnZeroForEmptyVector)
 {
