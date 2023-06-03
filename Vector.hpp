@@ -20,6 +20,8 @@ class Vector
     using difference_type = std::ptrdiff_t;
     using iterator = Type*;
     using const_iterator = const Type*;
+    using reference = Type&;
+    using const_reference = const Type&;
 
     // TODO: VERIFY functions to implement
     //  ============= CONSTRUCTOR ================
@@ -68,11 +70,12 @@ class Vector
     // constexpr void assign( std::initializer_list<T> ilist );
 
     // ============= get_allocator function ===========
+    // TODO: VERIFY consider tests
     constexpr allocator_type get_allocator() const noexcept;
 
     // ============= at function =============
-    // constexpr reference at( size_type pos );
-    // constexpr const_reference at( size_type pos ) const;
+    constexpr reference at(size_type pos);
+    constexpr const_reference at(size_type pos) const;
 
     // ============= operator[] ==============
     // constexpr reference operator[](size_type pos);
@@ -332,6 +335,28 @@ constexpr Vector<Type, Allocator>::allocator_type
 {
     // return allocator_; // TODO: REMOVE
     return Allocator {};
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::reference
+    Vector<Type, Allocator>::at(size_type pos)
+{
+    if (pos > size() - 1) {
+        throw std::out_of_range("requested out of range element with at()");
+    }
+
+    return *std::next(begin_, pos);
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::const_reference
+    Vector<Type, Allocator>::at(size_type pos) const
+{
+    if (pos > size() - 1) {
+        throw std::out_of_range("requested out of range element with at()");
+    }
+
+    return *std::next(begin_, pos);
 }
 
 template <typename Type, typename Allocator>
