@@ -922,6 +922,64 @@ TEST(DestructorTests, shouldCallDestroyForEachElement)
                 detectDestroyCall(An<int*>()))
         .Times(sourceIntsSut.size());
 }
+// TODO: VERIFY CURRENT
+//  === constexpr vector& operator=(const vector& other)
+TEST(copyAssignmentTests, shouldReplaceContentsWithGivenVectorForSameSizes)
+{
+    Vector originalSut { 1, 2, 3 };
+    Vector replacingSut { 30, 40, 50 };
+
+    Vector sutAfterReplacing = replacingSut;
+
+    ASSERT_EQ(sutAfterReplacing.size(), replacingSut.size())
+    for (auto sutAfterReplacingIter = sutAfterReplacing.begin();
+         auto&& el : replacingSut) {
+        EXPECT_EQ(*sutAfterReplacingIter, el);
+        ++sutAfterReplacingIter;
+    }
+}
+
+TEST(copyAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeSmaller)
+{
+    Vector originalSut { 1, 2, 3 };
+    Vector replacingSut { 30, 40, 50, 60, 70, 80 };
+
+    Vector sutAfterReplacing = replacingSut;
+
+    ASSERT_EQ(sutAfterReplacing.size(), replacingSut.size())
+    for (auto sutAfterReplacingIter = sutAfterReplacing.begin();
+         auto&& el : replacingSut) {
+        EXPECT_EQ(*sutAfterReplacingIter, el);
+        ++sutAfterReplacingIter;
+    }
+}
+
+TEST(copyAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeGrater)
+{
+    Vector originalSut { 30, 40, 50, 60, 70, 80 };
+    Vector replacingSut { 1, 2, 3 };
+
+    Vector sutAfterReplacing = replacingSut;
+
+    ASSERT_EQ(sutAfterReplacing.size(), replacingSut.size());
+    for (auto sutAfterReplacingIter = sutAfterReplacing.begin();
+         auto&& el : replacingSut) {
+        EXPECT_EQ(*sutAfterReplacingIter, el);
+        ++sutAfterReplacingIter;
+    }
+}
+
+TEST(copyAssignmentTests, shouldReuseAllocatedMemoryIfPossibleButCallDestructorsOnOldObjects)
+{
+}
+
+TEST(copyAssignmentTests, shouldDealocateOldMemoryAndAllocateNewIfNeeded)
+{
+}
+
+TEST(copyAssignmentTests, shouldDeepCopyElementsFromSource)
+{
+}
 
 //=== tests for constexpr reference at( size_type pos );
 //=== constexpr const_reference at( size_type pos ) const;

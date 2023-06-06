@@ -53,7 +53,7 @@ class Vector
     constexpr ~Vector();
 
     // ============= ASSIGNMENT OPERATORS ==========
-    // constexpr vector& operator=(const vector& other);
+    constexpr Vector& operator=(const Vector& other);
 
     // constexpr vector& operator=(vector&& other) noexcept;
 
@@ -315,6 +315,12 @@ constexpr Vector<Type, Allocator>::~Vector()
     // TODO: VERIFY
     //  allocator_.deallocate(begin_);
     Allocator::deallocate(begin_);
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>&
+    Vector<Type, Allocator>::operator=(const Vector& other)
+{
 }
 
 template <typename Type, typename Allocator>
