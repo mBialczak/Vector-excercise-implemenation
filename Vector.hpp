@@ -145,6 +145,8 @@ class Vector
 
   private:
     void moveOrCopyToNewMemory(Type* newBegin);
+    void destructOldObjects();
+
     Type* begin_;
     Type* end_;
     Type* capacity_;
@@ -294,6 +296,7 @@ constexpr Vector<Type, Allocator>::Vector(Vector<Type, OtherAllocator>&& other,
     , end_(other.end())
     , capacity_(other.end())
 {
+    // TODO: REMOVE
     std::cout << "CONSTRUCTOR: MoveConstructorWithAllocatorArgument\n";
     other.begin_ = nullptr;
     other.end_ = nullptr;
@@ -307,11 +310,13 @@ constexpr Vector<Type, Allocator>::~Vector()
         return;
     }
 
-    for (auto it = begin_; it != end(); ++it) {
-        // TODO: VERIFY
-        //  allocator_.destroy(it);
-        Allocator::destroy(it);
-    }
+    destructOldObjects();
+    // TODO: REMOVE
+    // for (auto it = begin_; it != end(); ++it) {
+    //     // TODO: VERIFY
+    //     //  allocator_.destroy(it);
+    //     Allocator::destroy(it);
+    // }
     // TODO: VERIFY
     //  allocator_.deallocate(begin_);
     Allocator::deallocate(begin_);
@@ -321,6 +326,28 @@ template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>&
     Vector<Type, Allocator>::operator=(const Vector& other)
 {
+    // TODO: REMOVE
+    std::cout << "COPY OPERATOR CALLED\n";
+    if (this == &other) {
+        return *this;
+    }
+    // TODO: VERIFY
+    //  if (size() < other.size()) {
+    destructOldObjects();
+    Allocator::deallocate(begin_);
+    begin_ = Allocator::allocate(other.size());
+    std::copy(other.begin_, other.end_, begin_);
+    end_ = std::next(begin_, other.size());
+    capacity_ = end_;
+    return *this;
+    // }
+
+    // destructOldObjects();
+    // // TODO: VERIFY
+    // Allocator::deallocate(end_);
+    // std::copy(begin_, end_, other.begin());
+
+    // return *this;
 }
 
 template <typename Type, typename Allocator>
@@ -533,6 +560,11 @@ void Vector<Type, Allocator>::moveOrCopyToNewMemory(Type* newBegin)
     else {
         std::copy(begin_, end_, newBegin);
     }
+}
+
+template <typename Type, typename Allocator>
+void Vector<Type, Allocator>::destructOldObjects()
+{
 }
 
 }   // namespace my

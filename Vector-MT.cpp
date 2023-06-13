@@ -927,15 +927,15 @@ TEST(DestructorTests, shouldCallDestroyForEachElement)
 TEST(copyAssignmentTests, shouldReplaceContentsWithGivenVectorForSameSizes)
 {
     Vector originalSut { 1, 2, 3 };
-    Vector replacingSut { 30, 40, 50 };
+    Vector copiedSut { 30, 40, 50 };
 
-    Vector sutAfterReplacing = replacingSut;
+    originalSut = copiedSut;
 
-    ASSERT_EQ(sutAfterReplacing.size(), replacingSut.size())
-    for (auto sutAfterReplacingIter = sutAfterReplacing.begin();
-         auto&& el : replacingSut) {
-        EXPECT_EQ(*sutAfterReplacingIter, el);
-        ++sutAfterReplacingIter;
+    ASSERT_EQ(originalSut.size(), copiedSut.size());
+    for (auto originalSutIter = originalSut.begin();
+         auto&& el : copiedSut) {
+        EXPECT_EQ(*originalSutIter, el);
+        ++originalSutIter;
     }
 }
 
@@ -944,13 +944,13 @@ TEST(copyAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeSmal
     Vector originalSut { 1, 2, 3 };
     Vector replacingSut { 30, 40, 50, 60, 70, 80 };
 
-    Vector sutAfterReplacing = replacingSut;
+    originalSut = replacingSut;
 
-    ASSERT_EQ(sutAfterReplacing.size(), replacingSut.size())
-    for (auto sutAfterReplacingIter = sutAfterReplacing.begin();
+    ASSERT_EQ(originalSut.size(), replacingSut.size());
+    for (auto originalSutIter = originalSut.begin();
          auto&& el : replacingSut) {
-        EXPECT_EQ(*sutAfterReplacingIter, el);
-        ++sutAfterReplacingIter;
+        EXPECT_EQ(*originalSutIter, el);
+        ++originalSutIter;
     }
 }
 
@@ -959,27 +959,124 @@ TEST(copyAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeGrat
     Vector originalSut { 30, 40, 50, 60, 70, 80 };
     Vector replacingSut { 1, 2, 3 };
 
-    Vector sutAfterReplacing = replacingSut;
+    originalSut = replacingSut;
 
-    ASSERT_EQ(sutAfterReplacing.size(), replacingSut.size());
-    for (auto sutAfterReplacingIter = sutAfterReplacing.begin();
+    ASSERT_EQ(originalSut.size(), replacingSut.size());
+    for (auto originalSutIter = originalSut.begin();
          auto&& el : replacingSut) {
-        EXPECT_EQ(*sutAfterReplacingIter, el);
-        ++sutAfterReplacingIter;
+        EXPECT_EQ(*originalSutIter, el);
+        ++originalSutIter;
     }
 }
+// TODO: REMOVE
+// TEST(copyAssignmentTests, shouldReuseAllocatedMemoryIfPossibleButCallDestructorsOnOldObjects)
+// {
+//     // Arrange part
+//     AllocatorCallDetectorMock<int> callDetector;
+//     CustomTestingAllocator<int> intAllocator;
+//     intAllocator.setCallDetectionHelper(&callDetector);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//         .Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+//         .Times(5);
 
-TEST(copyAssignmentTests, shouldReuseAllocatedMemoryIfPossibleButCallDestructorsOnOldObjects)
-{
-}
+//     Vector originalSut({ 5, 10, 15, 20, 25 }, intAllocator);
+//     auto beginBefore = originalSut.begin();
+//     auto sizeBefore = originalSut.size();
+
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//         .Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+//         .Times(3);
+//     Vector replacingSut({ 1, 2, 3 }, intAllocator);
+
+//     // Act part
+//     // EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//     //     .Times(0);
+//     // EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+//     //     .Times(0);
+//     // // deallocate for surplus memory
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+//     // // destructor call for old elements
+//     // EXPECT_CALL(*intAllocator.callDetectionHelper_,
+//     //         detectDestroyCall(An<int*>()))
+//     // .Times(sizeBefore);
+//     // Vector sutAfterReplacing = replacingSut;
+//     // auto beginAfter = sutAfterReplacing.begin();
+
+//     // Assert part
+//     // EXPECT_EQ(beginBefore, beginAfter);
+
+//     // // calls expected on teardown
+//     // EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(2);
+//     // EXPECT_CALL(*intAllocator.callDetectionHelper_,
+//     //             detectDestroyCall(An<int*>()))
+//     //     .Times(replacingSut.size() * 2);
+// }
 
 TEST(copyAssignmentTests, shouldDealocateOldMemoryAndAllocateNewIfNeeded)
 {
+    // Arrange part
+    AllocatorCallDetectorMock<int> callDetector;
+    CustomTestingAllocator<int> intAllocator;
+    // TODO: VERIFY
+    //  CustomTestingAllocator<int> intAllocator2;
+    intAllocator.setCallDetectionHelper(&callDetector);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(3);
+
+    Vector originalSut({ 5, 10, 15 }, intAllocator);
+    auto beginBefore = originalSut.begin();
+    auto sizeBefore = originalSut.size();
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(5);
+    Vector replacingSut({ 1, 2, 3, 4, 5 }, intAllocator);
+
+    // Act part
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(0);
+    // // deallocate for old memory
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    // // destructor call for old elements
+    EXPECT_CALL(*intAllocator.callDetectionHelper_,
+                detectDestroyCall(An<int*>()))
+        .Times(sizeBefore);
+    Vector<int, CustomTestingAllocator<int>> sutAfterReplacing;
+    originalSut = replacingSut;
+    auto beginAfter = originalSut.begin();
+
+    // Assert part
+    EXPECT_NE(beginBefore, beginAfter);
+
+    // calls expected on teardown
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(2);
+    // EXPECT_CALL(*intAllocator.callDetectionHelper_,
+    //             detectDestroyCall(An<int*>()))
+    //     .Times(replacingSut.size() * 2);
 }
 
-TEST(copyAssignmentTests, shouldDeepCopyElementsFromSource)
-{
-}
+// TEST(copyAssignmentTests, shouldDeepCopyElementsFromSource)
+// {
+//     Vector originalSut { 30, 40, 50, 60, 70, 80 };
+//     Vector replacingSut { 1, 2, 3 };
+
+//     Vector sutAfterReplacing = replacingSut;
+
+//     ASSERT_EQ(sutAfterReplacing.size(), replacingSut.size());
+//     auto sutAfterReplacingIter = sutAfterReplacing.begin();
+//     auto replacingSutIter = replacingSut.begin();
+//     while (sutAfterReplacingIter != sutAfterReplacing.end()) {
+//         EXPECT_NE(sutAfterReplacingIter, replacingSutIter);
+//         EXPECT_EQ(*sutAfterReplacingIter, *replacingSutIter);
+//     }
+// }
 
 //=== tests for constexpr reference at( size_type pos );
 //=== constexpr const_reference at( size_type pos ) const;
