@@ -311,12 +311,6 @@ constexpr Vector<Type, Allocator>::~Vector()
     }
 
     destructOldObjects();
-    // TODO: REMOVE
-    // for (auto it = begin_; it != end(); ++it) {
-    //     // TODO: VERIFY
-    //     //  allocator_.destroy(it);
-    //     Allocator::destroy(it);
-    // }
     // TODO: VERIFY
     //  allocator_.deallocate(begin_);
     Allocator::deallocate(begin_);
@@ -331,23 +325,19 @@ constexpr Vector<Type, Allocator>&
     if (this == &other) {
         return *this;
     }
-    // TODO: VERIFY
-    //  if (size() < other.size()) {
+
     destructOldObjects();
     Allocator::deallocate(begin_);
     begin_ = Allocator::allocate(other.size());
-    std::copy(other.begin_, other.end_, begin_);
+    for (auto beginCopy = begin_;
+         auto&& el : other) {
+        *beginCopy = el;
+        ++beginCopy;
+    }
+
     end_ = std::next(begin_, other.size());
     capacity_ = end_;
     return *this;
-    // }
-
-    // destructOldObjects();
-    // // TODO: VERIFY
-    // Allocator::deallocate(end_);
-    // std::copy(begin_, end_, other.begin());
-
-    // return *this;
 }
 
 template <typename Type, typename Allocator>
@@ -565,6 +555,11 @@ void Vector<Type, Allocator>::moveOrCopyToNewMemory(Type* newBegin)
 template <typename Type, typename Allocator>
 void Vector<Type, Allocator>::destructOldObjects()
 {
+    for (auto it = begin_; it != end(); ++it) {
+        // TODO: VERIFY
+        //  allocator_.destroy(it);
+        Allocator::destroy(it);
+    }
 }
 
 }   // namespace my
