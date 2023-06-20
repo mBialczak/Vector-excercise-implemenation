@@ -2,6 +2,7 @@
 
 #include "DefaultAllocator.hpp"
 
+#include <initializer_list>
 #include <iterator>
 #include <limits>
 // TODO: REMOVE
@@ -57,7 +58,7 @@ class Vector
 
     // constexpr vector& operator=(vector&& other) noexcept;
 
-    // constexpr vector& operator=(std::initializer_list<T> ilist);
+    constexpr Vector& operator=(std::initializer_list<Type> ilist);
 
     // ============= ASSIGN FUNCTION ==========
     // constexpr void assign(size_type count, const T& value);
@@ -336,6 +337,27 @@ constexpr Vector<Type, Allocator>&
     }
 
     end_ = std::next(begin_, other.size());
+    capacity_ = end_;
+    return *this;
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>&
+    Vector<Type, Allocator>::operator=(std::initializer_list<Type> ilist)
+{
+    // TODO: REMOVE
+    std::cout << "COPY OPERATOR WITH INITIALIZER_LIST CALLED\n";
+
+    destructOldObjects();
+    Allocator::deallocate(begin_);
+    begin_ = Allocator::allocate(ilist.size());
+    for (auto beginCopy = begin_;
+         auto&& el : ilist) {
+        *beginCopy = el;
+        ++beginCopy;
+    }
+
+    end_ = std::next(begin_, ilist.size());
     capacity_ = end_;
     return *this;
 }

@@ -922,7 +922,7 @@ TEST(DestructorTests, shouldCallDestroyForEachElement)
                 detectDestroyCall(An<int*>()))
         .Times(sourceIntsSut.size());
 }
-// TODO: VERIFY CURRENT
+
 //  === constexpr vector& operator=(const vector& other)
 TEST(copyAssignmentTests, shouldReplaceContentsWithGivenVectorForSameSizesAndPreserveNewSizeAndCapacity)
 {
@@ -1039,6 +1039,125 @@ TEST(copyAssignmentTests, shouldDeepCopyElementsFromSource)
         EXPECT_EQ(*originalSutIter, *replacingSutIter);
         ++originalSutIter;
         ++replacingSutIter;
+    }
+}
+
+//=== tests for constexpr vector& operator=(std::initializer_list<T> ilist);
+TEST(CopyAssignmentTakingInitializerListTests,
+     shouldReplaceContentsWithGivenListOfSameSizeAndPreserveNewSizeAndCapacity)
+{
+    Vector originalSut { 1, 2, 3 };
+    std::initializer_list replacingList { 30, 40, 50 };
+
+    originalSut = replacingList;
+
+    ASSERT_EQ(originalSut.size(), replacingList.size());
+    for (auto originalSutIter = originalSut.begin();
+         auto&& el : replacingList) {
+        EXPECT_EQ(*originalSutIter, el);
+        ++originalSutIter;
+    }
+    EXPECT_EQ(originalSut.size(), replacingList.size());
+    EXPECT_EQ(originalSut.capacity(), replacingList.size());
+}
+
+TEST(CopyAssignmentTakingInitializerListTests,
+     shouldReplaceContentsWithGivenListIfOriginalSizeSmallerAndPreserveNewSizeAndCapacity)
+{
+    Vector originalSut { 1, 2, 3 };
+    std::initializer_list replacingList { 30, 40, 50, 60, 70, 80 };
+
+    originalSut = replacingList;
+
+    ASSERT_EQ(originalSut.size(), replacingList.size());
+    for (auto originalSutIter = originalSut.begin();
+         auto&& el : replacingList) {
+        EXPECT_EQ(*originalSutIter, el);
+        ++originalSutIter;
+    }
+    EXPECT_EQ(originalSut.size(), replacingList.size());
+    EXPECT_EQ(originalSut.capacity(), replacingList.size());
+}
+
+TEST(CopyAssignmentTakingInitializerListTests,
+     shouldReplaceContentsWithGivenListIfOriginalSizeGraterAndPreserveNewSizeAndCapacity)
+{
+    Vector originalSut { 30, 40, 50, 60, 70, 80 };
+    std::initializer_list replacingList { 1, 2, 3 };
+
+    originalSut = replacingList;
+
+    ASSERT_EQ(originalSut.size(), replacingList.size());
+    for (auto originalSutIter = originalSut.begin();
+         auto&& el : replacingList) {
+        EXPECT_EQ(*originalSutIter, el);
+        ++originalSutIter;
+    }
+    EXPECT_EQ(originalSut.size(), replacingList.size());
+    EXPECT_EQ(originalSut.capacity(), replacingList.size());
+}
+
+TEST(CopyAssignmentTakingInitializerListTests,
+     shouldDealocateOldMemoryAndAllocateNewOneAndPreserveNewSizeAndCapacity)
+{
+    // Arrange part
+    AllocatorCallDetectorMock<int> callDetector;
+    CustomTestingAllocator<int> intAllocator;
+    intAllocator.setCallDetectionHelper(&callDetector);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(3);
+
+    Vector originalSut({ 5, 10, 15 }, intAllocator);
+    auto firstElementBefore = originalSut.front();
+    auto sizeBefore = originalSut.size();
+
+    std::initializer_list replacingList { 1, 2, 3, 4, 5 };
+
+    // Act part
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(0);
+    // // deallocate for old memory
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    // // destructor call for old elements
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+        .Times(sizeBefore);
+    originalSut = replacingList;
+    auto firstElementAfter = originalSut.front();
+    auto sizeAfter = originalSut.size();
+
+    // Assert part
+    EXPECT_NE(firstElementBefore, firstElementAfter);
+    EXPECT_NE(sizeBefore, sizeAfter);
+    EXPECT_EQ(replacingList.size(), sizeAfter);
+    EXPECT_EQ(originalSut.size(), replacingList.size());
+    EXPECT_EQ(originalSut.capacity(), replacingList.size());
+
+    // calls expected on teardown
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_,
+                detectDestroyCall(An<int*>()))
+        .Times(replacingList.size());
+}
+
+TEST(CopyAssignmentTakingInitializerListTests, shouldDeepCopyElementsFromSource)
+{
+    Vector originalSut { 30, 40, 50, 60, 70, 80 };
+    std::initializer_list replacingList { 1, 2, 3 };
+
+    originalSut = replacingList;
+
+    ASSERT_EQ(originalSut.size(), replacingList.size());
+    auto originalSutIter = originalSut.begin();
+    auto replacingListIter = replacingList.begin();
+    while (originalSutIter != originalSut.end()) {
+        EXPECT_NE(originalSutIter, replacingListIter);
+        EXPECT_EQ(*originalSutIter, *replacingListIter);
+        ++originalSutIter;
+        ++replacingListIter;
     }
 }
 
