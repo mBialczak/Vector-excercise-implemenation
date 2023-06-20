@@ -55,9 +55,7 @@ class Vector
 
     // ============= ASSIGNMENT OPERATORS ==========
     constexpr Vector& operator=(const Vector& other);
-
-    // constexpr vector& operator=(vector&& other) noexcept;
-
+    constexpr Vector& operator=(Vector&& other) noexcept;
     constexpr Vector& operator=(std::initializer_list<Type> ilist);
 
     // ============= ASSIGN FUNCTION ==========
@@ -307,7 +305,7 @@ constexpr Vector<Type, Allocator>::Vector(Vector<Type, OtherAllocator>&& other,
 template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::~Vector()
 {
-    if (begin_ == iterator {}) {
+    if (begin_ == nullptr) {
         return;
     }
 
@@ -338,6 +336,28 @@ constexpr Vector<Type, Allocator>&
 
     end_ = std::next(begin_, other.size());
     capacity_ = end_;
+    return *this;
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>&
+    Vector<Type, Allocator>::operator=(Vector&& other) noexcept
+{
+    std::cout << "MOVE ASSIGNMENT OPERATOR CALLED\n";
+    if (this == &other) {
+        return *this;
+    }
+
+    destructOldObjects();
+    Allocator::deallocate(begin_);
+
+    begin_ = other.begin_;
+    other.begin_ = nullptr;
+
+    end_ = other.end();
+    other.end_ = nullptr;
+
+    capacity_ = other.capacity_;
     return *this;
 }
 
