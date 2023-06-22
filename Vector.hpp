@@ -59,10 +59,11 @@ class Vector
     constexpr Vector& operator=(std::initializer_list<Type> ilist);
 
     // ============= ASSIGN FUNCTION ==========
-    // constexpr void assign(size_type count, const T& value);
+    constexpr void assign(size_type count, const Type& value);
 
-    // template <class InputIt>
-    // constexpr void assign(InputIt first, InputIt last);
+    template <class InputIt>
+    requires std::input_iterator<InputIt>
+    constexpr void assign(InputIt first, InputIt last);
 
     // constexpr void assign( std::initializer_list<T> ilist );
 
@@ -380,6 +381,30 @@ constexpr Vector<Type, Allocator>&
     end_ = std::next(begin_, ilist.size());
     capacity_ = end_;
     return *this;
+}
+
+template <typename Type, typename Allocator>
+constexpr void Vector<Type, Allocator>::assign(size_type count, const Type& value)
+{
+    // TODO: REMOVE
+    std::cout << "ASSIGN TAKING COUNT AND VALUE\n";
+
+    destructOldObjects();
+    Allocator::deallocate(begin_);
+    begin_ = Allocator::allocate(count);
+    end_ = std::next(begin_, count);
+    capacity_ = end_;
+
+    for (auto iter = begin_; iter < end_; ++iter) {
+        Allocator::construct(iter, Type { value });
+    }
+}
+
+template <typename Type, typename Allocator>
+template <class InputIt>
+requires std::input_iterator<InputIt>
+constexpr void Vector<Type, Allocator>::assign(InputIt first, InputIt last)
+{
 }
 
 template <typename Type, typename Allocator>
