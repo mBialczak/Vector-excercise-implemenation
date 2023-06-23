@@ -1378,6 +1378,7 @@ TEST(AssignTakingIterators,
     Vector sut { 1, 2, 3 };
     constexpr auto newSize = 3;
     std::array<int, newSize> replacingValues { 11, 12, 13 };
+
     sut.assign(replacingValues.begin(), replacingValues.end());
 
     for (auto sutIter = sut.begin();
@@ -1388,6 +1389,186 @@ TEST(AssignTakingIterators,
 
     EXPECT_EQ(sut.size(), newSize);
     EXPECT_EQ(sut.capacity(), newSize);
+}
+
+TEST(AssignTakingIterators,
+     shouldReplaceContentsWithGivenNumberOfObjectsIfOriginalSizeSmallerAndPreserveNewSizeAndCapacity)
+{
+    Vector sut { 1, 2, 3 };
+    constexpr auto newSize = 10;
+    std::array<int, newSize> replacingValues { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+
+    sut.assign(replacingValues.begin(), replacingValues.end());
+
+    for (auto sutIter = sut.begin();
+         auto&& el : replacingValues) {
+        EXPECT_EQ(*sutIter, el);
+        ++sutIter;
+    }
+
+    EXPECT_EQ(sut.size(), newSize);
+    EXPECT_EQ(sut.capacity(), newSize);
+}
+
+TEST(AssignTakingIterators,
+     shouldReplaceContentsWithGivenNumberOfObjectsIfOriginalSizeGraterAndPreserveNewSizeAndCapacity)
+{
+    Vector sut { 1, 2, 3, 4, 5, 6 };
+    constexpr auto newSize = 3;
+    std::array<int, newSize> replacingValues { 11, 12, 13 };
+
+    sut.assign(replacingValues.begin(), replacingValues.end());
+
+    for (auto sutIter = sut.begin();
+         auto&& el : replacingValues) {
+        EXPECT_EQ(*sutIter, el);
+        ++sutIter;
+    }
+
+    EXPECT_EQ(sut.size(), newSize);
+    EXPECT_EQ(sut.capacity(), newSize);
+}
+
+TEST(AssignTakingIterators,
+     shouldDeallocateOldMemoryAndAllocateNewOneAndPreserveNewSizeAndCapacity)
+{
+    // Arrange part
+    AllocatorCallDetectorMock<int> callDetector;
+    CustomTestingAllocator<int> intAllocator;
+    intAllocator.setCallDetectionHelper(&callDetector);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(3);
+
+    Vector sut({ 5, 10, 15 }, intAllocator);
+    auto firstElementBefore = sut.front();
+    auto sizeBefore = sut.size();
+    constexpr auto newSize = 10;
+    std::array<int, newSize> replacingValues { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+
+    // Act part
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(newSize);
+    // // deallocate for old memory
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    // // destructor call for old elements
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>())).Times(sizeBefore);
+    sut.assign(replacingValues.begin(), replacingValues.end());
+    auto firstElementAfter = sut.front();
+    auto sizeAfter = sut.size();
+
+    // Assert part
+    EXPECT_NE(firstElementBefore, firstElementAfter);
+    EXPECT_NE(sizeBefore, sizeAfter);
+    EXPECT_EQ(newSize, sizeAfter);
+    EXPECT_EQ(sut.capacity(), newSize);
+
+    // calls expected on teardown
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_,
+                detectDestroyCall(An<int*>()))
+        .Times(sut.size());
+}
+
+//=== test for constexpr void assign std::initializer_list<T> ilist);
+TEST(AssignTakingInitializerlist,
+     shouldReplaceContentsWithSameNumberOfGivenObjectsAsInOriginalSutAndHaveSameNewSizeAndCapacity)
+{
+    Vector sut { 1, 2, 3 };
+    std::initializer_list replacingValues { 11, 12, 13 };
+
+    sut.assign(replacingValues);
+
+    for (auto sutIter = sut.begin();
+         auto&& el : replacingValues) {
+        EXPECT_EQ(*sutIter, el);
+        ++sutIter;
+    }
+
+    EXPECT_EQ(sut.size(), replacingValues.size());
+    EXPECT_EQ(sut.capacity(), replacingValues.size());
+}
+
+TEST(AssignTakingInitializerlist,
+     shouldReplaceContentsWithGivenNumberOfObjectsIfOriginalSizeSmallerAndPreserveNewSizeAndCapacity)
+{
+    Vector sut { 1, 2, 3 };
+    std::initializer_list replacingValues { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+
+    sut.assign(replacingValues);
+
+    for (auto sutIter = sut.begin();
+         auto&& el : replacingValues) {
+        EXPECT_EQ(*sutIter, el);
+        ++sutIter;
+    }
+
+    EXPECT_EQ(sut.size(), replacingValues.size());
+    EXPECT_EQ(sut.capacity(), replacingValues.size());
+}
+
+TEST(AssignTakingInitializerlist,
+     shouldReplaceContentsWithGivenNumberOfObjectsIfOriginalSizeGraterAndPreserveNewSizeAndCapacity)
+{
+    Vector sut { 1, 2, 3, 4, 5, 6 };
+    std::initializer_list replacingValues { 11, 12, 13 };
+
+    sut.assign(replacingValues);
+
+    for (auto sutIter = sut.begin();
+         auto&& el : replacingValues) {
+        EXPECT_EQ(*sutIter, el);
+        ++sutIter;
+    }
+
+    EXPECT_EQ(sut.size(), replacingValues.size());
+    EXPECT_EQ(sut.capacity(), replacingValues.size());
+}
+
+TEST(AssignTakingInitializerlist,
+     shouldDeallocateOldMemoryAndAllocateNewOneAndPreserveNewSizeAndCapacity)
+{
+    // Arrange part
+    AllocatorCallDetectorMock<int> callDetector;
+    CustomTestingAllocator<int> intAllocator;
+    intAllocator.setCallDetectionHelper(&callDetector);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(3);
+
+    Vector sut({ 5, 10, 15 }, intAllocator);
+    auto firstElementBefore = sut.front();
+    auto sizeBefore = sut.size();
+    std::initializer_list replacingValues { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+
+    // Act part
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(replacingValues.size());
+    // // deallocate for old memory
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    // // destructor call for old elements
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>())).Times(sizeBefore);
+    sut.assign(replacingValues);
+    auto firstElementAfter = sut.front();
+    auto sizeAfter = sut.size();
+
+    // Assert part
+    EXPECT_NE(firstElementBefore, firstElementAfter);
+    EXPECT_NE(sizeBefore, sizeAfter);
+    EXPECT_EQ(replacingValues.size(), sizeAfter);
+    EXPECT_EQ(sut.capacity(), replacingValues.size());
+
+    // calls expected on teardown
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_,
+                detectDestroyCall(An<int*>()))
+        .Times(sut.size());
 }
 
 //=== tests for constexpr reference at( size_type pos );

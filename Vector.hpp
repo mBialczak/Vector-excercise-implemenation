@@ -65,7 +65,7 @@ class Vector
     requires std::input_iterator<InputIt>
     constexpr void assign(InputIt first, InputIt last);
 
-    // constexpr void assign( std::initializer_list<T> ilist );
+    constexpr void assign(std::initializer_list<Type> ilist);
 
     // TODO: VERIFY consider tests
     constexpr allocator_type get_allocator() const noexcept;
@@ -405,6 +405,41 @@ template <class InputIt>
 requires std::input_iterator<InputIt>
 constexpr void Vector<Type, Allocator>::assign(InputIt first, InputIt last)
 {
+    // TODO: REMOVE
+    std::cout << "ASSIGN TAKING ITERATORS\n";
+
+    destructOldObjects();
+    Allocator::deallocate(begin_);
+    const auto newSize = std::distance(first, last);
+    begin_ = Allocator::allocate(newSize);
+    end_ = std::next(begin_, newSize);
+    capacity_ = end_;
+
+    for (auto iter = begin_; iter < end_; ++iter, ++first) {
+        Allocator::construct(iter, Type { *first });
+    }
+}
+
+template <typename Type, typename Allocator>
+constexpr void Vector<Type, Allocator>::assign(std::initializer_list<Type> ilist)
+{
+    // TODO: REMOVE
+    std::cout << "ASSIGN TAKING INITIALIZER LIST\n";
+
+    destructOldObjects();
+    Allocator::deallocate(begin_);
+
+    const auto newSize = ilist.size();
+
+    begin_ = Allocator::allocate(newSize);
+    end_ = std::next(begin_, newSize);
+    capacity_ = end_;
+
+    for (auto iter = begin_;
+         auto&& el : ilist) {
+        Allocator::construct(iter, Type { el });
+        ++iter;
+    }
 }
 
 template <typename Type, typename Allocator>
