@@ -92,10 +92,10 @@ class Vector
     constexpr iterator end() noexcept;
     constexpr const_iterator end() const noexcept;
     constexpr const_iterator cend() const noexcept;
-
+    // TODO: VERIFY do tests
     // constexpr reverse_iterator rbegin() noexcept;
-    // constexpr const_reverse_iterator rbegin() const noexcept;
-    // constexpr const_reverse_iterator crbegin() const noexcept;
+    //  constexpr const_reverse_iterator rbegin() const noexcept;
+    //  constexpr const_reverse_iterator crbegin() const noexcept;
 
     // constexpr reverse_iterator rend() noexcept;
     // constexpr const_reverse_iterator rend() const noexcept;
@@ -626,6 +626,9 @@ constexpr Vector<Type, Allocator>::const_iterator
 {
     return end_;
 }
+
+// template <typename Type, typename Allocator>
+// constexpr Vector<Type, Allocator>::iterator constexpr reverse_iterator rbegin() noexcept;
 
 // TODO: VERIFY seems not needed. Due to default constructible allocator?
 //  template <typename Type, typename Allocator>
