@@ -16,7 +16,7 @@ struct DestructionTestMock
     ~DestructionTestMock() { toBeCalledOnDestruction(); }
 };
 
-TEST(DefaultAllocatorTests, allocateShouldreturnPointerToRequestedType)
+TEST(DefaultAllocatorTests, allocateShouldReturnPointerToRequestedType)
 {
     DefaultAllocator<int> sutInt;
     DefaultAllocator<double> sutDouble;
