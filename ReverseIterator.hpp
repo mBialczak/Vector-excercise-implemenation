@@ -16,13 +16,7 @@ namespace my {
 // template <typename Type>
 template <class Type>
 struct ReverseIterator;
-// { };
-// TODO: REMOVE
-// template <class Type>
-// struct ReverseIterator<Type*>
-// {
-//     Type* pointer;
-// };
+
 // TODO: REMOVE
 // template <typename IteratorType>
 template <typename Type>
@@ -34,23 +28,21 @@ struct ReverseIterator<Type*>
     ReverseIterator(Type* iter);
 
     constexpr ReverseIterator& operator++();
-    // constexpr ReverseIterator& operator--();
-    // constexpr ReverseIterator operator++(int);
-    // constexpr ReverseIterator operator--(int);
-    // constexpr ReverseIterator operator+(difference_type n) const;
-    // constexpr ReverseIterator operator-(difference_type n) const;
-    // constexpr ReverseIterator& operator+=(difference_type n);
+    constexpr ReverseIterator operator++(int);
+    constexpr ReverseIterator& operator--();
+    constexpr ReverseIterator operator--(int);
+    constexpr ReverseIterator operator+(difference_type n) const;
+    constexpr ReverseIterator operator-(difference_type n) const;
+    constexpr ReverseIterator& operator+=(difference_type n);
     // constexpr ReverseIterator& operator-=(difference_type n);
 
     // TODO: VERIFY test
     // template <typename Type>
-    // constexpr Type* operator[](difference_type n) const;
+    // constexpr Type& operator[](difference_type n) const;
 
-    // template <typename Type>
     constexpr Type& operator*() const;
-
-    // template <typename Type>
-    // constexpr Type* operator->() const;
+    // TODO: VERIFY test this one
+    //  constexpr Type* operator->() const;
 
     // TODO: VERIFY if not to limit access
   private:
@@ -69,12 +61,6 @@ ReverseIterator<Type*>::ReverseIterator(Type* iter)
     : elementPointer_(iter)
 {
 }
-// TODO: REMOVE
-// template <typename IteratorType>
-// constexpr ReverseIterator<IteratorType>& ReverseIterator<IteratorType>::operator++()
-// {
-//     --elementPointer_;
-// }
 
 template <typename Type>
 constexpr ReverseIterator<Type*>& ReverseIterator<Type*>::operator++()
@@ -83,47 +69,47 @@ constexpr ReverseIterator<Type*>& ReverseIterator<Type*>::operator++()
     return *this;
 }
 
-// template <typename Type>
-// constexpr ReverseIterator<Type>& ReverseIterator<Type>::operator++()
-// {
-//     --elementPointer_;
-// }
+template <typename Type>
+constexpr ReverseIterator<Type*> ReverseIterator<Type*>::operator++(int)
+{
+    auto copy = *this;
+    --elementPointer_;
+    return copy;
+}
 
-// template <typename IteratorType>
-// constexpr ReverseIterator<IteratorType>& ReverseIterator<IteratorType>::operator--()
-// {
-//     ++elementPointer_;
-// }
+template <typename Type>
+constexpr ReverseIterator<Type*>& ReverseIterator<Type*>::operator--()
+{
+    ++elementPointer_;
+    return *this;
+}
 
-// template <typename Type>
-// constexpr ReverseIterator<Type> ReverseIterator<Type>::operator++(int)
-// {
-//     return elementPointer_--;
-// }
+template <typename Type>
+constexpr ReverseIterator<Type*> ReverseIterator<Type*>::operator--(int)
+{
+    auto copy = *this;
+    ++elementPointer_;
+    return copy;
+}
 
-// template <typename Type>
-// constexpr ReverseIterator<Type> ReverseIterator<Type>::operator--(int)
-// {
-//     return elementPointer_++;
-// }
+template <typename Type>
+constexpr ReverseIterator<Type*> ReverseIterator<Type*>::operator+(difference_type n) const
+{
+    return ReverseIterator(elementPointer_ - n);
+}
 
-// template <typename Type>
-// constexpr ReverseIterator<Type> ReverseIterator<Type>::operator+(difference_type n) const
-// {
-//     return elementPointer_ - n;
-// }
+template <typename Type>
+constexpr ReverseIterator<Type*> ReverseIterator<Type*>::operator-(difference_type n) const
+{
+    return ReverseIterator(elementPointer_ + n);
+}
 
-// template <typename Type>
-// constexpr ReverseIterator<Type> ReverseIterator<Type>::operator-(difference_type n) const
-// {
-//     return elementPointer_ + n;
-// }
-
-// template <typename Type>
-// constexpr ReverseIterator<Type>& ReverseIterator<Type>::operator+=(difference_type n)
-// {
-//     return elementPointer_ -= n;
-// }
+template <typename Type>
+constexpr ReverseIterator<Type*>& ReverseIterator<Type*>::operator+=(difference_type n)
+{
+    elementPointer_ -= n;
+    return *this;
+}
 
 // template <typename Type>
 // constexpr ReverseIterator<Type>& ReverseIterator<Type>::operator-=(difference_type n)
@@ -150,12 +136,11 @@ constexpr Type& ReverseIterator<Type*>::operator*() const
 {
     return *elementPointer_;
 }
-
-// template <typename IteratorType>
+// TODO: NEXT
 // template <typename Type>
-// constexpr Type* ReverseIterator<IteratorType>::operator->() const
+// constexpr Type* ReverseIterator<Type*>::operator->() const
 // {
-//     return elementPointer_;
+//     return std::prev(*this)
 // }
 
 // template <typename IteratorType>

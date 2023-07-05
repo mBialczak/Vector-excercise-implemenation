@@ -75,4 +75,5 @@ target_compile_features(ReverseIterator-UT
                         cxx_std_20)
 
 add_test(NAME DefaultAllocator-UT COMMAND DefaultAllocator-UT)
+add_test(NAME ReverseIterator-UT COMMAND ReverseIterator-UT)
 add_test(NAME VectorTests-MT COMMAND Vector-MT)
