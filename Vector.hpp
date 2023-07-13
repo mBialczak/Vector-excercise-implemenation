@@ -35,7 +35,7 @@ class Vector
                               const Allocator& alloc = Allocator());
 
     template <typename InputIt>
-    requires std::input_iterator<InputIt>
+        requires std::input_iterator<InputIt>
     constexpr Vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
 
     constexpr Vector(std::initializer_list<Type> init,
@@ -62,7 +62,7 @@ class Vector
     constexpr void assign(size_type count, const Type& value);
 
     template <class InputIt>
-    requires std::input_iterator<InputIt>
+        requires std::input_iterator<InputIt>
     constexpr void assign(InputIt first, InputIt last);
 
     constexpr void assign(std::initializer_list<Type> ilist);
@@ -138,9 +138,10 @@ class Vector
     // template <class T, class Alloc>
     // constexpr operator<=>(const std::vector<T, Alloc>& lhs,
     //                       const std::vector<T, Alloc>& rhs);
-
+    // TODO: VERIFY
     template <typename OtherType, typename OtherAllocator>
-    requires std::is_convertible_v<OtherType, Type>
+    // requires std::is_convertible_v<OtherType, Type>
+    // friend class Vector<OtherType, OtherAllocator>;
     friend class Vector;
 
   private:
@@ -208,7 +209,7 @@ constexpr Vector<Type, Allocator>::Vector(size_type count,
 // TODO: VERIFY
 template <typename Type, typename Allocator>
 template <typename InputIt>
-requires std::input_iterator<InputIt>
+    requires std::input_iterator<InputIt>
 // requires std::iterator<InputIt>
 constexpr Vector<Type, Allocator>::Vector(InputIt first,
                                           InputIt last,
@@ -402,7 +403,7 @@ constexpr void Vector<Type, Allocator>::assign(size_type count, const Type& valu
 
 template <typename Type, typename Allocator>
 template <class InputIt>
-requires std::input_iterator<InputIt>
+    requires std::input_iterator<InputIt>
 constexpr void Vector<Type, Allocator>::assign(InputIt first, InputIt last)
 {
     // TODO: REMOVE
