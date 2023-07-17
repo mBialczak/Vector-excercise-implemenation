@@ -1273,8 +1273,6 @@ TEST(CopyAssignmentTakingInitializerListTests, shouldDeepCopyElementsFromSource)
 }
 
 //=== tests for constexpr void assign(size_type count, const T& value);
-// shouldDeepCopyElementsFromSource
-
 TEST(AssignTakingCountAndValueTests,
      shouldReplaceContentsWithSameNumberOfGivenObjectsAsInOriginalSutAndHaveSameNewSizeAndCapacity)
 {
@@ -1938,6 +1936,88 @@ TEST(ShrinkToFitTests, shouldNotDecreaseCapacityIfNoMemoryToFree)
     ASSERT_EQ(startCapacity, 5);
     EXPECT_EQ(sizeAfterShrink, startSize);
     EXPECT_EQ(capacityAfterShrink, startCapacity);
+}
+
+// TODO:
+// === tests for  constexpr reverse_iterator rbegin() noexcept;
+// === constexpr const_reverse_iterator rbegin() const noexcept;
+TEST(ReverseBeginTests, shouldReturnReverseIteratorType)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
+    Vector<std::string> sutString { "one", "two", "three" };
+    const Vector sutConstInt { 100, 200, 300, 400, 500 };
+    const Vector sutConstDouble { 100.0, 200.0, 300.0, 400.0, 500.0 };
+    const Vector<std::string> sutConstString { "one", "two", "three" };
+
+    auto rIteratorInt = sutInt.rbegin();
+    auto rIteratorDouble = sutDouble.rbegin();
+    auto rIteratorString = sutString.rbegin();
+    auto rIteratorConstInt = sutConstInt.rbegin();
+    auto rIteratorConstDouble = sutConstDouble.rbegin();
+    auto rIteratorConstString = sutConstString.rbegin();
+
+    EXPECT_THAT(rIteratorInt, A<ReverseIterator<int*>>());
+    EXPECT_THAT(rIteratorDouble, A<ReverseIterator<double*>>());
+    EXPECT_THAT(rIteratorString, A<ReverseIterator<std::string*>>());
+    EXPECT_THAT(rIteratorConstInt, A<ReverseIterator<const int*>>());
+    EXPECT_THAT(rIteratorConstDouble, A<ReverseIterator<const double*>>());
+    EXPECT_THAT(rIteratorConstString, A<ReverseIterator<const std::string*>>());
+}
+
+TEST(ReverseBeginCorrectnessTests, shouldPointToAcorrectElement)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
+    Vector<std::string> sutString { "one", "two", "three" };
+    const Vector sutConstInt { 100, 200, 300, 400, 500 };
+    const Vector sutConstDouble { 100.0, 200.0, 300.0, 400.0, 500.0 };
+    const Vector<std::string> sutConstString { "one", "two", "three" };
+
+    auto rIteratorInt = sutInt.rbegin();
+    auto rIteratorDouble = sutDouble.rbegin();
+    auto rIteratorString = sutString.rbegin();
+    auto rIteratorConstInt = sutConstInt.rbegin();
+    auto rIteratorConstDouble = sutConstDouble.rbegin();
+    auto rIteratorConstString = sutConstString.rbegin();
+
+    EXPECT_EQ(rIteratorInt, sutInt.end() - 1);
+    EXPECT_EQ(rIteratorDouble, sutDouble.end() - 1);
+    EXPECT_EQ(rIteratorString, sutString.end() - 1);
+    EXPECT_EQ(rIteratorConstInt, sutConstInt.end() - 1);
+    EXPECT_EQ(rIteratorConstDouble, sutConstDouble.end() - 1);
+    EXPECT_EQ(rIteratorConstString, sutConstString.end() - 1);
+}
+
+//=== constexpr const_reverse_iterator crbegin() const noexcept;
+TEST(ConstReverseBeginTests, shouldReturnReverseIteratorType)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
+    Vector<std::string> sutString { "one", "two", "three" };
+
+    auto rIteratorConstInt = sutInt.crbegin();
+    auto rIteratorConstDouble = sutDouble.crbegin();
+    auto rIteratorConstString = sutString.crbegin();
+
+    EXPECT_THAT(rIteratorConstInt, A<ReverseIterator<const int*>>());
+    EXPECT_THAT(rIteratorConstDouble, A<ReverseIterator<const double*>>());
+    EXPECT_THAT(rIteratorConstString, A<ReverseIterator<const std::string*>>());
+}
+
+TEST(ConstReverseBeginTests, shouldPointToAcorrectElement)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
+    Vector<std::string> sutString { "one", "two", "three" };
+
+    auto rIteratorConstInt = sutInt.crbegin();
+    auto rIteratorConstDouble = sutDouble.crbegin();
+    auto rIteratorConstString = sutString.crbegin();
+
+    EXPECT_THAT(rIteratorConstInt, sutInt.end() - 1);
+    EXPECT_THAT(rIteratorConstDouble, sutDouble.end() - 1);
+    EXPECT_THAT(rIteratorConstString, sutString.end() - 1);
 }
 
 // TODO: test size after adding objects

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DefaultAllocator.hpp"
+#include "ReverseIterator.hpp"
 
 #include <initializer_list>
 #include <iterator>
@@ -21,6 +22,9 @@ class Vector
     using difference_type = std::ptrdiff_t;
     using iterator = Type*;
     using const_iterator = const Type*;
+    // TODO: VERIFY
+    using reverse_iterator = ReverseIterator<Type*>;
+    using const_reverse_iterator = ReverseIterator<const Type*>;
     using reference = Type&;
     using const_reference = const Type&;
 
@@ -84,7 +88,7 @@ class Vector
 
     constexpr Type* data() noexcept;
     constexpr const Type* data() const noexcept;
-
+    // TODO: VERIFY consider tests if not found
     constexpr iterator begin() noexcept;
     constexpr const_iterator begin() const noexcept;
     constexpr const_iterator cbegin() const noexcept;
@@ -92,10 +96,10 @@ class Vector
     constexpr iterator end() noexcept;
     constexpr const_iterator end() const noexcept;
     constexpr const_iterator cend() const noexcept;
-    // TODO: VERIFY do tests
-    // constexpr reverse_iterator rbegin() noexcept;
-    //  constexpr const_reverse_iterator rbegin() const noexcept;
-    //  constexpr const_reverse_iterator crbegin() const noexcept;
+
+    constexpr reverse_iterator rbegin() noexcept;
+    constexpr const_reverse_iterator rbegin() const noexcept;
+    constexpr const_reverse_iterator crbegin() const noexcept;
 
     // constexpr reverse_iterator rend() noexcept;
     // constexpr const_reverse_iterator rend() const noexcept;
@@ -626,6 +630,27 @@ constexpr Vector<Type, Allocator>::const_iterator
     Vector<Type, Allocator>::cend() const noexcept
 {
     return end_;
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::reverse_iterator
+    Vector<Type, Allocator>::rbegin() noexcept
+{
+    return ReverseIterator<Type*> { end_ - 1 };
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::const_reverse_iterator
+    Vector<Type, Allocator>::rbegin() const noexcept
+{
+    return ReverseIterator<const Type*> { end_ - 1 };
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::const_reverse_iterator
+    Vector<Type, Allocator>::crbegin() const noexcept
+{
+    return ReverseIterator<const Type*> { end_ - 1 };
 }
 
 // template <typename Type, typename Allocator>
