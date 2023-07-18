@@ -101,9 +101,9 @@ class Vector
     constexpr const_reverse_iterator rbegin() const noexcept;
     constexpr const_reverse_iterator crbegin() const noexcept;
 
-    // constexpr reverse_iterator rend() noexcept;
-    // constexpr const_reverse_iterator rend() const noexcept;
-    // constexpr const_reverse_iterator crend() const noexcept;
+    constexpr reverse_iterator rend() noexcept;
+    constexpr const_reverse_iterator rend() const noexcept;
+    constexpr const_reverse_iterator crend() const noexcept;
 
     // ============== capacity functions =============
     // [[nodiscard]] constexpr bool empty() const noexcept;
@@ -112,6 +112,7 @@ class Vector
     constexpr void reserve(size_type new_cap);
     constexpr size_type capacity() const noexcept;
     constexpr void shrink_to_fit();
+
     // // ============== modifiers ======================
     // constexpr void clear() noexcept;
 
@@ -653,8 +654,26 @@ constexpr Vector<Type, Allocator>::const_reverse_iterator
     return ReverseIterator<const Type*> { end_ - 1 };
 }
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::iterator constexpr reverse_iterator rbegin() noexcept;
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::reverse_iterator
+    Vector<Type, Allocator>::rend() noexcept
+{
+    return ReverseIterator<Type*> { begin_ };
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::const_reverse_iterator
+    Vector<Type, Allocator>::rend() const noexcept
+{
+    return ReverseIterator<const Type*> { begin_ };
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::const_reverse_iterator
+    Vector<Type, Allocator>::crend() const noexcept
+{
+    return ReverseIterator<const Type*> { begin_ };
+}
 
 // TODO: VERIFY seems not needed. Due to default constructible allocator?
 //  template <typename Type, typename Allocator>
