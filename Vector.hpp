@@ -106,7 +106,7 @@ class Vector
     constexpr const_reverse_iterator crend() const noexcept;
 
     // ============== capacity functions =============
-    // [[nodiscard]] constexpr bool empty() const noexcept;
+    [[nodiscard]] constexpr bool empty() const noexcept;
     constexpr size_type size() const noexcept;
     constexpr size_type max_size() const noexcept;
     constexpr void reserve(size_type new_cap);
@@ -530,6 +530,12 @@ template <typename Type, typename Allocator>
 constexpr const Type* Vector<Type, Allocator>::data() const noexcept
 {
     return begin_;
+}
+
+template <typename Type, typename Allocator>
+[[nodiscard]] constexpr bool Vector<Type, Allocator>::empty() const noexcept
+{
+    return !size();
 }
 
 template <typename Type, typename Allocator>

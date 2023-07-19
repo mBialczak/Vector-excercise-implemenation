@@ -2115,6 +2115,29 @@ TEST(ConstReverseEndTests, shouldPointToAcorrectElement)
     EXPECT_THAT(rIteratorConstString, sutString.begin());
 }
 
+//=== tests for [[nodiscard]] constexpr bool empty() const noexcept;
+TEST(EmptyTests, shouldReturnTrueForEmptyVector)
+{
+    Vector<int> sutInt;
+    Vector<double> sutDouble;
+    Vector<std::string> sutString;
+
+    EXPECT_TRUE(sutInt.empty());
+    EXPECT_TRUE(sutDouble.empty());
+    EXPECT_TRUE(sutString.empty());
+}
+
+TEST(EmptyTests, shouldReturnFalseForNonEmptyVector)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector sutDouble { 10.0 };
+    Vector<std::string> sutString { "one" };
+
+    EXPECT_FALSE(sutInt.empty());
+    EXPECT_FALSE(sutDouble.empty());
+    EXPECT_FALSE(sutString.empty());
+}
+
 // TODO: test size after adding objects
 // TODO: test size after adding if capacity should increase
 // TODO: test size after removing objects
