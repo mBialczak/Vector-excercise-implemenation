@@ -114,7 +114,7 @@ class Vector
     constexpr void shrink_to_fit();
 
     // // ============== modifiers ======================
-    // constexpr void clear() noexcept;
+    constexpr void clear() noexcept;
 
     // constexpr iterator insert(const_iterator pos, const T& value);
     // constexpr iterator insert(const_iterator pos, T&& value);
@@ -587,6 +587,18 @@ constexpr void Vector<Type, Allocator>::shrink_to_fit()
     Allocator::deallocate(begin_);
     begin_ = newBegin;
     end_ = std::next(begin_, sizeToKeep);
+    capacity_ = end_;
+}
+
+template <typename Type, typename Allocator>
+constexpr void Vector<Type, Allocator>::clear() noexcept
+{
+    destructOldObjects();
+    // TODO: VERIFY
+    //  allocator_.deallocate(begin_);
+    Allocator::deallocate(begin_);
+    begin_ = nullptr;
+    end_ = nullptr;
     capacity_ = end_;
 }
 
