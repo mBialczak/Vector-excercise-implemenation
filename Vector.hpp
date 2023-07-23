@@ -116,7 +116,7 @@ class Vector
     // // ============== modifiers ======================
     constexpr void clear() noexcept;
 
-    // constexpr iterator insert(const_iterator pos, const T& value);
+    constexpr iterator insert(const_iterator pos, const Type& value);
     // constexpr iterator insert(const_iterator pos, T&& value);
     // constexpr iterator insert(const_iterator pos, size_type count, const T& value);
     // template <class InputIt>
@@ -150,7 +150,11 @@ class Vector
     friend class Vector;
 
   private:
-    void moveOrCopyToNewMemory(Type* newBegin);
+    // TODO: REMOVE
+    // void moveOrCopyToAll(Type* newBegin);
+    void moveOrCopy(const_iterator start,
+                    const_iterator end,
+                    iterator destination);
     void destructOldObjects();
 
     Type* begin_;
@@ -564,8 +568,7 @@ constexpr void Vector<Type, Allocator>::reserve(size_type new_cap)
     }
 
     Type* newBegin = Allocator::allocate(new_cap);
-    moveOrCopyToNewMemory(newBegin);
-
+    moveOrCopy(begin_, end_, newBegin);
     auto size = std::distance(begin_, end_);
     Type* previousBegin = begin_;
     begin_ = newBegin;
@@ -582,7 +585,7 @@ constexpr void Vector<Type, Allocator>::shrink_to_fit()
     }
 
     Type* newBegin = Allocator::allocate(size());
-    moveOrCopyToNewMemory(newBegin);
+    moveOrCopy(begin_, end_, newBegin);
     auto sizeToKeep = size();
     Allocator::deallocate(begin_);
     begin_ = newBegin;
@@ -600,6 +603,42 @@ constexpr void Vector<Type, Allocator>::clear() noexcept
     begin_ = nullptr;
     end_ = nullptr;
     capacity_ = end_;
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::iterator
+    Vector<Type, Allocator>::insert(const_iterator pos, const Type& value)
+{
+    // TODO: VERIFY all
+    auto new_size = size() + 1;
+
+    if (new_size > capacity()) {
+        auto previousSize = size();
+        iterator newBegin = Allocator::allocate(previousSize * 2);
+        moveOrCopy(begin_, pos, newBegin);
+        // TODO: VERIFY
+        //  auto distanceStartToPos = std::distance(begin_, pos);
+        auto distanceStartToPos = pos - begin_;
+        iterator insertionPosition = std::next(newBegin, distanceStartToPos);
+        *insertionPosition = value;
+        moveOrCopy(pos, end_, std::next(insertionPosition));
+
+        Allocator::deallocate(begin_);
+        begin_ = newBegin;
+        end_ = std::next(newBegin, previousSize + 1);
+        capacity_ = std::next(newBegin, previousSize * 2);
+
+        return insertionPosition;
+    }
+
+    // TODO: VERIFY
+    iterator insertionPosition = const_cast<iterator>(pos);
+    // moveOrCopy(pos, end_, pos + 1);
+    moveOrCopy(pos, end_, insertionPosition + 1);
+    *insertionPosition = value;
+    ++end_;
+
+    return insertionPosition;
 }
 
 template <typename Type, typename Allocator>
@@ -709,14 +748,28 @@ constexpr Vector<Type, Allocator>::const_reverse_iterator
 //     erase_if(std::vector<T, Alloc>& c, Pred pred);
 
 // private functions section
+// TODO: REMOVE
+// template <typename Type, typename Allocator>
+// void Vector<Type, Allocator>::moveOrCopyToAll(Type* newBegin)
+// {
+//     if constexpr (std::move_constructible<Type>) {
+//         std::move(begin_, end_, newBegin);
+//     }
+//     else {
+//         std::copy(begin_, end_, newBegin);
+//     }
+// }
+
 template <typename Type, typename Allocator>
-void Vector<Type, Allocator>::moveOrCopyToNewMemory(Type* newBegin)
+void Vector<Type, Allocator>::moveOrCopy(const_iterator start,
+                                         const_iterator end,
+                                         iterator destination)
 {
     if constexpr (std::move_constructible<Type>) {
-        std::move(begin_, end_, newBegin);
+        std::move(start, end, destination);
     }
     else {
-        std::copy(begin_, end_, newBegin);
+        std::copy(start, end, destination);
     }
 }
 

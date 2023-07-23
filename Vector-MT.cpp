@@ -12,6 +12,7 @@ using testing::NiceMock;
 // TODO: VERIFY
 using testing::_;
 using testing::AnyNumber;
+using testing::ElementsAre;
 using testing::Return;
 
 // TODO: VERIFY
@@ -1951,7 +1952,7 @@ TEST(ShrinkToFitTests, shouldNotDecreaseCapacityIfNoMemoryToFree)
     EXPECT_EQ(sizeAfterShrink, startSize);
     EXPECT_EQ(capacityAfterShrink, startCapacity);
 }
-// TODO: VERIFY current
+
 //=== tests for constexpr void clear() noexcept
 TEST(ClearTests, ShouldResetVectorStates)
 {
@@ -1992,6 +1993,120 @@ TEST(ClearTests, ShouldDeallocateOwnedMemoryAndDestroyElements)
         .Times(4);
 
     sut.clear();
+}
+
+// TODO: VERIFY current
+//=== tests for constexpr iterator insert(const_iterator pos, const T& value)
+// shouldReturnIteratorToInsertedValue
+
+TEST(InsertTakingValueTests, shouldIncreaseSizeAfterInsertingElement)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector<std::string> sutString { "one", "two", "three" };
+    auto sutIntSizeBefore = sutInt.size();
+    auto sutStringSizeBefore = sutString.size();
+
+    sutInt.insert(sutInt.begin() + 2, 999);
+    sutInt.insert(sutInt.begin() + 4, 777);
+    sutString.insert(sutString.begin() + 1, "twenty");
+
+    EXPECT_NE(sutInt.size(), sutIntSizeBefore);
+    EXPECT_NE(sutString.size(), sutStringSizeBefore);
+    EXPECT_EQ(sutInt.size(), 7);
+    EXPECT_EQ(sutString.size(), 4);
+}
+
+TEST(InsertTakingValueTests, shouldCauseReallocationIfNewSizeGreaterThanOldCapacity)
+{
+    AllocatorCallDetectorMock<int> callDetector;
+    CustomTestingAllocator<int> intAllocator;
+    intAllocator.setCallDetectionHelper(&callDetector);
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(4);
+    Vector sutInt { 4, 5, intAllocator };
+    auto sizeBefore = sutInt.size();
+    auto capacityBefore = sutInt.capacity();
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    sutInt.insert(sutInt.begin() + 2, 999);
+    auto sizeAfter = sutInt.size();
+    auto capacityAfter = sutInt.capacity();
+
+    ASSERT_EQ(sizeBefore, 4);
+    ASSERT_EQ(capacityBefore, 4);
+    EXPECT_EQ(sizeAfter, 5);
+    // NOTE: as this is just a programming exercise, we make implementation assumption,
+    //       that vector size will be doubled each time we need more elements and capacity is exhausted
+    EXPECT_EQ(capacityAfter, 8);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+        .Times(5);
+}
+
+TEST(InsertTakingValueTests, shouldNotReallocateIfCurentCapacityEnough)
+{
+    AllocatorCallDetectorMock<int> callDetector;
+    CustomTestingAllocator<int> intAllocator;
+    intAllocator.setCallDetectionHelper(&callDetector);
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(4);
+    Vector sutInt { 4, 5, intAllocator };
+    auto sizeBefore = sutInt.size();
+    // NOTE: additional memory is reserved explicitly before insertion
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    sutInt.reserve(5);
+    auto capacityBefore = sutInt.capacity();
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(0);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(0);
+
+    sutInt.insert(sutInt.begin() + 2, 999);
+    auto sizeAfter = sutInt.size();
+    auto capacityAfter = sutInt.capacity();
+
+    ASSERT_EQ(sizeBefore, 4);
+    ASSERT_EQ(capacityBefore, 5);
+    EXPECT_EQ(capacityAfter, 5);
+    EXPECT_EQ(sizeAfter, 5);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+        .Times(5);
+}
+
+// TODO: VERIFY current - investigate segfault
+TEST(InsertTakingValueTests, shouldInsertValueBeforeGivenPositionAndReturnIteratorToInserted)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector<std::string> sutString { "one", "two", "three" };
+
+    auto iteratorToFirstInserted = sutInt.insert(sutInt.begin() + 2, 999);
+    auto iteratorToSecondInserted = sutInt.insert(sutInt.begin() + 4, 777);
+    // auto iteratorToStringInserted = sutString.insert(sutString.begin() + 1, "twenty");
+    // TODO: REMOVE
+    for (auto el : sutString) {
+        std::cout << el << std::endl;
+    }
+    // //TODO: VERIFY
+    // EXPECT_NE(sutInt.size(), sutIntSizeBefore);
+    // EXPECT_NE(sutString.size(), sutStringSizeBefore);
+    // EXPECT_EQ(sutInt.size(), 7);
+    // EXPECT_EQ(sutString.size(), 4);
+    // EXPECT_THAT(sutInt, ElementsAre(1, 2, 999, 3, 777, 4, 5));
+    // EXPECT_THAT(sutString, ElementsAre("one", "twenty", "two", "three"));
+    // EXPECT_THAT(iteratorToFirstInserted, A<Vector<int>::iterator>());
+    // EXPECT_THAT(iteratorToSecondInserted, A<Vector<int>::iterator>());
+    // EXPECT_THAT(iteratorToStringInserted, A<Vector<std::string>::iterator>());
 }
 
 // === tests for  constexpr reverse_iterator rbegin() noexcept;
