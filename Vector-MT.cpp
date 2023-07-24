@@ -1995,9 +1995,7 @@ TEST(ClearTests, ShouldDeallocateOwnedMemoryAndDestroyElements)
     sut.clear();
 }
 
-// TODO: VERIFY current
 //=== tests for constexpr iterator insert(const_iterator pos, const T& value)
-// shouldReturnIteratorToInsertedValue
 
 TEST(InsertTakingValueTests, shouldIncreaseSizeAfterInsertingElement)
 {
@@ -2084,30 +2082,78 @@ TEST(InsertTakingValueTests, shouldNotReallocateIfCurentCapacityEnough)
         .Times(5);
 }
 
-// TODO: VERIFY current - investigate segfault
 TEST(InsertTakingValueTests, shouldInsertValueBeforeGivenPositionAndReturnIteratorToInserted)
 {
     Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector<std::string> sutString { "one", "two", "three" };
+    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
 
     auto iteratorToFirstInserted = sutInt.insert(sutInt.begin() + 2, 999);
-    auto iteratorToSecondInserted = sutInt.insert(sutInt.begin() + 4, 777);
-    // auto iteratorToStringInserted = sutString.insert(sutString.begin() + 1, "twenty");
     // TODO: REMOVE
-    for (auto el : sutString) {
-        std::cout << el << std::endl;
-    }
-    // //TODO: VERIFY
-    // EXPECT_NE(sutInt.size(), sutIntSizeBefore);
-    // EXPECT_NE(sutString.size(), sutStringSizeBefore);
-    // EXPECT_EQ(sutInt.size(), 7);
-    // EXPECT_EQ(sutString.size(), 4);
-    // EXPECT_THAT(sutInt, ElementsAre(1, 2, 999, 3, 777, 4, 5));
-    // EXPECT_THAT(sutString, ElementsAre("one", "twenty", "two", "three"));
-    // EXPECT_THAT(iteratorToFirstInserted, A<Vector<int>::iterator>());
-    // EXPECT_THAT(iteratorToSecondInserted, A<Vector<int>::iterator>());
-    // EXPECT_THAT(iteratorToStringInserted, A<Vector<std::string>::iterator>());
+    // std::cout << "after first insertion:\n";
+    // for (auto&& el : sutInt) {
+    //     std::cout << el << std::endl;
+    // }
+    // TODO: VERIFY
+    auto iteratorToSecondInserted = sutInt.insert(sutInt.begin() + 4, 777);
+    // TODO: REMOVE
+    // std::cout << "after second insertion:\n";
+    // for (auto&& el : sutInt) {
+    //     std::cout << el << std::endl;
+    // }
+
+    auto iteratorToStringInserted = sutString.insert(sutString.begin() + 1, "twenty");
+    // std::cout << "after first insertion:\n";
+    // for (auto&& el : sutString) {
+    //     std::cout << el << std::endl;
+    // }
+    auto iteratorToSecondStringInserted = sutString.insert(sutString.begin() + 4, "fifty");
+    // std::cout << "after second insertion:\n";
+    // for (auto&& el : sutString) {
+    //     std::cout << el << std::endl;
+    // }
+
+    EXPECT_EQ(sutInt.size(), 7);
+    EXPECT_EQ(sutInt.capacity(), 10);
+    EXPECT_EQ(sutString.size(), 7);
+    EXPECT_EQ(sutString.capacity(), 10);
+    EXPECT_THAT(sutInt, ElementsAre(1, 2, 999, 3, 777, 4, 5));
+    EXPECT_THAT(sutString, ElementsAre("one", "twenty", "two", "three", "fifty", "four", "five"));
+    EXPECT_THAT(iteratorToFirstInserted, A<Vector<int>::iterator>());
+    EXPECT_THAT(iteratorToSecondInserted, A<Vector<int>::iterator>());
+    EXPECT_THAT(iteratorToStringInserted, A<Vector<std::string>::iterator>());
+    EXPECT_THAT(iteratorToSecondStringInserted, A<Vector<std::string>::iterator>());
 }
+
+// TEST(InsertTakingValueTests, shouldInsertValueBeforeGivenPositionAndReturnIteratorToInsertedWhenNoReallocation)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     sutInt.reserve(10);
+//     Vector<std::string> sutString { "one", "two", "three" };
+//     sutString.reserve(6);
+
+//     // TODO: REMOVE
+//     for (auto&& el : sutString) {
+//         std::cout << el << std::endl;
+//     }
+
+//     auto iteratorToFirstInserted = sutInt.insert(sutInt.begin() + 2, 999);
+//     auto iteratorToSecondInserted = sutInt.insert(sutInt.begin() + 4, 777);
+//     auto iteratorToStringInserted = sutString.insert(sutString.begin() + 1, "twenty");
+
+//     for (auto&& el : sutString) {
+//         std::cout << el << std::endl;
+//     }
+
+//     EXPECT_EQ(sutInt.size(), 7);
+//     EXPECT_EQ(sutInt.capacity(), 10);
+//     EXPECT_EQ(sutString.size(), 4);
+//     EXPECT_EQ(sutString.capacity(), 6);
+//     EXPECT_THAT(sutInt, ElementsAre(1, 2, 999, 3, 777, 4, 5));
+//     EXPECT_THAT(sutString, ElementsAre("one", "twenty", "two", "three"));
+//     EXPECT_THAT(iteratorToFirstInserted, A<Vector<int>::iterator>());
+//     EXPECT_THAT(iteratorToSecondInserted, A<Vector<int>::iterator>());
+//     EXPECT_THAT(iteratorToStringInserted, A<Vector<std::string>::iterator>());
+// }
 
 // === tests for  constexpr reverse_iterator rbegin() noexcept;
 // === constexpr const_reverse_iterator rbegin() const noexcept;

@@ -26,7 +26,7 @@ struct ReverseIterator<Type*>
     constexpr Type& operator[](difference_type n) const;
     constexpr Type& operator*() const;
     constexpr Type* operator->() const;
-
+    // TODO: VERIFY logic might be inverted and incorrect
     auto operator<=>(const ReverseIterator& other) const = default;
 
   private:
