@@ -611,32 +611,18 @@ template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::iterator
     Vector<Type, Allocator>::insert(const_iterator pos, const Type& value)
 {
-    // TODO: VERIFY all
+    // TODO: REMOVE
+    std::cout << "INSERT taking position and const value&\n";
     auto new_size = size() + 1;
 
     if (new_size > capacity()) {
         auto previousSize = size();
         iterator newBegin = Allocator::allocate(previousSize * 2);
-        // TODO: VERIFY debugging
         moveOrCopy(begin_, pos, newBegin);
-        // std::uninitialized_copy(begin_, const_cast<iterator>(pos), newBegin);
         auto distanceStartToPos = pos - begin_;
         iterator insertionPosition = std::next(newBegin, distanceStartToPos);
-        // *insertionPosition = value;
-        // TODO: VERIFY
         moveOrCopy(pos, end_, std::next(insertionPosition));
-        *insertionPosition = value;
-        // moveOrCopy(pos, end_, std::next(insertionPosition));
-        // moveOrCopy(pos, end_, std::next(insertionPosition));
-        // std::uninitialized_copy(const_cast<iterator>(pos), end_, std::next(insertionPosition));
-        // std::uninitialized_copy(const_cast<iterator>(pos), end_, insertionPosition + 1);
-        // auto endCopy = end_;
-        // auto newPosition = insertionPosition + 1;
-        // for (auto start = const_cast<iterator>(pos); start < endCopy; ++start, ++newPosition) {
-        //     // *(start + 1) = *start;
-        //     Allocator::construct(newPosition, *start);
-        // }
-
+        Allocator::construct(insertionPosition, value);
         Allocator::deallocate(begin_);
         begin_ = newBegin;
         end_ = std::next(newBegin, previousSize + 1);
@@ -645,31 +631,11 @@ constexpr Vector<Type, Allocator>::iterator
         return insertionPosition;
     }
 
-    // TODO: VERIFY
     iterator insertionPosition = const_cast<iterator>(pos);
-    // iterator insertionPositionCopy = const_cast<iterator>(pos);
-    // TODO: VERIFY for debugging
-    // moveOrCopy(insertionPosition, end_, insertionPosition + 1);
-    // std::copy(insertionPosition, end_, insertionPosition + 1);
-    // std::move(insertionPosition, end_, insertionPosition + 1);
-    // moveOrCopy(const_cast<iterator>(pos), end_ + 1, insertionPosition + 1);
-    // std::copy(insertionPositionCopy, end_, insertionPosition + 1);
-    // std::uninitialized_copy(insertionPositionCopy, end_, insertionPosition + 1);
-    // auto endCopy = end_;
-    // auto newPosition = const_cast<iterator>(pos) + 1;
-    // for (auto start = const_cast<iterator>(pos); start < endCopy; ++start) {
-    //     *newPosition = *start;
-    // }
-
-    // for (auto reverseCopyIter = rend(); reverseCopyIter >= insertionPosition; ++reverseCopyIter) {
-    //     auto newPosition = reverseCopyIter - 1;
-    //     Allocator::construct(*newPosition, *reverseCopyIter);
-    // }
     for (auto lastElIter = end_ - 1; lastElIter >= insertionPosition; --lastElIter) {
         auto newPosition = lastElIter + 1;
-        Allocator::construct(newPosition, *lastElIter);
+        moveOrCopy(lastElIter, newPosition, newPosition);
     }
-
     ++end_;
     *insertionPosition = value;
 
