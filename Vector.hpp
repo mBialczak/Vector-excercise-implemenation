@@ -119,7 +119,9 @@ class Vector
     constexpr void clear() noexcept;
 
     constexpr iterator insert(const_iterator pos, const Type& value);
-    // constexpr iterator insert(const_iterator pos, T&& value);
+
+    constexpr iterator insert(const_iterator pos, Type&& value);
+
     // constexpr iterator insert(const_iterator pos, size_type count, const T& value);
     // template <class InputIt>
     // constexpr iterator insert(const_iterator pos, InputIt first, InputIt last);
@@ -638,6 +640,42 @@ constexpr Vector<Type, Allocator>::iterator
     }
     ++end_;
     *insertionPosition = value;
+
+    return insertionPosition;
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::iterator
+    Vector<Type, Allocator>::insert(const_iterator pos, Type&& value)
+{
+    // TODO: REMOVE
+    std::cout << "INSERT taking position and value&&\n";
+
+    auto new_size = size() + 1;
+
+    if (new_size > capacity()) {
+        auto previousSize = size();
+        iterator newBegin = Allocator::allocate(previousSize * 2);
+        moveOrCopy(begin_, pos, newBegin);
+        auto distanceStartToPos = pos - begin_;
+        iterator insertionPosition = std::next(newBegin, distanceStartToPos);
+        moveOrCopy(pos, end_, std::next(insertionPosition));
+        Allocator::construct(insertionPosition, std::move(value));
+        Allocator::deallocate(begin_);
+        begin_ = newBegin;
+        end_ = std::next(newBegin, previousSize + 1);
+        capacity_ = std::next(newBegin, previousSize * 2);
+
+        return insertionPosition;
+    }
+
+    iterator insertionPosition = const_cast<iterator>(pos);
+    for (auto lastElIter = end_ - 1; lastElIter >= insertionPosition; --lastElIter) {
+        auto newPosition = lastElIter + 1;
+        moveOrCopy(lastElIter, newPosition, newPosition);
+    }
+    ++end_;
+    *insertionPosition = std::move(value);
 
     return insertionPosition;
 }
