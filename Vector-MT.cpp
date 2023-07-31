@@ -2290,6 +2290,154 @@ TEST(InsertTakingRvalueReferenceTests,
     EXPECT_THAT(iteratorToSecondStringInserted, A<Vector<std::string>::iterator>());
 }
 
+// === tests for constexpr iterator insert(const_iterator pos, size_type count, const Type& value);
+TEST(InsertTakingCountAndValue, shouldIncreaseSizeByGivenCountAfterInsertingElements)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector<std::string> sutString { "one", "two", "three" };
+    auto sutIntSizeBefore = sutInt.size();
+    auto sutStringSizeBefore = sutString.size();
+    int intToInsert { 999 };
+    const Vector<int>::size_type firstNumberOfCopiesInt { 3 };
+    int secondIntToInsert { 777 };
+    const Vector<int>::size_type secondNumberOfCopiesInt = 5;
+    std::string stringToInsert { "twenty" };
+    const Vector<std::string>::size_type numberOfCopiesString = 10;
+
+    sutInt.insert(sutInt.begin() + 2, firstNumberOfCopiesInt, intToInsert);
+    sutInt.insert(sutInt.begin() + 2, secondNumberOfCopiesInt, secondIntToInsert);
+    sutString.insert(sutString.begin() + 2, numberOfCopiesString, stringToInsert);
+
+    EXPECT_EQ(sutInt.size(), sutIntSizeBefore + firstNumberOfCopiesInt + secondNumberOfCopiesInt);
+    EXPECT_EQ(sutString.size(), sutStringSizeBefore + numberOfCopiesString);
+}
+
+TEST(InsertTakingCountAndValue, shouldCauseReallocationIfNewSizeGreaterThanOldCapacity)
+{
+    AllocatorCallDetectorMock<int> callDetector;
+    CustomTestingAllocator<int> intAllocator;
+    intAllocator.setCallDetectionHelper(&callDetector);
+    int intToInsert { 999 };
+    int numberOfCopies { 3 };
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(4);
+    Vector sutInt { 4, 5, intAllocator };
+    auto sizeBefore = sutInt.size();
+    auto capacityBefore = sutInt.capacity();
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(numberOfCopies);
+    sutInt.insert(sutInt.begin() + 2, numberOfCopies, intToInsert);
+    auto sizeAfter = sutInt.size();
+    auto capacityAfter = sutInt.capacity();
+
+    ASSERT_EQ(sizeBefore, 4);
+    ASSERT_EQ(capacityBefore, 4);
+    EXPECT_EQ(sizeAfter, sizeBefore + numberOfCopies);
+    EXPECT_EQ(capacityAfter, capacityBefore * 2);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+        .Times(sizeBefore + numberOfCopies);
+}
+
+// TEST(InsertTakingRvalueReferenceTests, shouldNotReallocateIfCurentCapacityEnough)
+// {
+//     AllocatorCallDetectorMock<int> callDetector;
+//     CustomTestingAllocator<int> intAllocator;
+//     intAllocator.setCallDetectionHelper(&callDetector);
+//     int intToInsert { 999 };
+
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//         .Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+//         .Times(4);
+//     Vector sutInt { 4, 5, intAllocator };
+//     auto sizeBefore = sutInt.size();
+//     // NOTE: additional memory is reserved explicitly before insertion
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//         .Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+//     sutInt.reserve(5);
+//     auto capacityBefore = sutInt.capacity();
+
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//         .Times(0);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(0);
+
+//     sutInt.insert(sutInt.begin() + 2, std::move(intToInsert));
+//     auto sizeAfter = sutInt.size();
+//     auto capacityAfter = sutInt.capacity();
+
+//     ASSERT_EQ(sizeBefore, 4);
+//     ASSERT_EQ(capacityBefore, 5);
+//     EXPECT_EQ(capacityAfter, 5);
+//     EXPECT_EQ(sizeAfter, 5);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+//         .Times(5);
+// }
+
+// TEST(InsertTakingRvalueReferenceTests, shouldInsertValueBeforeGivenPositionAndReturnIteratorToInserted)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+//     int intToInsert { 999 };
+//     int secondIntToInsert { 777 };
+//     std::string stringToInsert { "twenty" };
+//     std::string secondStringToInsert { "fifty" };
+
+//     auto iteratorToFirstInserted = sutInt.insert(sutInt.begin() + 2, std::move(intToInsert));
+//     auto iteratorToSecondInserted = sutInt.insert(sutInt.begin() + 4, std::move(secondIntToInsert));
+//     auto iteratorToStringInserted = sutString.insert(sutString.begin() + 1, std::move(stringToInsert));
+//     auto iteratorToSecondStringInserted = sutString.insert(sutString.begin() + 4, std::move(secondStringToInsert));
+
+//     EXPECT_EQ(sutInt.size(), 7);
+//     EXPECT_EQ(sutInt.capacity(), 10);
+//     EXPECT_EQ(sutString.size(), 7);
+//     EXPECT_EQ(sutString.capacity(), 10);
+//     EXPECT_THAT(sutInt, ElementsAre(1, 2, 999, 3, 777, 4, 5));
+//     EXPECT_THAT(sutString, ElementsAre("one", "twenty", "two", "three", "fifty", "four", "five"));
+//     EXPECT_THAT(iteratorToFirstInserted, A<Vector<int>::iterator>());
+//     EXPECT_THAT(iteratorToSecondInserted, A<Vector<int>::iterator>());
+//     EXPECT_THAT(iteratorToStringInserted, A<Vector<std::string>::iterator>());
+//     EXPECT_THAT(iteratorToSecondStringInserted, A<Vector<std::string>::iterator>());
+// }
+
+// TEST(InsertTakingRvalueReferenceTests,
+//      shouldInsertValueBeforeGivenPositionAndReturnIteratorToInsertedWhenNoReallocation)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+//     int intToInsert { 999 };
+//     int secondIntToInsert { 777 };
+//     std::string stringToInsert { "twenty" };
+//     std::string secondStringToInsert { "fifty" };
+//     sutInt.reserve(10);
+//     sutString.reserve(10);
+
+//     auto iteratorToFirstInserted = sutInt.insert(sutInt.begin() + 2, std::move(intToInsert));
+//     auto iteratorToSecondInserted = sutInt.insert(sutInt.begin() + 4, std::move(secondIntToInsert));
+//     auto iteratorToStringInserted = sutString.insert(sutString.begin() + 1, std::move(stringToInsert));
+//     auto iteratorToSecondStringInserted = sutString.insert(sutString.begin() + 4, std::move(secondStringToInsert));
+
+//     EXPECT_EQ(sutInt.size(), 7);
+//     EXPECT_EQ(sutInt.capacity(), 10);
+//     EXPECT_EQ(sutString.size(), 7);
+//     EXPECT_EQ(sutString.capacity(), 10);
+//     EXPECT_THAT(sutInt, ElementsAre(1, 2, intToInsert, 3, secondIntToInsert, 4, 5));
+//     EXPECT_THAT(sutString, ElementsAre("one", "twenty", "two", "three", "fifty", "four", "five"));
+//     EXPECT_THAT(iteratorToFirstInserted, A<Vector<int>::iterator>());
+//     EXPECT_THAT(iteratorToSecondInserted, A<Vector<int>::iterator>());
+//     EXPECT_THAT(iteratorToStringInserted, A<Vector<std::string>::iterator>());
+//     EXPECT_THAT(iteratorToSecondStringInserted, A<Vector<std::string>::iterator>());
+// }
+
 // === tests for  constexpr reverse_iterator rbegin() noexcept;
 // === constexpr const_reverse_iterator rbegin() const noexcept;
 TEST(ReverseBeginTests, shouldReturnReverseIteratorType)

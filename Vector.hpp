@@ -119,10 +119,9 @@ class Vector
     constexpr void clear() noexcept;
 
     constexpr iterator insert(const_iterator pos, const Type& value);
-
     constexpr iterator insert(const_iterator pos, Type&& value);
 
-    // constexpr iterator insert(const_iterator pos, size_type count, const T& value);
+    constexpr iterator insert(const_iterator pos, size_type count, const Type& value);
     // template <class InputIt>
     // constexpr iterator insert(const_iterator pos, InputIt first, InputIt last);
     // constexpr iterator insert(const_iterator pos, std::initializer_list<T> ilist);
@@ -156,9 +155,12 @@ class Vector
   private:
     // TODO: REMOVE
     // void moveOrCopyToAll(Type* newBegin);
-    void moveOrCopy(const_iterator start,
-                    const_iterator end,
-                    iterator destination);
+    constexpr iterator insertElements(iterator insertionStart,
+                                      const Type& value,
+                                      const size_type numberOfCopies);
+    void moveOrCopyToUninitializedMemory(const_iterator start,
+                                         const_iterator end,
+                                         iterator destination);
     void destructOldObjects();
 
     Type* begin_;
@@ -572,7 +574,7 @@ constexpr void Vector<Type, Allocator>::reserve(size_type new_cap)
     }
 
     Type* newBegin = Allocator::allocate(new_cap);
-    moveOrCopy(begin_, end_, newBegin);
+    moveOrCopyToUninitializedMemory(begin_, end_, newBegin);
     auto size = std::distance(begin_, end_);
     Type* previousBegin = begin_;
     begin_ = newBegin;
@@ -589,7 +591,7 @@ constexpr void Vector<Type, Allocator>::shrink_to_fit()
     }
 
     Type* newBegin = Allocator::allocate(size());
-    moveOrCopy(begin_, end_, newBegin);
+    moveOrCopyToUninitializedMemory(begin_, end_, newBegin);
     auto sizeToKeep = size();
     Allocator::deallocate(begin_);
     begin_ = newBegin;
@@ -615,19 +617,19 @@ constexpr Vector<Type, Allocator>::iterator
 {
     // TODO: REMOVE
     std::cout << "INSERT taking position and const value&\n";
-    auto new_size = size() + 1;
+    auto newSize = size() + 1;
 
-    if (new_size > capacity()) {
+    if (newSize > capacity()) {
         auto previousSize = size();
         iterator newBegin = Allocator::allocate(previousSize * 2);
-        moveOrCopy(begin_, pos, newBegin);
+        moveOrCopyToUninitializedMemory(begin_, pos, newBegin);
         auto distanceStartToPos = pos - begin_;
         iterator insertionPosition = std::next(newBegin, distanceStartToPos);
-        moveOrCopy(pos, end_, std::next(insertionPosition));
+        moveOrCopyToUninitializedMemory(pos, end_, std::next(insertionPosition));
         Allocator::construct(insertionPosition, value);
         Allocator::deallocate(begin_);
         begin_ = newBegin;
-        end_ = std::next(newBegin, previousSize + 1);
+        end_ = std::next(newBegin, newSize);
         capacity_ = std::next(newBegin, previousSize * 2);
 
         return insertionPosition;
@@ -636,7 +638,7 @@ constexpr Vector<Type, Allocator>::iterator
     iterator insertionPosition = const_cast<iterator>(pos);
     for (auto lastElIter = end_ - 1; lastElIter >= insertionPosition; --lastElIter) {
         auto newPosition = lastElIter + 1;
-        moveOrCopy(lastElIter, newPosition, newPosition);
+        moveOrCopyToUninitializedMemory(lastElIter, newPosition, newPosition);
     }
     ++end_;
     *insertionPosition = value;
@@ -651,19 +653,19 @@ constexpr Vector<Type, Allocator>::iterator
     // TODO: REMOVE
     std::cout << "INSERT taking position and value&&\n";
 
-    auto new_size = size() + 1;
+    auto newSize = size() + 1;
 
-    if (new_size > capacity()) {
+    if (newSize > capacity()) {
         auto previousSize = size();
         iterator newBegin = Allocator::allocate(previousSize * 2);
-        moveOrCopy(begin_, pos, newBegin);
+        moveOrCopyToUninitializedMemory(begin_, pos, newBegin);
         auto distanceStartToPos = pos - begin_;
         iterator insertionPosition = std::next(newBegin, distanceStartToPos);
-        moveOrCopy(pos, end_, std::next(insertionPosition));
+        moveOrCopyToUninitializedMemory(pos, end_, std::next(insertionPosition));
         Allocator::construct(insertionPosition, std::move(value));
         Allocator::deallocate(begin_);
         begin_ = newBegin;
-        end_ = std::next(newBegin, previousSize + 1);
+        end_ = std::next(newBegin, newSize);
         capacity_ = std::next(newBegin, previousSize * 2);
 
         return insertionPosition;
@@ -672,12 +674,78 @@ constexpr Vector<Type, Allocator>::iterator
     iterator insertionPosition = const_cast<iterator>(pos);
     for (auto lastElIter = end_ - 1; lastElIter >= insertionPosition; --lastElIter) {
         auto newPosition = lastElIter + 1;
-        moveOrCopy(lastElIter, newPosition, newPosition);
+        moveOrCopyToUninitializedMemory(lastElIter, newPosition, newPosition);
     }
     ++end_;
     *insertionPosition = std::move(value);
 
     return insertionPosition;
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::iterator
+    Vector<Type, Allocator>::insert(const_iterator pos, size_type count, const Type& value)
+{
+    std::cout << "INSERT taking position, number of copies to insert and const value&\n";
+
+    auto newSize = size() + count;
+
+    if (newSize > capacity()) {
+        auto capacityMultiplier = 2;
+        auto newCapacity = size() * capacityMultiplier;
+        while (newCapacity < newSize) {
+            ++capacityMultiplier;
+            newCapacity = size() * capacityMultiplier;
+        }
+
+        iterator newBegin = Allocator::allocate(newCapacity);
+        moveOrCopyToUninitializedMemory(begin_, pos, newBegin);
+        auto distanceStartToPos = pos - begin_;
+        iterator insertionStartPosition = std::next(newBegin, distanceStartToPos);
+        iterator lastInserted = insertElements(insertionStartPosition, value, count);
+        moveOrCopyToUninitializedMemory(pos, end_, std::next(lastInserted));
+        // TODO: REMOVE
+        // auto insertionEnd = std::next(insertionPosition, count);
+
+        // for (auto insertionPositionCopy = insertionPosition;
+        //      insertionPositionCopy < insertionEnd;
+        //      ++insertionPositionCopy) {
+        //     Allocator::construct(insertionPositionCopy, value);
+        // }
+
+        Allocator::deallocate(begin_);
+        begin_ = newBegin;
+        end_ = std::next(newBegin, newSize);
+        capacity_ = std::next(newBegin, newCapacity);
+
+        return insertionStartPosition;
+    }
+
+    // TODO: VERIFY
+    iterator insertionStartPosition = const_cast<iterator>(pos);
+
+    // iterator firstToBeMoved = const_cast<iterator>(pos);
+    // iterator lastToBeMoved = std::next(insertionStartPosition, count);
+
+    for (auto iterToMoved = end_ - 1; iterToMoved >= insertionStartPosition; --iterToMoved) {
+        // for (auto lastToBeMoved = end_ - 1; lastElIter >= insertionPosition; --lastElIter) {
+        auto newPosition = std::next(iterToMoved, count);
+        // moveOrCopyToUninitializedMemory(iterToMoved, std::next(iterToMoved), newPosition);
+        // if constexpr (std::move_constructible<Type>) {
+        //     // std::move(iterToMoved, std::next(iterToMoved), newPosition);
+        //     Allocator::construct(newPosition, std::move(*iterToMoved));
+        // }
+        // else {
+        // TODO: VERIFY
+        Allocator::construct(newPosition, *iterToMoved);
+        // std::copy(iterToMoved, std::next(iterToMoved), newPosition);
+        // std::uninitialized_copy(start, end, destination);
+        // }
+    }
+    insertElements(insertionStartPosition, value, count);
+    end_ = std::next(end_, count);
+
+    return insertionStartPosition;
 }
 
 template <typename Type, typename Allocator>
@@ -800,9 +868,24 @@ constexpr Vector<Type, Allocator>::const_reverse_iterator
 // }
 
 template <typename Type, typename Allocator>
-void Vector<Type, Allocator>::moveOrCopy(const_iterator start,
-                                         const_iterator end,
-                                         iterator destination)
+constexpr Vector<Type, Allocator>::iterator
+    Vector<Type, Allocator>::insertElements(iterator insertionStart,
+                                            const Type& value,
+                                            const size_type numberOfCopies)
+{
+    auto insertionEnd = std::next(insertionStart, numberOfCopies);
+
+    for (; insertionStart < insertionEnd; ++insertionStart) {
+        Allocator::construct(insertionStart, value);
+    }
+
+    return insertionStart;
+}
+
+template <typename Type, typename Allocator>
+void Vector<Type, Allocator>::moveOrCopyToUninitializedMemory(const_iterator start,
+                                                              const_iterator end,
+                                                              iterator destination)
 {
     if constexpr (std::move_constructible<Type>) {
         std::uninitialized_move(start, end, destination);
