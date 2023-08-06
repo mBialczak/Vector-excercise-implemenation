@@ -121,10 +121,10 @@ class Vector
     constexpr iterator insert(const_iterator pos, const Type& value);
     constexpr iterator insert(const_iterator pos, Type&& value);
     constexpr iterator insert(const_iterator pos, size_type count, const Type& value);
+    constexpr iterator insert(const_iterator pos, std::initializer_list<Type> ilist);
     template <class InputIt>
         requires std::input_iterator<InputIt>
     constexpr iterator insert(const_iterator pos, InputIt first, InputIt last);
-    // constexpr iterator insert(const_iterator pos, std::initializer_list<T> ilist);
 
     // template <class... Args>
     // constexpr iterator emplace(const_iterator pos, Args&&... args);
@@ -712,6 +712,37 @@ constexpr Vector<Type, Allocator>::iterator
     shiftElements(insertionStartPosition, count);
     insertElements(insertionStartPosition, value, count);
     end_ = std::next(end_, count);
+
+    return insertionStartPosition;
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::iterator
+    Vector<Type, Allocator>::insert(const_iterator pos, std::initializer_list<Type> ilist)
+{
+    std::cout << "INSERT taking position, and initializerList with elements to insert\n";
+
+    const auto numberOfElements = ilist.size();
+    if (auto newSize = size() + numberOfElements;
+        newSize > capacity()) {
+        auto newBegin = allocateMemoryForInsert(newSize);
+        moveOrCopyToUninitializedMemory(begin_, pos, newBegin);
+        auto distanceStartToPos = pos - begin_;
+        iterator insertionStartPosition = std::next(newBegin, distanceStartToPos);
+        iterator nextAfterInserted = insertElements(insertionStartPosition, ilist.begin(), ilist.end());
+        moveOrCopyToUninitializedMemory(pos, end_, nextAfterInserted);
+
+        Allocator::deallocate(begin_);
+        begin_ = newBegin;
+        end_ = std::next(newBegin, newSize);
+
+        return insertionStartPosition;
+    }
+
+    iterator insertionStartPosition = const_cast<iterator>(pos);
+    shiftElements(insertionStartPosition, numberOfElements);
+    insertElements(insertionStartPosition, ilist.begin(), ilist.end());
+    end_ = std::next(end_, numberOfElements);
 
     return insertionStartPosition;
 }
