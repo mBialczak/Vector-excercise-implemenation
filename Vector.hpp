@@ -121,8 +121,9 @@ class Vector
     constexpr iterator insert(const_iterator pos, const Type& value);
     constexpr iterator insert(const_iterator pos, Type&& value);
     constexpr iterator insert(const_iterator pos, size_type count, const Type& value);
-    // template <class InputIt>
-    // constexpr iterator insert(const_iterator pos, InputIt first, InputIt last);
+    template <class InputIt>
+        requires std::input_iterator<InputIt>
+    constexpr iterator insert(const_iterator pos, InputIt first, InputIt last);
     // constexpr iterator insert(const_iterator pos, std::initializer_list<T> ilist);
 
     // template <class... Args>
@@ -158,6 +159,9 @@ class Vector
     constexpr iterator insertElements(iterator insertionStart,
                                       const Type& value,
                                       const size_type numberOfCopies);
+    template <class InputIt>
+        requires std::input_iterator<InputIt>
+    constexpr iterator insertElements(iterator pos, InputIt first, InputIt last);
     void moveOrCopyToUninitializedMemory(const_iterator start,
                                          const_iterator end,
                                          iterator destination);
@@ -226,7 +230,6 @@ constexpr Vector<Type, Allocator>::Vector(size_type count,
 template <typename Type, typename Allocator>
 template <typename InputIt>
     requires std::input_iterator<InputIt>
-// requires std::iterator<InputIt>
 constexpr Vector<Type, Allocator>::Vector(InputIt first,
                                           InputIt last,
                                           const Allocator& alloc)
@@ -714,6 +717,40 @@ constexpr Vector<Type, Allocator>::iterator
 }
 
 template <typename Type, typename Allocator>
+template <class InputIt>
+    requires std::input_iterator<InputIt>
+constexpr Vector<Type, Allocator>::iterator
+    Vector<Type, Allocator>::insert(const_iterator pos, InputIt first, InputIt last)
+{
+    // TODO: REMOVE
+    std::cout << "INSERT taking position, and TWO ITERATORS pointing to range of elements&\n";
+
+    const auto numberOfElements = std::distance(first, last);
+    if (auto newSize = size() + numberOfElements;
+        newSize > capacity()) {
+        auto newBegin = allocateMemoryForInsert(newSize);
+        moveOrCopyToUninitializedMemory(begin_, pos, newBegin);
+        auto distanceStartToPos = pos - begin_;
+        iterator insertionStartPosition = std::next(newBegin, distanceStartToPos);
+        iterator nextAfterInserted = insertElements(insertionStartPosition, first, last);
+        moveOrCopyToUninitializedMemory(pos, end_, nextAfterInserted);
+
+        Allocator::deallocate(begin_);
+        begin_ = newBegin;
+        end_ = std::next(newBegin, newSize);
+
+        return insertionStartPosition;
+    }
+
+    iterator insertionStartPosition = const_cast<iterator>(pos);
+    shiftElements(insertionStartPosition, numberOfElements);
+    insertElements(insertionStartPosition, first, last);
+    end_ = std::next(end_, numberOfElements);
+
+    return insertionStartPosition;
+}
+
+template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::size_type
     Vector<Type, Allocator>::capacity() const noexcept
 {
@@ -832,6 +869,7 @@ constexpr Vector<Type, Allocator>::const_reverse_iterator
 //     }
 // }
 // NOTE:  returns iter to next element after all inserted
+
 template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::iterator
     Vector<Type, Allocator>::insertElements(iterator insertionStart,
@@ -840,6 +878,24 @@ constexpr Vector<Type, Allocator>::iterator
 {
     for (size_type count = 0; count < numberOfCopies; ++count, ++insertionStart) {
         Allocator::construct(insertionStart, value);
+    }
+
+    return insertionStart;
+}
+
+// NOTE:  returns iter to next element after all inserted
+template <typename Type, typename Allocator>
+template <class InputIt>
+    requires std::input_iterator<InputIt>
+constexpr Vector<Type, Allocator>::iterator
+    Vector<Type, Allocator>::insertElements(iterator insertionStart,
+                                            InputIt first,
+                                            InputIt last)
+{
+    while (first < last) {
+        Allocator::construct(insertionStart, *first);
+        ++first;
+        ++insertionStart;
     }
 
     return insertionStart;
