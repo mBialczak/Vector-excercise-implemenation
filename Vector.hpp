@@ -162,6 +162,15 @@ class Vector
     template <class InputIt>
         requires std::input_iterator<InputIt>
     constexpr iterator insertElements(iterator pos, InputIt first, InputIt last);
+
+    template <class... Args>
+    constexpr iterator insertToEmptyVector(size_type count, Args&&... args);
+
+    template <class InputIt>
+        requires std::input_iterator<InputIt>
+    constexpr iterator insertToEmptyVector(InputIt first, InputIt last);
+
+    // TODO: VERIFY maybe constexpr  private functions
     void moveOrCopyToUninitializedMemory(const_iterator start,
                                          const_iterator end,
                                          iterator destination);
@@ -621,6 +630,10 @@ constexpr Vector<Type, Allocator>::iterator
 {
     // TODO: REMOVE
     std::cout << "INSERT taking position and const value&\n";
+    if (begin_ == end_) {
+        return insertToEmptyVector(1, value);
+    }
+
     auto newSize = size() + 1;
 
     if (newSize > capacity()) {
@@ -656,6 +669,9 @@ constexpr Vector<Type, Allocator>::iterator
 {
     // TODO: REMOVE
     std::cout << "INSERT taking position and value&&\n";
+    if (begin_ == end_) {
+        return insertToEmptyVector(1, std::forward<Type>(value));
+    }
 
     auto newSize = size() + 1;
 
@@ -692,6 +708,10 @@ constexpr Vector<Type, Allocator>::iterator
 {
     std::cout << "INSERT taking position, number of copies to insert and const value&\n";
 
+    if (begin_ == end_) {
+        return insertToEmptyVector(count, value);
+    }
+
     if (auto newSize = size() + count;
         newSize > capacity()) {
         auto newBegin = allocateMemoryForInsert(newSize);
@@ -721,6 +741,10 @@ constexpr Vector<Type, Allocator>::iterator
     Vector<Type, Allocator>::insert(const_iterator pos, std::initializer_list<Type> ilist)
 {
     std::cout << "INSERT taking position, and initializerList with elements to insert\n";
+
+    if (begin_ == end_) {
+        return insertToEmptyVector(ilist.begin(), ilist.end());
+    }
 
     const auto numberOfElements = ilist.size();
     if (auto newSize = size() + numberOfElements;
@@ -755,6 +779,9 @@ constexpr Vector<Type, Allocator>::iterator
 {
     // TODO: REMOVE
     std::cout << "INSERT taking position, and TWO ITERATORS pointing to range of elements&\n";
+    if (begin_ == end_) {
+        return insertToEmptyVector(first, last);
+    }
 
     const auto numberOfElements = std::distance(first, last);
     if (auto newSize = size() + numberOfElements;
@@ -932,6 +959,39 @@ constexpr Vector<Type, Allocator>::iterator
     return insertionStart;
 }
 
+template <typename Type, typename Allocator>
+template <class... Args>
+constexpr Vector<Type, Allocator>::iterator
+    Vector<Type, Allocator>::insertToEmptyVector(size_type count, Args&&... args)
+{
+    begin_ = Allocator::allocate(count);
+    end_ = std::next(begin_, count);
+    capacity_ = end_;
+    for (size_type counter { 0 }; counter < count; ++counter) {
+        Allocator::construct(std::next(begin_, counter), std::forward<Args>(args)...);
+    }
+
+    return begin_;
+}
+
+template <typename Type, typename Allocator>
+template <class InputIt>
+    requires std::input_iterator<InputIt>
+constexpr Vector<Type, Allocator>::iterator
+    Vector<Type, Allocator>::insertToEmptyVector(InputIt first, InputIt last)
+{
+    auto size = std::distance(first, last);
+    begin_ = Allocator::allocate(size);
+    end_ = std::next(begin_, size);
+    capacity_ = end_;
+    for (auto insertionIter { begin_ }; first < last; ++first, ++insertionIter) {
+        Allocator::construct(insertionIter, *first);
+    }
+
+    return begin_;
+}
+
+// TODO: VERIFY if maybe construct via allocator?
 template <typename Type, typename Allocator>
 void Vector<Type, Allocator>::moveOrCopyToUninitializedMemory(const_iterator start,
                                                               const_iterator end,

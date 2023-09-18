@@ -1996,6 +1996,28 @@ TEST(ClearTests, ShouldDeallocateOwnedMemoryAndDestroyElements)
 }
 
 //=== tests for constexpr iterator insert(const_iterator pos, const T& value)
+TEST(InsertTakingValueTests, shouldWorkForEmptyVector)
+{
+    Vector<int> sutInt;
+    auto sutIntSizeBefore = sutInt.size();
+    int intValueToInsert = 100;
+    Vector<std::string> sutString;
+    auto sutStringSizeBefore = sutString.size();
+    std::string stringValueToInsert = "Inserted to empty vector";
+
+    sutInt.insert(sutInt.begin(), intValueToInsert);
+    sutString.insert(sutString.begin(), stringValueToInsert);
+
+    ASSERT_EQ(sutIntSizeBefore, 0);
+    ASSERT_EQ(sutStringSizeBefore, 0);
+    EXPECT_EQ(sutInt.size(), 1);
+    EXPECT_EQ(sutInt.capacity(), 1);
+    EXPECT_EQ(sutString.size(), 1);
+    EXPECT_EQ(sutString.capacity(), 1);
+    EXPECT_EQ(*sutInt.begin(), intValueToInsert);
+    EXPECT_EQ(*sutString.begin(), stringValueToInsert);
+}
+
 TEST(InsertTakingValueTests, shouldIncreaseSizeAfterInsertingElement)
 {
     Vector sutInt { 1, 2, 3, 4, 5 };
@@ -2290,6 +2312,26 @@ TEST(InsertTakingRvalueReferenceTests,
     EXPECT_THAT(iteratorToSecondStringInserted, A<Vector<std::string>::iterator>());
 }
 
+TEST(InsertTakingRvalueReferenceTests, shouldWorkForEmptyVector)
+{
+    Vector<int> sutInt;
+    auto sutIntSizeBefore = sutInt.size();
+    Vector<std::string> sutString;
+    auto sutStringSizeBefore = sutString.size();
+
+    sutInt.insert(sutInt.begin(), 100);
+    sutString.insert(sutString.begin(), "Inserted to empty vector - rvalue");
+
+    ASSERT_EQ(sutIntSizeBefore, 0);
+    ASSERT_EQ(sutStringSizeBefore, 0);
+    EXPECT_EQ(sutInt.size(), 1);
+    EXPECT_EQ(sutInt.capacity(), 1);
+    EXPECT_EQ(sutString.size(), 1);
+    EXPECT_EQ(sutString.capacity(), 1);
+    EXPECT_EQ(*sutInt.begin(), 100);
+    EXPECT_EQ(*sutString.begin(), "Inserted to empty vector - rvalue");
+}
+
 // === tests for constexpr iterator insert(const_iterator pos, size_type count, const Type& value);
 TEST(InsertTakingCountAndValue, shouldIncreaseSizeByGivenCountAfterInsertingElements)
 {
@@ -2456,6 +2498,30 @@ TEST(InsertTakingCountAndValue, shouldAllocateEnoughCapacityWhenNumberOfInserted
     EXPECT_EQ(sutInt.capacity(), sutIntCapacityBefore * 5);
     EXPECT_EQ(sutString.size(), sutStringSizeBefore + numberOfCopiesString);
     EXPECT_EQ(sutString.capacity(), sutStringCapacityBefore * 11);
+}
+
+TEST(InsertTakingCountAndValue, shouldWorkForEmptyVector)
+{
+    Vector<int> sutInt;
+    auto sutIntSizeBefore = sutInt.size();
+    int intValueToInsert = 100;
+    const Vector<int>::size_type numberOfCopiesInt { 5 };
+    Vector<std::string> sutString;
+    auto sutStringSizeBefore = sutString.size();
+    std::string stringValueToInsert = "Inserted to empty vector";
+    const Vector<std::string>::size_type numberOfCopiesString { 10 };
+
+    sutInt.insert(sutInt.begin(), numberOfCopiesInt, intValueToInsert);
+    sutString.insert(sutString.begin(), numberOfCopiesString, stringValueToInsert);
+
+    ASSERT_EQ(sutIntSizeBefore, 0);
+    ASSERT_EQ(sutStringSizeBefore, 0);
+    EXPECT_EQ(sutInt.size(), numberOfCopiesInt);
+    EXPECT_EQ(sutInt.capacity(), numberOfCopiesInt);
+    EXPECT_EQ(sutString.size(), numberOfCopiesString);
+    EXPECT_EQ(sutString.capacity(), numberOfCopiesString);
+    EXPECT_EQ(*sutInt.begin(), intValueToInsert);
+    EXPECT_EQ(*sutString.begin(), stringValueToInsert);
 }
 
 //=== tests for
@@ -2642,6 +2708,28 @@ TEST(InsertTakingPairOfIterators, shouldAllocateEnoughCapacityWhenNumberOfInsert
     EXPECT_EQ(sutString.capacity(), sutStringCapacityBefore * 3);
 }
 
+TEST(InsertTakingPairOfIterators, shouldWorkForEmptyVector)
+{
+    Vector<int> sutInt;
+    auto sutIntSizeBefore = sutInt.size();
+    std::array intsToInsert { 666, 777, 888, 999, 1111, 2222, 3333, 4444 };
+    Vector<std::string> sutString;
+    auto sutStringSizeBefore = sutString.size();
+    std::array<std::string, 6> stringsToInsert { "twenty", "thirty", "forty", "fifty", "sixty", "seventy" };
+
+    sutInt.insert(sutInt.begin(), intsToInsert.begin(), intsToInsert.end());
+    sutString.insert(sutString.begin() + 2, stringsToInsert.begin(), stringsToInsert.end());
+
+    ASSERT_EQ(sutIntSizeBefore, 0);
+    ASSERT_EQ(sutStringSizeBefore, 0);
+    EXPECT_EQ(sutInt.size(), intsToInsert.size());
+    EXPECT_EQ(sutInt.capacity(), intsToInsert.size());
+    EXPECT_EQ(sutString.size(), stringsToInsert.size());
+    EXPECT_EQ(sutString.capacity(), stringsToInsert.size());
+    EXPECT_THAT(sutInt, testing::ElementsAreArray(intsToInsert));
+    EXPECT_THAT(sutString, testing::ElementsAreArray(stringsToInsert));
+}
+
 //=== tests for constexpr iterator insert(const_iterator pos, std::initializer_list<T> ilist);
 TEST(InsertTakingInitializerList, shouldIncreaseSizeBySizeOfInitializerListAfterInsertingElements)
 {
@@ -2826,13 +2914,35 @@ TEST(InsertTakingInitializerList, shouldAllocateEnoughCapacityWhenNumberOfInsert
     std::initializer_list intsToInsert { 666, 777, 888, 999, 1111, 2222, 3333, 4444 };
     std::initializer_list<std::string> stringsToInsert { "twenty", "thirty", "forty", "fifty", "sixty", "seventy" };
 
-    sutInt.insert(sutInt.begin() + 2, intsToInsert.begin(), intsToInsert.end());
-    sutString.insert(sutString.begin() + 2, stringsToInsert.begin(), stringsToInsert.end());
+    sutInt.insert(sutInt.begin() + 2, intsToInsert);
+    sutString.insert(sutString.begin() + 2, stringsToInsert);
 
     EXPECT_EQ(sutInt.size(), sutIntSizeBefore + intsToInsert.size());
     EXPECT_EQ(sutInt.capacity(), sutIntCapacityBefore * 3);
     EXPECT_EQ(sutString.size(), sutStringSizeBefore + stringsToInsert.size());
     EXPECT_EQ(sutString.capacity(), sutStringCapacityBefore * 3);
+}
+
+TEST(InsertTakingInitializerList, shouldWorkForEmptyVector)
+{
+    Vector<int> sutInt;
+    auto sutIntSizeBefore = sutInt.size();
+    std::initializer_list intsToInsert { 666, 777, 888, 999, 1111, 2222, 3333, 4444 };
+    Vector<std::string> sutString;
+    auto sutStringSizeBefore = sutString.size();
+    std::initializer_list<std::string> stringsToInsert { "twenty", "thirty", "forty", "fifty", "sixty", "seventy" };
+
+    sutInt.insert(sutInt.begin(), intsToInsert);
+    sutString.insert(sutString.begin() + 2, stringsToInsert);
+
+    ASSERT_EQ(sutIntSizeBefore, 0);
+    ASSERT_EQ(sutStringSizeBefore, 0);
+    EXPECT_EQ(sutInt.size(), intsToInsert.size());
+    EXPECT_EQ(sutInt.capacity(), intsToInsert.size());
+    EXPECT_EQ(sutString.size(), stringsToInsert.size());
+    EXPECT_EQ(sutString.capacity(), stringsToInsert.size());
+    EXPECT_THAT(sutInt, testing::ElementsAreArray(intsToInsert));
+    EXPECT_THAT(sutString, testing::ElementsAreArray(stringsToInsert));
 }
 
 // === tests for  constexpr reverse_iterator rbegin() noexcept;
