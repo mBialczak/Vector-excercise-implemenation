@@ -126,8 +126,8 @@ class Vector
         requires std::input_iterator<InputIt>
     constexpr iterator insert(const_iterator pos, InputIt first, InputIt last);
 
-    // template <class... Args>
-    // constexpr iterator emplace(const_iterator pos, Args&&... args);
+    template <class... Args>
+    constexpr iterator emplace(const_iterator pos, Args&&... args);
 
     // constexpr iterator erase(const_iterator pos);
     // constexpr iterator erase(const_iterator first, const_iterator last);
@@ -165,6 +165,9 @@ class Vector
 
     template <class... Args>
     constexpr iterator insertToEmptyVector(size_type count, Args&&... args);
+
+    template <class... Args>
+    constexpr iterator emplaceInEmptyVector(Args&&... args);
 
     template <class InputIt>
         requires std::input_iterator<InputIt>
@@ -809,6 +812,46 @@ constexpr Vector<Type, Allocator>::iterator
 }
 
 template <typename Type, typename Allocator>
+template <class... Args>
+constexpr Vector<Type, Allocator>::iterator
+    Vector<Type, Allocator>::emplace(const_iterator pos, Args&&... args)
+{
+    // TODO: REMOVE
+    std::cout << "EMPLACE taking position and value&&\n";
+    if (begin_ == end_) {
+        return emplaceInEmptyVector(std::forward<Type>(args)...);
+    }
+
+    auto newSize = size() + 1;
+
+    if (newSize > capacity()) {
+        auto previousSize = size();
+        iterator newBegin = Allocator::allocate(previousSize * 2);
+        moveOrCopyToUninitializedMemory(begin_, pos, newBegin);
+        auto distanceStartToPos = pos - begin_;
+        iterator insertionPosition = std::next(newBegin, distanceStartToPos);
+        moveOrCopyToUninitializedMemory(pos, end_, std::next(insertionPosition));
+        Allocator::construct(insertionPosition, std::forward<Type>(args)...);
+        Allocator::deallocate(begin_);
+        begin_ = newBegin;
+        end_ = std::next(newBegin, newSize);
+        capacity_ = std::next(newBegin, previousSize * 2);
+
+        return insertionPosition;
+    }
+
+    iterator insertionPosition = const_cast<iterator>(pos);
+    for (auto lastElIter = end_ - 1; lastElIter >= insertionPosition; --lastElIter) {
+        auto newPosition = lastElIter + 1;
+        moveOrCopyToUninitializedMemory(lastElIter, newPosition, newPosition);
+    }
+    ++end_;
+    Allocator::construct(insertionPosition, std::forward<Type>(args)...);
+
+    return insertionPosition;
+}
+
+template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::size_type
     Vector<Type, Allocator>::capacity() const noexcept
 {
@@ -970,6 +1013,20 @@ constexpr Vector<Type, Allocator>::iterator
     for (size_type counter { 0 }; counter < count; ++counter) {
         Allocator::construct(std::next(begin_, counter), std::forward<Args>(args)...);
     }
+
+    return begin_;
+}
+
+// TODO: VERIFY
+template <typename Type, typename Allocator>
+template <class... Args>
+constexpr Vector<Type, Allocator>::iterator
+    Vector<Type, Allocator>::emplaceInEmptyVector(Args&&... args)
+{
+    begin_ = Allocator::allocate(1);
+    end_ = std::next(begin_, 1);
+    capacity_ = end_;
+    Allocator::construct(begin_, std::forward<Args>(args)...);
 
     return begin_;
 }
