@@ -132,7 +132,7 @@ class Vector
     // constexpr iterator erase(const_iterator pos);
     // constexpr iterator erase(const_iterator first, const_iterator last);
 
-    // constexpr void push_back(const T& value);
+    constexpr void push_back(const Type& value);
     // constexpr void push_back(T&& value);
     // template <class... Args>
     // constexpr reference emplace_back(Args&&... args);
@@ -849,6 +849,35 @@ constexpr Vector<Type, Allocator>::iterator
     Allocator::construct(insertionPosition, std::forward<Type>(args)...);
 
     return insertionPosition;
+}
+
+template <typename Type, typename Allocator>
+constexpr void Vector<Type, Allocator>::push_back(const Type& value)
+{
+    // TODO: REMOVE
+    std::cout << "PUSH_BACK taking lvalue\n";
+    if (begin_ == end_) {
+        begin_ = Allocator::allocate(1);
+        end_ = std::next(begin_, 1);
+        capacity_ = end_;
+        Allocator::construct(begin_, value);
+
+        return;
+    }
+
+    if (auto newSize = size() + 1;
+        newSize > capacity()) {
+        auto previousSize = size();
+        iterator newBegin = Allocator::allocate(previousSize * 2);
+        moveOrCopyToUninitializedMemory(begin_, end_, newBegin);
+        Allocator::deallocate(begin_);
+        begin_ = newBegin;
+        end_ = std::next(newBegin, previousSize);
+        capacity_ = std::next(newBegin, previousSize * 2);
+    }
+
+    Allocator::construct(end_, value);
+    std::advance(end_, 1);
 }
 
 template <typename Type, typename Allocator>
