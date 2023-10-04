@@ -133,7 +133,7 @@ class Vector
     // constexpr iterator erase(const_iterator first, const_iterator last);
 
     constexpr void push_back(const Type& value);
-    // constexpr void push_back(T&& value);
+    constexpr void push_back(Type&& value);
     // template <class... Args>
     // constexpr reference emplace_back(Args&&... args);
 
@@ -156,6 +156,7 @@ class Vector
     // TODO: REMOVE
     // void moveOrCopyToAll(Type* newBegin);
     constexpr iterator allocateMemoryForInsert(const size_type sizeNeeded);
+    constexpr void allocateOneInEmpty();
     constexpr iterator insertElements(iterator insertionStart,
                                       const Type& value,
                                       const size_type numberOfCopies);
@@ -857,11 +858,8 @@ constexpr void Vector<Type, Allocator>::push_back(const Type& value)
     // TODO: REMOVE
     std::cout << "PUSH_BACK taking lvalue\n";
     if (begin_ == end_) {
-        begin_ = Allocator::allocate(1);
-        end_ = std::next(begin_, 1);
-        capacity_ = end_;
+        allocateOneInEmpty();
         Allocator::construct(begin_, value);
-
         return;
     }
 
@@ -877,6 +875,33 @@ constexpr void Vector<Type, Allocator>::push_back(const Type& value)
     }
 
     Allocator::construct(end_, value);
+    std::advance(end_, 1);
+}
+
+// TODO: VERIFY
+template <typename Type, typename Allocator>
+constexpr void Vector<Type, Allocator>::push_back(Type&& value)
+{
+    // TODO: REMOVE
+    std::cout << "PUSH_BACK taking rvalue\n";
+    if (begin_ == end_) {
+        allocateOneInEmpty();
+        Allocator::construct(begin_, std::move(value));
+        return;
+    }
+
+    if (auto newSize = size() + 1;
+        newSize > capacity()) {
+        auto previousSize = size();
+        iterator newBegin = Allocator::allocate(previousSize * 2);
+        moveOrCopyToUninitializedMemory(begin_, end_, newBegin);
+        Allocator::deallocate(begin_);
+        begin_ = newBegin;
+        end_ = std::next(newBegin, previousSize);
+        capacity_ = std::next(newBegin, previousSize * 2);
+    }
+
+    Allocator::construct(end_, std::move(value));
     std::advance(end_, 1);
 }
 
@@ -1046,7 +1071,6 @@ constexpr Vector<Type, Allocator>::iterator
     return begin_;
 }
 
-// TODO: VERIFY
 template <typename Type, typename Allocator>
 template <class... Args>
 constexpr Vector<Type, Allocator>::iterator
@@ -1118,6 +1142,14 @@ constexpr Vector<Type, Allocator>::iterator
     capacity_ = std::next(newBegin, newCapacity);
 
     return newBegin;
+}
+
+template <typename Type, typename Allocator>
+constexpr void Vector<Type, Allocator>::allocateOneInEmpty()
+{
+    begin_ = Allocator::allocate(1);
+    end_ = std::next(begin_, 1);
+    capacity_ = end_;
 }
 
 template <typename Type, typename Allocator>

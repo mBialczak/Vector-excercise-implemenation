@@ -3264,6 +3264,156 @@ TEST(PushBackTakingLvalueTests, shouldWorkForEmptyVector)
     EXPECT_EQ(*sutString.begin(), stringToPush);
 }
 
+// === tests for constexpr void push_back(T&& value);
+TEST(PushBackTakingRvalueTests, shouldIncreaseSizeAfterPushingElement)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    auto sutIntSizeBefore = sutInt.size();
+    Vector<std::string> sutString { "one", "two", "three" };
+    auto sutStringSizeBefore = sutString.size();
+
+    sutInt.push_back(999);
+    sutInt.push_back(777);
+    sutString.push_back("twenty");
+
+    EXPECT_NE(sutInt.size(), sutIntSizeBefore);
+    EXPECT_NE(sutString.size(), sutStringSizeBefore);
+    EXPECT_EQ(sutInt.size(), 7);
+    EXPECT_EQ(sutString.size(), 4);
+}
+
+TEST(PushBackTakingRvalueTests, shouldCauseReallocationIfNewSizeGreaterThanOldCapacity)
+{
+    AllocatorCallDetectorMock<int> callDetector;
+    CustomTestingAllocator<int> intAllocator;
+    intAllocator.setCallDetectionHelper(&callDetector);
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(4);
+    Vector sutInt { 4, 5, intAllocator };
+    auto sizeBefore = sutInt.size();
+    auto capacityBefore = sutInt.capacity();
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(1);
+    sutInt.push_back(999);
+    auto sizeAfter = sutInt.size();
+    auto capacityAfter = sutInt.capacity();
+
+    ASSERT_EQ(sizeBefore, 4);
+    ASSERT_EQ(capacityBefore, 4);
+    EXPECT_EQ(sizeAfter, 5);
+    // NOTE: as this is just a programming exercise, we make implementation assumption,
+    //       that vector size will be doubled each time we need more elements and capacity is exhausted
+    EXPECT_EQ(capacityAfter, 8);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+        .Times(5);
+}
+
+TEST(PushBackTakingRvalueTests, shouldNotReallocateIfCurentCapacityEnough)
+{
+    AllocatorCallDetectorMock<int> callDetector;
+    CustomTestingAllocator<int> intAllocator;
+    intAllocator.setCallDetectionHelper(&callDetector);
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(4);
+    Vector sutInt { 4, 5, intAllocator };
+    auto sizeBefore = sutInt.size();
+    // NOTE: additional memory is reserved explicitly before insertion
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    sutInt.reserve(5);
+    auto capacityBefore = sutInt.capacity();
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(0);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(0);
+
+    // NOTE: one additional construct call strictly for insert
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(1);
+
+    sutInt.push_back(999);
+    auto sizeAfter = sutInt.size();
+    auto capacityAfter = sutInt.capacity();
+
+    ASSERT_EQ(sizeBefore, 4);
+    ASSERT_EQ(capacityBefore, 5);
+    EXPECT_EQ(capacityAfter, 5);
+    EXPECT_EQ(sizeAfter, 5);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+        .Times(5);
+}
+
+TEST(PushBackTakingRvalueTests, shouldPushElementToTheEndOfVector)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+    auto sutIntSizeBefore = sutInt.size();
+    auto sutStringSizeBefore = sutString.size();
+
+    sutInt.push_back(999);
+    sutString.push_back("twenty");
+
+    EXPECT_EQ(sutInt.size(), sutIntSizeBefore + 1);
+    EXPECT_EQ(sutInt.capacity(), sutIntSizeBefore * 2);
+    EXPECT_EQ(sutString.size(), sutStringSizeBefore + 1);
+    EXPECT_EQ(sutString.capacity(), sutIntSizeBefore * 2);
+    EXPECT_EQ(sutInt.back(), 999);
+    EXPECT_EQ(sutString.back(), "twenty");
+}
+
+TEST(PushBackTakingRvalueTests, shouldPushElementToTheEndOfVectorWhenNoReallocation)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+    auto sutIntSizeBefore = sutInt.size();
+    auto sutStringSizeBefore = sutString.size();
+    sutInt.reserve(10);
+    sutString.reserve(10);
+
+    sutInt.push_back(999);
+    sutString.push_back("twenty");
+
+    EXPECT_EQ(sutInt.size(), sutIntSizeBefore + 1);
+    EXPECT_EQ(sutInt.capacity(), sutIntSizeBefore * 2);
+    EXPECT_EQ(sutString.size(), sutStringSizeBefore + 1);
+    EXPECT_EQ(sutString.capacity(), sutIntSizeBefore * 2);
+    EXPECT_EQ(sutInt.back(), 999);
+    EXPECT_EQ(sutString.back(), "twenty");
+}
+
+TEST(PushBackTakingRvalueTests, shouldWorkForEmptyVector)
+{
+    Vector<int> sutInt;
+    auto sutIntSizeBefore = sutInt.size();
+    Vector<std::string> sutString;
+    auto sutStringSizeBefore = sutString.size();
+
+    sutInt.push_back(999);
+    sutString.push_back("twenty");
+
+    ASSERT_EQ(sutIntSizeBefore, 0);
+    ASSERT_EQ(sutStringSizeBefore, 0);
+    EXPECT_EQ(sutInt.size(), 1);
+    EXPECT_EQ(sutInt.capacity(), 1);
+    EXPECT_EQ(sutString.size(), 1);
+    EXPECT_EQ(sutString.capacity(), 1);
+    EXPECT_EQ(*sutInt.begin(), 999);
+    EXPECT_EQ(*sutString.begin(), "twenty");
+}
+
 // === tests for  constexpr reverse_iterator rbegin() noexcept;
 // === constexpr const_reverse_iterator rbegin() const noexcept;
 TEST(ReverseBeginTests, shouldReturnReverseIteratorType)
