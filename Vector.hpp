@@ -134,8 +134,9 @@ class Vector
 
     constexpr void push_back(const Type& value);
     constexpr void push_back(Type&& value);
-    // template <class... Args>
-    // constexpr reference emplace_back(Args&&... args);
+
+    template <class... Args>
+    constexpr reference emplace_back(Args&&... args);
 
     // constexpr void pop_back();
 
@@ -157,6 +158,7 @@ class Vector
     // void moveOrCopyToAll(Type* newBegin);
     constexpr iterator allocateMemoryForInsert(const size_type sizeNeeded);
     constexpr void allocateOneInEmpty();
+    constexpr void multiplyCapacityAndMoveAll(size_type factor = 2);
     constexpr iterator insertElements(iterator insertionStart,
                                       const Type& value,
                                       const size_type numberOfCopies);
@@ -865,13 +867,7 @@ constexpr void Vector<Type, Allocator>::push_back(const Type& value)
 
     if (auto newSize = size() + 1;
         newSize > capacity()) {
-        auto previousSize = size();
-        iterator newBegin = Allocator::allocate(previousSize * 2);
-        moveOrCopyToUninitializedMemory(begin_, end_, newBegin);
-        Allocator::deallocate(begin_);
-        begin_ = newBegin;
-        end_ = std::next(newBegin, previousSize);
-        capacity_ = std::next(newBegin, previousSize * 2);
+        multiplyCapacityAndMoveAll();
     }
 
     Allocator::construct(end_, value);
@@ -892,17 +888,34 @@ constexpr void Vector<Type, Allocator>::push_back(Type&& value)
 
     if (auto newSize = size() + 1;
         newSize > capacity()) {
-        auto previousSize = size();
-        iterator newBegin = Allocator::allocate(previousSize * 2);
-        moveOrCopyToUninitializedMemory(begin_, end_, newBegin);
-        Allocator::deallocate(begin_);
-        begin_ = newBegin;
-        end_ = std::next(newBegin, previousSize);
-        capacity_ = std::next(newBegin, previousSize * 2);
+        multiplyCapacityAndMoveAll();
     }
 
     Allocator::construct(end_, std::move(value));
     std::advance(end_, 1);
+}
+
+// TODO: VERIFY
+template <typename Type, typename Allocator>
+template <class... Args>
+constexpr Vector<Type, Allocator>::reference
+    Vector<Type, Allocator>::emplace_back(Args&&... args)
+{
+    // TODO: REMOVE
+    std::cout << "EMPLACE_BACK\n";
+    if (begin_ == end_) {
+        return *emplaceInEmptyVector(std::forward<Args>(args)...);
+    }
+
+    if (auto newSize = size() + 1;
+        newSize > capacity()) {
+        multiplyCapacityAndMoveAll();
+    }
+
+    Allocator::construct(end_, std::forward<Args>(args)...);
+    std::advance(end_, 1);
+
+    return back();
 }
 
 template <typename Type, typename Allocator>
@@ -1024,6 +1037,18 @@ constexpr Vector<Type, Allocator>::const_reverse_iterator
 //     }
 // }
 // NOTE:  returns iter to next element after all inserted
+
+template <typename Type, typename Allocator>
+constexpr void Vector<Type, Allocator>::multiplyCapacityAndMoveAll(size_type factor)
+{
+    auto previousSize = size();
+    iterator newBegin = Allocator::allocate(previousSize * factor);
+    moveOrCopyToUninitializedMemory(begin_, end_, newBegin);
+    Allocator::deallocate(begin_);
+    begin_ = newBegin;
+    end_ = std::next(newBegin, previousSize);
+    capacity_ = std::next(newBegin, previousSize * factor);
+}
 
 template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::iterator
