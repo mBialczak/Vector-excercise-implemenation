@@ -129,7 +129,7 @@ class Vector
     template <class... Args>
     constexpr iterator emplace(const_iterator pos, Args&&... args);
 
-    // constexpr iterator erase(const_iterator pos);
+    constexpr iterator erase(const_iterator pos);
     // constexpr iterator erase(const_iterator first, const_iterator last);
 
     constexpr void push_back(const Type& value);
@@ -916,6 +916,30 @@ constexpr Vector<Type, Allocator>::reference
     std::advance(end_, 1);
 
     return back();
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::iterator
+    Vector<Type, Allocator>::erase(const_iterator pos)
+{
+    // TODO: REMOVE
+    std::cout << "ERASE with ONE ARGUMENT\n";
+
+    if (pos == end_ - 1) {
+        pop_back();
+        return end_;
+    }
+
+    iterator current = const_cast<iterator>(pos);
+    Allocator::destroy(current);
+
+    for (; current < end_ - 1; ++current) {
+        *current = std::move(*(current + 1));
+    }
+
+    --end_;
+
+    return const_cast<iterator>(pos);
 }
 
 template <typename Type, typename Allocator>

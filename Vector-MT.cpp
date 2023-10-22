@@ -3564,6 +3564,81 @@ TEST(EmplaceBackTests, shouldWorkForEmptyVector)
     EXPECT_EQ(*sutString.begin(), "twenty");
 }
 
+// === tests for constexpr iterator erase(const_iterator pos);
+TEST(EraseTakingSinglePositionTests, shouldRemoveRequestedElementAndDecreaseSizeByOneButNotChangeCapacity)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+    auto sutIntSizeBefore = sutInt.size();
+    auto sutIntCapacityBefore = sutInt.capacity();
+    auto sutStringSizeBefore = sutString.size();
+    auto sutStringCapacityBefore = sutString.capacity();
+    auto intToRemove = sutInt.begin() + 2;
+    auto stringToRemove = sutString.begin() + 3;
+
+    sutInt.erase(intToRemove);
+    sutString.erase(stringToRemove);
+
+    EXPECT_EQ(sutInt.size(), sutIntSizeBefore - 1);
+    EXPECT_EQ(sutInt.capacity(), sutIntCapacityBefore);
+    EXPECT_EQ(sutString.size(), sutStringSizeBefore - 1);
+    EXPECT_EQ(sutString.capacity(), sutStringCapacityBefore);
+    EXPECT_THAT(sutInt, ElementsAre(1, 2, 4, 5));
+    EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "five"));
+}
+
+TEST(EraseTakingSinglePositionTests, shouldReturnIterToElementFolowingRemoved)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+    auto intToRemove = sutInt.begin() + 2;
+    auto stringToRemove = sutString.begin() + 3;
+
+    auto intIterReturned = sutInt.erase(intToRemove);
+    auto stringIterReturned = sutString.erase(stringToRemove);
+
+    EXPECT_THAT(sutInt, ElementsAre(1, 2, 4, 5));
+    EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "five"));
+    EXPECT_EQ(*intIterReturned, 4);
+    EXPECT_EQ(*stringIterReturned, "five");
+}
+
+TEST(EraseTakingSinglePositionTests, shouldWorkForSingleElementVectorAndReturnEnd)
+{
+    Vector sutInt { 1 };
+    Vector<std::string> sutString { "one" };
+
+    auto intIterReturned = sutInt.erase(sutInt.begin());
+    auto stringIterReturned = sutString.erase(sutString.begin());
+
+    EXPECT_EQ(sutInt.size(), 0);
+    EXPECT_EQ(sutString.size(), 0);
+    EXPECT_EQ(sutInt.end(), intIterReturned);
+    EXPECT_EQ(sutString.end(), stringIterReturned);
+}
+
+TEST(EraseTakingSinglePositionTests, shouldDetroyErasedElementButNotDeallocateMemory)
+{
+    AllocatorCallDetectorMock<int> callDetector;
+    CustomTestingAllocator<int> intAllocator;
+    intAllocator.setCallDetectionHelper(&callDetector);
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+        .Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+        .Times(4);
+    Vector sutInt { 4, 100, intAllocator };
+
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+        .Times(1);
+    sutInt.erase(sutInt.begin() + 1);
+
+    // NOTE: only deallocation on vector destruction expected
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+        .Times(3);
+}
+
 // === tests for constexpr void pop_back();
 TEST(PopBackTests, shouldNotCrashOnEmptyVector)
 {
