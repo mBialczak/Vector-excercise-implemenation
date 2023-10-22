@@ -138,7 +138,7 @@ class Vector
     template <class... Args>
     constexpr reference emplace_back(Args&&... args);
 
-    // constexpr void pop_back();
+    constexpr void pop_back();
 
     // constexpr void resize(size_type count);
     // constexpr void resize(size_type count, const value_type& value);
@@ -916,6 +916,16 @@ constexpr Vector<Type, Allocator>::reference
     std::advance(end_, 1);
 
     return back();
+}
+
+template <typename Type, typename Allocator>
+constexpr void Vector<Type, Allocator>::pop_back()
+{
+    if (end_ != nullptr) {
+        auto iterToLast = end_ - 1;
+        Allocator::destroy(iterToLast);
+        end_ -= 1;
+    }
 }
 
 template <typename Type, typename Allocator>

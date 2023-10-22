@@ -3564,6 +3564,48 @@ TEST(EmplaceBackTests, shouldWorkForEmptyVector)
     EXPECT_EQ(*sutString.begin(), "twenty");
 }
 
+// === tests for constexpr void pop_back();
+TEST(PopBackTests, shouldNotCrashOnEmptyVector)
+{
+    Vector<int> sutInt;
+    Vector<std::string> sutString;
+
+    sutInt.pop_back();
+    sutString.pop_back();
+}
+
+TEST(PopBackTests, shouldRemoveLastElementDecreaseSizeButNotChangeCapacity)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+    auto sutIntSizeBefore = sutInt.size();
+    auto sutIntCapacityBefore = sutInt.capacity();
+    auto sutStringSizeBefore = sutString.size();
+    auto sutStringCapacityBefore = sutString.capacity();
+
+    sutInt.pop_back();
+    sutString.pop_back();
+
+    EXPECT_EQ(sutInt.size(), sutIntSizeBefore - 1);
+    EXPECT_EQ(sutString.size(), sutStringSizeBefore - 1);
+    EXPECT_EQ(sutInt.capacity(), sutIntCapacityBefore);
+    EXPECT_EQ(sutString.capacity(), sutStringCapacityBefore);
+    EXPECT_THAT(sutInt, ElementsAre(1, 2, 3, 4));
+    EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four"));
+}
+
+TEST(PopBackTests, shouldWorkForSingleElementVector)
+{
+    Vector sutInt { 1 };
+    Vector<std::string> sutString { "one" };
+
+    sutInt.pop_back();
+    sutString.pop_back();
+
+    EXPECT_EQ(sutInt.size(), 0);
+    EXPECT_EQ(sutString.size(), 0);
+}
+
 // === tests for  constexpr reverse_iterator rbegin() noexcept;
 // === tests for constexpr const_reverse_iterator rbegin() const noexcept;
 TEST(ReverseBeginTests, shouldReturnReverseIteratorType)
