@@ -130,7 +130,7 @@ class Vector
     constexpr iterator emplace(const_iterator pos, Args&&... args);
 
     constexpr iterator erase(const_iterator pos);
-    // constexpr iterator erase(const_iterator first, const_iterator last);
+    constexpr iterator erase(const_iterator first, const_iterator last);
 
     constexpr void push_back(const Type& value);
     constexpr void push_back(Type&& value);
@@ -940,6 +940,68 @@ constexpr Vector<Type, Allocator>::iterator
     --end_;
 
     return const_cast<iterator>(pos);
+}
+
+template <typename Type, typename Allocator>
+constexpr Vector<Type, Allocator>::iterator
+    Vector<Type, Allocator>::erase(const_iterator first, const_iterator last)
+{
+    // TODO: REMOVE
+    std::cout << "ERASE with TWO ITERATORS\n";
+    // if (std::distance(first, last) == 0) {
+    auto currentSize = size();
+    if (currentSize == 0) {
+        std::cout << "ERASE EMPTY -> early return\n";
+
+        return const_cast<iterator>(last);
+        // TODO: REMOVE
+    }
+    else if (currentSize == 1 && first == begin_) {
+        std::cout << "ERASE SINGLE element\n";
+
+        pop_back();
+        return end_;
+    }
+    // TODO: VERIFY
+    //  iterator firstCopy = const_cast<iterator>(first);
+    //  iterator lastCopy = const_cast<iterator>(last);
+
+    if (end_ == last) {
+        std::cout << "ERASE END() == LAST \n";
+        for (iterator currentRemoved = const_cast<iterator>(first);
+             currentRemoved != end_;
+             ++currentRemoved) {
+            Allocator::destroy(currentRemoved);
+        }
+        end_ = const_cast<iterator>(first);
+
+        return end_;
+    }
+    // TODO: VERIFY if works, extract not to copy
+    std::cout << "ERASE IN THE MIDDLE CASE\n";
+    for (iterator currentRemoved = const_cast<iterator>(first);
+         currentRemoved != last;
+         ++currentRemoved) {
+        Allocator::destroy(currentRemoved);
+    }
+    // TODO: VERIFY
+    std::size_t lastToEndCount = std::distance(const_cast<iterator>(last), end_);
+    // iterator firstCopy = const_cast<iterator>(first);
+    iterator current = const_cast<iterator>(first);
+    iterator moved = const_cast<iterator>(last);
+    for (std::size_t count = 0;
+         count < lastToEndCount;
+         ++count,
+                     ++current,
+                     ++moved) {
+        *current = std::move(*moved);
+    }
+    // std::move(last, end_, first);
+    // TODO: VERIFY
+    end_ = std::next(const_cast<iterator>(first), lastToEndCount);
+    // end_ = first + lastToEndCount;
+
+    return end_ - 1;
 }
 
 template <typename Type, typename Allocator>
