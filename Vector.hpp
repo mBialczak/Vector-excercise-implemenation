@@ -181,7 +181,7 @@ class Vector
                                          const_iterator end,
                                          iterator destination);
     void shiftElements(iterator shiftStartPosition, size_type count);
-    void destructOldObjects();
+    void destroyObjects(iterator from, iterator toExcluding);
 
     Type* begin_;
     Type* end_;
@@ -345,7 +345,7 @@ constexpr Vector<Type, Allocator>::~Vector()
         return;
     }
 
-    destructOldObjects();
+    destroyObjects(begin_, end_);
     // TODO: VERIFY
     //  allocator_.deallocate(begin_);
     Allocator::deallocate(begin_);
@@ -361,7 +361,7 @@ constexpr Vector<Type, Allocator>&
         return *this;
     }
 
-    destructOldObjects();
+    destroyObjects(begin_, end_);
     Allocator::deallocate(begin_);
     begin_ = Allocator::allocate(other.size());
     for (auto beginCopy = begin_;
@@ -384,7 +384,7 @@ constexpr Vector<Type, Allocator>&
         return *this;
     }
 
-    destructOldObjects();
+    destroyObjects(begin_, end_);
     Allocator::deallocate(begin_);
 
     begin_ = other.begin_;
@@ -404,7 +404,7 @@ constexpr Vector<Type, Allocator>&
     // TODO: REMOVE
     std::cout << "COPY OPERATOR WITH INITIALIZER_LIST CALLED\n";
 
-    destructOldObjects();
+    destroyObjects(begin_, end_);
     Allocator::deallocate(begin_);
     begin_ = Allocator::allocate(ilist.size());
     for (auto beginCopy = begin_;
@@ -424,7 +424,7 @@ constexpr void Vector<Type, Allocator>::assign(size_type count, const Type& valu
     // TODO: REMOVE
     std::cout << "ASSIGN TAKING COUNT AND VALUE\n";
 
-    destructOldObjects();
+    destroyObjects(begin_, end_);
     Allocator::deallocate(begin_);
     begin_ = Allocator::allocate(count);
     end_ = std::next(begin_, count);
@@ -443,7 +443,7 @@ constexpr void Vector<Type, Allocator>::assign(InputIt first, InputIt last)
     // TODO: REMOVE
     std::cout << "ASSIGN TAKING ITERATORS\n";
 
-    destructOldObjects();
+    destroyObjects(begin_, end_);
     Allocator::deallocate(begin_);
     const auto newSize = std::distance(first, last);
     begin_ = Allocator::allocate(newSize);
@@ -461,7 +461,7 @@ constexpr void Vector<Type, Allocator>::assign(std::initializer_list<Type> ilist
     // TODO: REMOVE
     std::cout << "ASSIGN TAKING INITIALIZER LIST\n";
 
-    destructOldObjects();
+    destroyObjects(begin_, end_);
     Allocator::deallocate(begin_);
 
     const auto newSize = ilist.size();
@@ -621,7 +621,7 @@ constexpr void Vector<Type, Allocator>::shrink_to_fit()
 template <typename Type, typename Allocator>
 constexpr void Vector<Type, Allocator>::clear() noexcept
 {
-    destructOldObjects();
+    destroyObjects(begin_, end_);
     // TODO: VERIFY
     //  allocator_.deallocate(begin_);
     Allocator::deallocate(begin_);
@@ -948,60 +948,39 @@ constexpr Vector<Type, Allocator>::iterator
 {
     // TODO: REMOVE
     std::cout << "ERASE with TWO ITERATORS\n";
-    // if (std::distance(first, last) == 0) {
+
     auto currentSize = size();
     if (currentSize == 0) {
-        std::cout << "ERASE EMPTY -> early return\n";
 
         return const_cast<iterator>(last);
-        // TODO: REMOVE
     }
     else if (currentSize == 1 && first == begin_) {
-        std::cout << "ERASE SINGLE element\n";
-
         pop_back();
         return end_;
     }
-    // TODO: VERIFY
-    //  iterator firstCopy = const_cast<iterator>(first);
-    //  iterator lastCopy = const_cast<iterator>(last);
+
+    iterator firstRemoved = const_cast<iterator>(first);
+    iterator firstNotRemoved = const_cast<iterator>(last);
+    destroyObjects(firstRemoved, firstNotRemoved);
 
     if (end_ == last) {
-        std::cout << "ERASE END() == LAST \n";
-        for (iterator currentRemoved = const_cast<iterator>(first);
-             currentRemoved != end_;
-             ++currentRemoved) {
-            Allocator::destroy(currentRemoved);
-        }
-        end_ = const_cast<iterator>(first);
+        end_ = firstRemoved;
 
         return end_;
     }
-    // TODO: VERIFY if works, extract not to copy
-    std::cout << "ERASE IN THE MIDDLE CASE\n";
-    for (iterator currentRemoved = const_cast<iterator>(first);
-         currentRemoved != last;
-         ++currentRemoved) {
-        Allocator::destroy(currentRemoved);
-    }
-    // TODO: VERIFY
-    std::size_t lastToEndCount = std::distance(const_cast<iterator>(last), end_);
-    // iterator firstCopy = const_cast<iterator>(first);
-    iterator current = const_cast<iterator>(first);
-    iterator moved = const_cast<iterator>(last);
-    for (std::size_t count = 0;
-         count < lastToEndCount;
-         ++count,
-                     ++current,
-                     ++moved) {
-        *current = std::move(*moved);
-    }
-    // std::move(last, end_, first);
-    // TODO: VERIFY
-    end_ = std::next(const_cast<iterator>(first), lastToEndCount);
-    // end_ = first + lastToEndCount;
 
-    return end_ - 1;
+    std::size_t elementsToMoveCount = std::distance(firstNotRemoved, end_);
+    iterator current = firstRemoved;
+
+    for (std::size_t count = 0;
+         count < elementsToMoveCount;
+         ++count, ++current, ++firstNotRemoved) {
+        *current = std::move(*firstNotRemoved);
+    }
+
+    end_ = std::next(firstRemoved, elementsToMoveCount);
+
+    return firstRemoved;
 }
 
 template <typename Type, typename Allocator>
@@ -1239,12 +1218,10 @@ void Vector<Type, Allocator>::moveOrCopyToUninitializedMemory(const_iterator sta
 }
 
 template <typename Type, typename Allocator>
-void Vector<Type, Allocator>::destructOldObjects()
+void Vector<Type, Allocator>::destroyObjects(iterator from, iterator toExcluding)
 {
-    for (auto it = begin_; it != end(); ++it) {
-        // TODO: VERIFY
-        //  allocator_.destroy(it);
-        Allocator::destroy(it);
+    for (; from != toExcluding; ++from) {
+        Allocator::destroy(from);
     }
 }
 
