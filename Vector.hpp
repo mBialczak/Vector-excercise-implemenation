@@ -140,8 +140,8 @@ class Vector
 
     constexpr void pop_back();
 
-    // constexpr void resize(size_type count);
-    // constexpr void resize(size_type count, const value_type& value);
+    constexpr void resize(size_type count);
+    constexpr void resize(size_type count, const value_type& value);
     // constexpr void swap( vector& other ) noexcept;
 
     // template <class T, class Alloc>
@@ -994,6 +994,40 @@ constexpr void Vector<Type, Allocator>::pop_back()
 }
 
 template <typename Type, typename Allocator>
+constexpr void Vector<Type, Allocator>::resize(size_type count)
+{
+    // TODO: REMOVE
+    std::cout << "RESIZE taking count\n";
+
+    resize(count, {});
+}
+
+template <typename Type, typename Allocator>
+constexpr void Vector<Type, Allocator>::resize(size_type count, const value_type& value)
+{
+    //  TODO: REMOVE
+    std::cout << "RESIZE taking count and value\n";
+
+    auto currentSize { size() };
+    if (count == currentSize) {
+        return;
+    }
+    else if (count < currentSize) {
+        auto removeStart { std::next(begin_, count) };
+        erase(removeStart, end_);
+    }
+    else {
+        if (capacity() < count) {
+            reserve(count);
+        }
+        auto countDifference = count - size();
+        for (size_type addingCounter = 0; addingCounter < countDifference; ++addingCounter) {
+            emplace_back(value);
+        }
+    }
+}
+
+template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::size_type
     Vector<Type, Allocator>::capacity() const noexcept
 {
@@ -1268,4 +1302,5 @@ void Vector<Type, Allocator>::shiftElements(iterator shiftStartPosition, size_ty
         }
     }
 }
+
 }   // namespace my
