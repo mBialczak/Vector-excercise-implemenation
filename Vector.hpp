@@ -142,7 +142,7 @@ class Vector
 
     constexpr void resize(size_type count);
     constexpr void resize(size_type count, const value_type& value);
-    // constexpr void swap( vector& other ) noexcept;
+    constexpr void swap(Vector& other) noexcept;
 
     // template <class T, class Alloc>
     // constexpr operator<=>(const std::vector<T, Alloc>& lhs,
@@ -1025,6 +1025,17 @@ constexpr void Vector<Type, Allocator>::resize(size_type count, const value_type
             emplace_back(value);
         }
     }
+}
+
+template <typename Type, typename Allocator>
+constexpr void Vector<Type, Allocator>::swap(Vector& other) noexcept
+{
+    //  TODO: REMOVE
+    std::cout << "SWAP\n";
+
+    std::swap(begin_, other.begin_);
+    std::swap(end_, other.end_);
+    std::swap(capacity_, other.capacity_);
 }
 
 template <typename Type, typename Allocator>

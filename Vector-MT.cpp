@@ -4111,6 +4111,55 @@ TEST(ResizeTakingCountAndValueTests, shouldAppendGivenValueIfCountGreaterThanCur
     EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four", "five", "Yupi!", "Yupi!", "Yupi!"));
 }
 
+//=== tests for  constexpr void swap( vector& other ) noexcept;
+TEST(SwapTests, shouldExchangeContentsOfTwoVectors)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    auto sutIntBeginBefore = sutInt.begin();
+    auto sutIntEndBefore = sutInt.end();
+    auto sutIntCapacityBefore = sutInt.capacity();
+    Vector secondSutInt { 66, 77, 99 };
+    auto secondSutIntBeginBefore = secondSutInt.begin();
+    auto secondSutIntEndBefore = secondSutInt.end();
+    auto secondSutIntCapacityBefore = secondSutInt.capacity();
+
+    sutInt.swap(secondSutInt);
+
+    EXPECT_EQ(sutIntBeginBefore, secondSutInt.begin());
+    EXPECT_EQ(sutIntEndBefore, secondSutInt.end());
+    EXPECT_EQ(sutIntCapacityBefore, secondSutInt.capacity());
+    EXPECT_EQ(secondSutIntBeginBefore, sutInt.begin());
+    EXPECT_EQ(secondSutIntEndBefore, sutInt.end());
+    EXPECT_EQ(secondSutIntCapacityBefore, sutInt.capacity());
+    EXPECT_THAT(sutInt, ElementsAre(66, 77, 99));
+    EXPECT_THAT(secondSutInt, ElementsAre(1, 2, 3, 4, 5));
+}
+
+TEST(SwapTests, shouldNotInvalidateIteratorsOtherThanEnd)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector secondSutInt { 66, 77, 99 };
+    auto firstIter = std::next(sutInt.begin());
+    auto valuePointedByFirstIterBefore = *firstIter;
+    auto secondIter = std::next(secondSutInt.begin());
+    auto valuePointedBySecondIterBefore = *secondIter;
+    int& firstRef = sutInt.front();
+    int valuePointedByFirstRefBefore = firstRef;
+    int& secondRef = secondSutInt.front();
+    int valuePointedBySecondRefBefore = secondRef;
+    auto firstSutEndBefore = sutInt.end();
+    auto secondSutEndBefore = secondSutInt.end();
+
+    sutInt.swap(secondSutInt);
+
+    EXPECT_EQ(valuePointedByFirstIterBefore, *firstIter);
+    EXPECT_EQ(valuePointedBySecondIterBefore, *secondIter);
+    EXPECT_EQ(valuePointedByFirstRefBefore, firstRef);
+    EXPECT_EQ(valuePointedBySecondRefBefore, secondRef);
+    EXPECT_NE(firstSutEndBefore, sutInt.end());
+    EXPECT_NE(secondSutEndBefore, secondSutInt.end());
+}
+
 // TODO: test size after adding objects
 // TODO: test size after adding if capacity should increase
 // TODO: test size after removing objects
