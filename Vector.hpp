@@ -144,9 +144,6 @@ class Vector
     constexpr void resize(size_type count, const value_type& value);
     constexpr void swap(Vector& other) noexcept;
 
-    // template <class T, class Alloc>
-    // constexpr operator<=>(const std::vector<T, Alloc>& lhs,
-    //                       const std::vector<T, Alloc>& rhs);
     // TODO: VERIFY
     template <typename OtherType, typename OtherAllocator>
     // requires std::is_convertible_v<OtherType, Type>
@@ -189,6 +186,21 @@ class Vector
     // static allocator_type allocator_;   // TODO: VERIFY name and sense of storing
     // DefaultAllocator<Type> allocator;   // TODO: VERIFY name and sense of storing
 };
+
+template <typename Type, typename Allocator>
+constexpr bool operator==(const Vector<Type, Allocator>& lhs,
+                          const Vector<Type, Allocator>& rhs)
+{
+    if (lhs.size() != rhs.size()) {
+        return false;
+    }
+
+    return std::equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+// TODO: complete tests
+// template <class T, class Alloc>
+// constexpr operator<=>(const std::vector<T, Alloc>& lhs,
+//                       const std::vector<T, Alloc>& rhs);
 
 template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::Vector() noexcept(noexcept(Allocator()))
