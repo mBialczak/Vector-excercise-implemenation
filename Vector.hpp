@@ -198,9 +198,7 @@ constexpr bool operator==(const Vector<Type, Allocator>& lhs,
     return std::equal(lhs.begin(), lhs.end(), rhs.begin());
 }
 
-// TODO: complete tests
 template <typename Type, typename Allocator>
-// TODO: VERIFY auto
 constexpr auto operator<=>(const Vector<Type, Allocator>& lhs,
                            const Vector<Type, Allocator>& rhs)
 {
