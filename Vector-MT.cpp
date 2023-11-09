@@ -4191,6 +4191,50 @@ TEST(EqualityComparisonTests, shouldReturnFalseIfVectorsAreLexicographicallyDiff
     EXPECT_NE(sutString2, sutString3);
 }
 
+TEST(LessComparisonTests, shouldDetectIfVectorIsLessThanOther)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector sutInt2 { 1, 2, 3 };
+    Vector sutInt3 { 1, 2, 2 };
+    Vector sutBool { true, false, true };
+    Vector sutBool2 { true, false };
+    Vector sutBool3 { true, true };
+    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+    Vector<std::string> sutString2 { "one", "two", "three" };
+    Vector<std::string> sutString3 { "One", "two", "three" };
+
+    EXPECT_LT(sutInt2, sutInt);
+    EXPECT_LT(sutInt3, sutInt2);
+    EXPECT_LT(sutBool2, sutBool);
+    EXPECT_LT(sutBool2, sutBool3);
+    EXPECT_LT(sutBool, sutBool3);
+    EXPECT_LT(sutString2, sutString);
+    EXPECT_LT(sutString3, sutString2);
+    EXPECT_LT(sutString3, sutString);
+}
+
+TEST(GreaterComparisonTests, shouldDetectIfVectorIsGreaterThanOther)
+{
+    Vector sutInt { 1, 2, 3, 4, 5 };
+    Vector sutInt2 { 1, 2, 3 };
+    Vector sutInt3 { 1, 2, 2 };
+    Vector sutBool { true, false, true };
+    Vector sutBool2 { true, false };
+    Vector sutBool3 { true, true };
+    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+    Vector<std::string> sutString2 { "one", "two", "three" };
+    Vector<std::string> sutString3 { "One", "two", "three" };
+
+    EXPECT_GT(sutInt, sutInt2);
+    EXPECT_GT(sutInt2, sutInt3);
+    EXPECT_GT(sutBool, sutBool2);
+    EXPECT_GT(sutBool3, sutBool2);
+    EXPECT_GT(sutBool3, sutBool);
+    EXPECT_GT(sutString, sutString2);
+    EXPECT_GT(sutString2, sutString3);
+    EXPECT_GT(sutString, sutString3);
+}
+
 // TODO: test size after adding objects
 // TODO: test size after adding if capacity should increase
 // TODO: test size after removing objects

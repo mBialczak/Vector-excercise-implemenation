@@ -197,10 +197,18 @@ constexpr bool operator==(const Vector<Type, Allocator>& lhs,
 
     return std::equal(lhs.begin(), lhs.end(), rhs.begin());
 }
+
 // TODO: complete tests
-// template <class T, class Alloc>
-// constexpr operator<=>(const std::vector<T, Alloc>& lhs,
-//                       const std::vector<T, Alloc>& rhs);
+template <typename Type, typename Allocator>
+// TODO: VERIFY auto
+constexpr auto operator<=>(const Vector<Type, Allocator>& lhs,
+                           const Vector<Type, Allocator>& rhs)
+{
+    return std::lexicographical_compare_three_way(lhs.begin(),
+                                                  lhs.end(),
+                                                  rhs.begin(),
+                                                  rhs.end());
+}
 
 template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::Vector() noexcept(noexcept(Allocator()))
