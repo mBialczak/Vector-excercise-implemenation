@@ -215,7 +215,7 @@ constexpr Vector<Type, Allocator>::Vector() noexcept(noexcept(Allocator()))
     , capacity_(nullptr)
 {
     // TODO: REMOVE
-    std::cout << "DefaultConstructor called\n";
+    // std::cout << "DefaultConstructor called\n";
 }
 
 template <typename Type, typename Allocator>
@@ -224,7 +224,7 @@ constexpr Vector<Type, Allocator>::Vector([[maybe_unused]] const Allocator& allo
 {
     // TODO: VERIFY
     // allocator_ = alloc;
-    std::cout << "CONSTRUCTOR: ConstructorTakingOnlyAllocator\n";
+    // std::cout << "CONSTRUCTOR: ConstructorTakingOnlyAllocator\n";
 }
 
 template <typename Type, typename Allocator>
@@ -236,7 +236,7 @@ constexpr Vector<Type, Allocator>::Vector(size_type count,
     , capacity_(end_)
 {
     // TODO: REMOVE
-    std::cout << "CONSTRUCTOR: ConstructorTakingCountValueAndAllocator\n";
+    // std::cout << "CONSTRUCTOR: ConstructorTakingCountValueAndAllocator\n";
 
     for (auto it = begin_; it != end_; ++it) {
         alloc.construct(it, value);
@@ -251,7 +251,7 @@ constexpr Vector<Type, Allocator>::Vector(size_type count,
     , capacity_(end_)
 {
     // TODO: REMOVE
-    std::cout << "CONSTRUCTOR: ConstructorTakingCountAndAllocator\n";
+    // std::cout << "CONSTRUCTOR: ConstructorTakingCountAndAllocator\n";
 
     for (auto it = begin_; it != end_; ++it) {
         // TODO: VERIFY
@@ -271,7 +271,7 @@ constexpr Vector<Type, Allocator>::Vector(InputIt first,
     , capacity_(end_)
 {
     // TODO: REMOVE
-    std::cout << "CONSTRUCTOR: ConstructorTakingInputIterators\n";
+    // std::cout << "CONSTRUCTOR: ConstructorTakingInputIterators\n";
 
     auto iter = begin_;
     while (first != last) {
@@ -289,7 +289,7 @@ constexpr Vector<Type, Allocator>::Vector(std::initializer_list<Type> init,
     , capacity_(end_)
 {
     // TODO: REMOVE
-    std::cout << "CONSTRUCTOR: ConstructorTakingInitializerList\n";
+    // std::cout << "CONSTRUCTOR: ConstructorTakingInitializerList\n";
     for (auto iter = begin_;
          const auto& el : init) {
         Allocator::construct(iter, Type { el });
@@ -304,7 +304,7 @@ constexpr Vector<Type, Allocator>::Vector(const Vector& other)
     , capacity_(std::next(begin_, other.capacity()))
 {
     // TODO: REMOVE
-    std::cout << "CONSTRUCTOR: CopyConstructor\n";
+    // std::cout << "CONSTRUCTOR: CopyConstructor\n";
     for (auto iter = begin_;
          const auto& el : other) {
         Allocator::construct(iter, Type { el });
@@ -321,7 +321,7 @@ constexpr Vector<Type, Allocator>::Vector(const Vector<Type, OtherAllocator>& ot
     , capacity_(std::next(begin_, other.capacity()))
 {
     // TODO: REMOVE
-    std::cout << "CONSTRUCTOR: CopyConstructorWithAllocatorArgument\n";
+    // std::cout << "CONSTRUCTOR: CopyConstructorWithAllocatorArgument\n";
     for (auto iter = begin_;
          const auto& el : other) {
         Allocator::construct(iter, Type { el });
@@ -335,7 +335,7 @@ constexpr Vector<Type, Allocator>::Vector(Vector&& other) noexcept
     , end_(other.end())
     , capacity_(other.end())
 {
-    std::cout << "CONSTRUCTOR: MoveConstructor\n";
+    // std::cout << "CONSTRUCTOR: MoveConstructor\n";
     other.begin_ = nullptr;
     other.end_ = nullptr;
     other.capacity_ = nullptr;
@@ -350,7 +350,7 @@ constexpr Vector<Type, Allocator>::Vector(Vector<Type, OtherAllocator>&& other,
     , capacity_(other.end())
 {
     // TODO: REMOVE
-    std::cout << "CONSTRUCTOR: MoveConstructorWithAllocatorArgument\n";
+    // std::cout << "CONSTRUCTOR: MoveConstructorWithAllocatorArgument\n";
     other.begin_ = nullptr;
     other.end_ = nullptr;
     other.capacity_ = nullptr;
@@ -374,7 +374,7 @@ constexpr Vector<Type, Allocator>&
     Vector<Type, Allocator>::operator=(const Vector& other)
 {
     // TODO: REMOVE
-    std::cout << "COPY OPERATOR CALLED\n";
+    // std::cout << "COPY OPERATOR CALLED\n";
     if (this == &other) {
         return *this;
     }
@@ -397,7 +397,7 @@ template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>&
     Vector<Type, Allocator>::operator=(Vector&& other) noexcept
 {
-    std::cout << "MOVE ASSIGNMENT OPERATOR CALLED\n";
+    // std::cout << "MOVE ASSIGNMENT OPERATOR CALLED\n";
     if (this == &other) {
         return *this;
     }
@@ -420,7 +420,7 @@ constexpr Vector<Type, Allocator>&
     Vector<Type, Allocator>::operator=(std::initializer_list<Type> ilist)
 {
     // TODO: REMOVE
-    std::cout << "COPY OPERATOR WITH INITIALIZER_LIST CALLED\n";
+    // std::cout << "COPY OPERATOR WITH INITIALIZER_LIST CALLED\n";
 
     destroyObjects(begin_, end_);
     Allocator::deallocate(begin_);
@@ -440,7 +440,7 @@ template <typename Type, typename Allocator>
 constexpr void Vector<Type, Allocator>::assign(size_type count, const Type& value)
 {
     // TODO: REMOVE
-    std::cout << "ASSIGN TAKING COUNT AND VALUE\n";
+    // std::cout << "ASSIGN TAKING COUNT AND VALUE\n";
 
     destroyObjects(begin_, end_);
     Allocator::deallocate(begin_);
@@ -459,7 +459,7 @@ template <class InputIt>
 constexpr void Vector<Type, Allocator>::assign(InputIt first, InputIt last)
 {
     // TODO: REMOVE
-    std::cout << "ASSIGN TAKING ITERATORS\n";
+    // std::cout << "ASSIGN TAKING ITERATORS\n";
 
     destroyObjects(begin_, end_);
     Allocator::deallocate(begin_);
@@ -477,7 +477,7 @@ template <typename Type, typename Allocator>
 constexpr void Vector<Type, Allocator>::assign(std::initializer_list<Type> ilist)
 {
     // TODO: REMOVE
-    std::cout << "ASSIGN TAKING INITIALIZER LIST\n";
+    // std::cout << "ASSIGN TAKING INITIALIZER LIST\n";
 
     destroyObjects(begin_, end_);
     Allocator::deallocate(begin_);
@@ -653,7 +653,7 @@ constexpr Vector<Type, Allocator>::iterator
     Vector<Type, Allocator>::insert(const_iterator pos, const Type& value)
 {
     // TODO: REMOVE
-    std::cout << "INSERT taking position and const value&\n";
+    // std::cout << "INSERT taking position and const value&\n";
     if (begin_ == end_) {
         return insertToEmptyVector(1, value);
     }
@@ -692,7 +692,7 @@ constexpr Vector<Type, Allocator>::iterator
     Vector<Type, Allocator>::insert(const_iterator pos, Type&& value)
 {
     // TODO: REMOVE
-    std::cout << "INSERT taking position and value&&\n";
+    // std::cout << "INSERT taking position and value&&\n";
     if (begin_ == end_) {
         return insertToEmptyVector(1, std::forward<Type>(value));
     }
@@ -730,7 +730,7 @@ template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::iterator
     Vector<Type, Allocator>::insert(const_iterator pos, size_type count, const Type& value)
 {
-    std::cout << "INSERT taking position, number of copies to insert and const value&\n";
+    // std::cout << "INSERT taking position, number of copies to insert and const value&\n";
 
     if (begin_ == end_) {
         return insertToEmptyVector(count, value);
@@ -764,7 +764,7 @@ template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::iterator
     Vector<Type, Allocator>::insert(const_iterator pos, std::initializer_list<Type> ilist)
 {
-    std::cout << "INSERT taking position, and initializerList with elements to insert\n";
+    // std::cout << "INSERT taking position, and initializerList with elements to insert\n";
 
     if (begin_ == end_) {
         return insertToEmptyVector(ilist.begin(), ilist.end());
@@ -802,7 +802,7 @@ constexpr Vector<Type, Allocator>::iterator
     Vector<Type, Allocator>::insert(const_iterator pos, InputIt first, InputIt last)
 {
     // TODO: REMOVE
-    std::cout << "INSERT taking position, and TWO ITERATORS pointing to range of elements&\n";
+    // std::cout << "INSERT taking position, and TWO ITERATORS pointing to range of elements&\n";
     if (begin_ == end_) {
         return insertToEmptyVector(first, last);
     }
@@ -838,7 +838,7 @@ constexpr Vector<Type, Allocator>::iterator
     Vector<Type, Allocator>::emplace(const_iterator pos, Args&&... args)
 {
     // TODO: REMOVE
-    std::cout << "EMPLACE taking position and value&&\n";
+    // std::cout << "EMPLACE taking position and value&&\n";
     if (begin_ == end_) {
         return emplaceInEmptyVector(std::forward<Type>(args)...);
     }
@@ -876,7 +876,7 @@ template <typename Type, typename Allocator>
 constexpr void Vector<Type, Allocator>::push_back(const Type& value)
 {
     // TODO: REMOVE
-    std::cout << "PUSH_BACK taking lvalue\n";
+    // std::cout << "PUSH_BACK taking lvalue\n";
     if (begin_ == end_) {
         allocateOneInEmpty();
         Allocator::construct(begin_, value);
@@ -897,7 +897,7 @@ template <typename Type, typename Allocator>
 constexpr void Vector<Type, Allocator>::push_back(Type&& value)
 {
     // TODO: REMOVE
-    std::cout << "PUSH_BACK taking rvalue\n";
+    // std::cout << "PUSH_BACK taking rvalue\n";
     if (begin_ == end_) {
         allocateOneInEmpty();
         Allocator::construct(begin_, std::move(value));
@@ -920,7 +920,7 @@ constexpr Vector<Type, Allocator>::reference
     Vector<Type, Allocator>::emplace_back(Args&&... args)
 {
     // TODO: REMOVE
-    std::cout << "EMPLACE_BACK\n";
+    // std::cout << "EMPLACE_BACK\n";
     if (begin_ == end_) {
         return *emplaceInEmptyVector(std::forward<Args>(args)...);
     }
@@ -941,7 +941,7 @@ constexpr Vector<Type, Allocator>::iterator
     Vector<Type, Allocator>::erase(const_iterator pos)
 {
     // TODO: REMOVE
-    std::cout << "ERASE with ONE ARGUMENT\n";
+    // std::cout << "ERASE with ONE ARGUMENT\n";
 
     if (pos == end_ - 1) {
         pop_back();
@@ -965,7 +965,7 @@ constexpr Vector<Type, Allocator>::iterator
     Vector<Type, Allocator>::erase(const_iterator first, const_iterator last)
 {
     // TODO: REMOVE
-    std::cout << "ERASE with TWO ITERATORS\n";
+    // std::cout << "ERASE with TWO ITERATORS\n";
 
     auto currentSize = size();
     if (currentSize == 0) {
@@ -1015,7 +1015,7 @@ template <typename Type, typename Allocator>
 constexpr void Vector<Type, Allocator>::resize(size_type count)
 {
     // TODO: REMOVE
-    std::cout << "RESIZE taking count\n";
+    // std::cout << "RESIZE taking count\n";
 
     resize(count, {});
 }
@@ -1024,7 +1024,7 @@ template <typename Type, typename Allocator>
 constexpr void Vector<Type, Allocator>::resize(size_type count, const value_type& value)
 {
     //  TODO: REMOVE
-    std::cout << "RESIZE taking count and value\n";
+    // std::cout << "RESIZE taking count and value\n";
 
     auto currentSize { size() };
     if (count == currentSize) {
@@ -1049,7 +1049,7 @@ template <typename Type, typename Allocator>
 constexpr void Vector<Type, Allocator>::swap(Vector& other) noexcept
 {
     //  TODO: REMOVE
-    std::cout << "SWAP\n";
+    // std::cout << "SWAP\n";
 
     std::swap(begin_, other.begin_);
     std::swap(end_, other.end_);
