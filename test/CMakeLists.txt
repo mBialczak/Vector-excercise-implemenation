@@ -29,8 +29,8 @@ set(EXECUTABLE_OUTPUT_PATH
 #     ${TESTED_LIBRARY_DIR})
 
 add_subdirectory(DefaultAllocatorTests)
+add_subdirectory(ReverseIteratorTests)
     # // TODO: REMOVE
-# cmake_print_variables()
 # get_cmake_property(_variableNames VARIABLES)
 # list (SORT _variableNames)
 # foreach (_variableName ${_variableNames})
@@ -38,6 +38,8 @@ add_subdirectory(DefaultAllocatorTests)
 # endforeach()
 # set(CMAKE_EXECUTABLE_OUTPUT_DIRECTORY
 #     ${TESTED_LIBRARY_DIR})
+
+
 # add_executable(Vector-MT
 #                Vector-MT.cpp
 # )
@@ -58,45 +60,11 @@ add_subdirectory(DefaultAllocatorTests)
 #                        PRIVATE
 #                        cxx_std_20)
 
-# DefaultAllocator-UT target settings
-# add_executable(DefaultAllocator-UT
-#                DefaultAllocator-UT.cpp
-# )
-
-# target_link_libraries(DefaultAllocator-UT
-#                       gtest_main
-#                       gmock_main
-# )
-
-# target_compile_options(DefaultAllocator-UT
-#                        PRIVATE
-#                        -Wall
-#                        -Wextra
-#                        -pedantic)
-
-# target_compile_features(DefaultAllocator-UT
-#                        PRIVATE
-#                        cxx_std_20)
-
 # ReverseIterator-UT target settings
 # add_executable(ReverseIterator-UT
 #                ReverseIterator-UT.cpp
 # )
 
-# target_link_libraries(ReverseIterator-UT
-#                       gtest_main
-# )
-
-# target_compile_options(ReverseIterator-UT
-#                        PRIVATE
-#                        -Wall
-#                        -Wextra
-#                        -pedantic)
-
-# target_compile_features(ReverseIterator-UT
-#                         PRIVATE
-#                         cxx_std_20)
-
 add_test(NAME DefaultAllocator-UT COMMAND DefaultAllocator-UT)
-# add_test(NAME ReverseIterator-UT COMMAND ReverseIterator-UT)
+add_test(NAME ReverseIterator-UT COMMAND ReverseIterator-UT)
 # add_test(NAME VectorTests-MT COMMAND Vector-MT)

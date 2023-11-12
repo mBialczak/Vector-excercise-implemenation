@@ -1,7 +1,6 @@
 #include "ReverseIterator.hpp"
 
 #include "gtest/gtest.h"
-#include <array>
 
 namespace my::test {
 
@@ -154,7 +153,6 @@ TEST_F(OperatorPlusEqualShould, decrementInternalPointerByPassedValueAndReturnSe
 
     sut += 1;
     int valuePointedAfter = *sut;
-
     sut += 2;
     int valuePointedAfter2 = *sut;
 
@@ -170,7 +168,6 @@ TEST_F(OperatorMinusEqualShould, incrementInternalPointerByPassedValueAndReturnS
 
     sut -= 1;
     int valuePointedAfter = *sut;
-
     sut -= 2;
     int valuePointedAfter2 = *sut;
 
@@ -244,4 +241,5 @@ TEST_F(ReverseIteratorShould, provideAllComparisonOperators)
     EXPECT_TRUE(sutTwo >= sutTwo);
     EXPECT_FALSE(sutOne >= sutTwo);
 }
+
 }   // namespace my::test
