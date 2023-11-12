@@ -9,7 +9,7 @@ template <typename Type>
 struct DefaultAllocator
 {
     using value_type = Type;
-    using size_type = std::size_t;   // //TODO: VERIFY if used
+    using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
     [[nodiscard]] static constexpr Type* allocate(size_type n);
