@@ -22,9 +22,9 @@ TEST(DefaultAllocatorTests, allocateShouldReturnPointerToRequestedType)
     DefaultAllocator<double> sutDouble;
     DefaultAllocator<std::string> sutString;
 
-    [[maybe_unused]] int* allocated1 = sutInt.allocate(5);
-    [[maybe_unused]] double* allocated2 = sutDouble.allocate(4);
-    [[maybe_unused]] std::string* allocated3 = sutString.allocate(10);
+    int* allocated1 = sutInt.allocate(5);
+    double* allocated2 = sutDouble.allocate(4);
+    std::string* allocated3 = sutString.allocate(10);
 
     // NOTE: Cleanup part - not part of test, but we need to free allocated memory for clear valgrind check
     // global operator new used, as DefaultAllocator is supposed to call operator new
@@ -40,8 +40,8 @@ TEST(DefaultAllocatorTests, shouldBePossibleToCallDeallocateOnPreviouslyAllocate
     DefaultAllocator<int> sutInt;
     DefaultAllocator<std::string> sutString;
 
-    [[maybe_unused]] int* allocated1 = sutInt.allocate(5);
-    [[maybe_unused]] std::string* allocated2 = sutString.allocate(10);
+    int* allocated1 = sutInt.allocate(5);
+    std::string* allocated2 = sutString.allocate(10);
 
     sutInt.deallocate(allocated1);
     sutString.deallocate(allocated2);
@@ -51,7 +51,6 @@ TEST(DefaultAllocatorTests, shouldBePossibleToCallDeallocateOnPreviouslyAllocate
 
 TEST(DefaultAllocatorTests, constructShouldConstructAnElementInTheGivenAddress)
 {
-    // "Arrange" part
     // NOTE: we want "raw" (uninitialized) memory, therefore operator new
     int* intSpace = static_cast<int*>(::operator new(sizeof(int)));
     double* doubleSpace = static_cast<double*>(::operator new(sizeof(double)));
@@ -63,12 +62,12 @@ TEST(DefaultAllocatorTests, constructShouldConstructAnElementInTheGivenAddress)
     DefaultAllocator<double> doubleSut;
     DefaultAllocator<std::string> stringSut;
     DefaultAllocator<float> floatSut;
-    // "Act" part
+
     intSut.construct(intSpace, 999);
     doubleSut.construct(doubleSpace, 555.5);
     stringSut.construct(stringSpace, "Allocator-constructed string");
     floatSut.construct(floatSpace, floatToConstruct);
-    // "Assert" part
+
     EXPECT_EQ(*intSpace, 999);
     EXPECT_DOUBLE_EQ(*doubleSpace, 555.5);
     EXPECT_EQ(*stringSpace, "Allocator-constructed string");
@@ -81,8 +80,6 @@ TEST(DefaultAllocatorTests, constructShouldConstructAnElementInTheGivenAddress)
     delete (stringSpace);
     delete (floatSpace);
 }
-// TODO:
-// consider tests for aliases
 
 TEST(DefaultAllocatorTests, destroyShouldCallDestructorOnGivenPointer)
 {
@@ -105,8 +102,8 @@ TEST(DefaultAllocatorTests, valueTypeAliasShouldBeDefinedAndPointToUnderlyingTyp
     DefaultAllocator<std::string>::value_type shouldBeString;
 
     EXPECT_THAT(shouldBeInt, An<int>());
-    EXPECT_THAT(shouldBeDouble, An<double>());
-    EXPECT_THAT(shouldBeString, An<std::string>());
+    EXPECT_THAT(shouldBeDouble, A<double>());
+    EXPECT_THAT(shouldBeString, A<std::string>());
 }
 
 TEST(DefaultAllocatorTests, sizeTypeAliasShouldBeEqualToStdSizeType)
@@ -115,9 +112,9 @@ TEST(DefaultAllocatorTests, sizeTypeAliasShouldBeEqualToStdSizeType)
     DefaultAllocator<double>::size_type stdSizeTypeEq2;
     DefaultAllocator<std::string>::size_type stdSizeTypeEq3;
 
-    EXPECT_THAT(stdSizeTypeEq1, An<std::size_t>());
-    EXPECT_THAT(stdSizeTypeEq2, An<std::size_t>());
-    EXPECT_THAT(stdSizeTypeEq3, An<std::size_t>());
+    EXPECT_THAT(stdSizeTypeEq1, A<std::size_t>());
+    EXPECT_THAT(stdSizeTypeEq2, A<std::size_t>());
+    EXPECT_THAT(stdSizeTypeEq3, A<std::size_t>());
 }
 
 TEST(DefaultAllocatorTests, differenceTypeAliasShouldBeEqualToStdPtrdiffT)
@@ -126,9 +123,9 @@ TEST(DefaultAllocatorTests, differenceTypeAliasShouldBeEqualToStdPtrdiffT)
     DefaultAllocator<double>::difference_type ptrDiffT_eq2;
     DefaultAllocator<std::string>::difference_type ptrDiffT_eq3;
 
-    EXPECT_THAT(ptrDiffT_eq1, An<std::ptrdiff_t>());
-    EXPECT_THAT(ptrDiffT_eq2, An<std::ptrdiff_t>());
-    EXPECT_THAT(ptrDiffT_eq3, An<std::ptrdiff_t>());
+    EXPECT_THAT(ptrDiffT_eq1, A<std::ptrdiff_t>());
+    EXPECT_THAT(ptrDiffT_eq2, A<std::ptrdiff_t>());
+    EXPECT_THAT(ptrDiffT_eq3, A<std::ptrdiff_t>());
 }
 
 }   // namespace my::test
