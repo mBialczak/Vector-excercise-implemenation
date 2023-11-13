@@ -1,5 +1,12 @@
 add_executable(Vector-MT
-               Vector-MT.cpp)
+               Vector-MT-constructors.cpp
+               Vector-Mt-copyAssignment.cpp
+               Vector-MT-destructor.cpp
+               Vector-MT-moveAssignment.cpp
+               Vector-MT-typeAlias.cpp
+              )
+# // TODO: REMOVE
+            #    Vector-MT.cpp)
 
 target_include_directories(Vector-MT
                            PRIVATE
