@@ -1,4 +1,5 @@
 add_executable(Vector-MT
+               Vector-MT-assignFunction.cpp
                Vector-MT-constructors.cpp
                Vector-Mt-copyAssignment.cpp
                Vector-MT-destructor.cpp

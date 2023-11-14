@@ -13,14 +13,13 @@ TEST(MoveAssignmentTests, shouldReplaceContentsWithGivenVectorForSameSizesAndPre
 
     originalSut = std::move(replacingSut);
 
+    EXPECT_EQ(originalSut.size(), expectedNewSutSize);
+    EXPECT_EQ(originalSut.capacity(), expectedNewSutCapacity);
     for (auto originalSutIter = originalSut.begin();
          auto&& el : replacingSutCopyForComparison) {
         EXPECT_EQ(*originalSutIter, el);
         ++originalSutIter;
     }
-
-    EXPECT_EQ(originalSut.size(), expectedNewSutSize);
-    EXPECT_EQ(originalSut.capacity(), expectedNewSutCapacity);
 }
 
 TEST(MoveAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeSmallerAndPreserveNewSizeAndCapacity)
@@ -33,14 +32,13 @@ TEST(MoveAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeSmal
 
     originalSut = std::move(replacingSut);
 
+    EXPECT_EQ(originalSut.size(), expectedNewSutSize);
+    EXPECT_EQ(originalSut.capacity(), expectedNewSutCapacity);
     for (auto originalSutIter = originalSut.begin();
          auto&& el : replacingSutCopyForComparison) {
         EXPECT_EQ(*originalSutIter, el);
         ++originalSutIter;
     }
-
-    EXPECT_EQ(originalSut.size(), expectedNewSutSize);
-    EXPECT_EQ(originalSut.capacity(), expectedNewSutCapacity);
 }
 
 TEST(MoveAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeGraterAndPreserveNewSizeAndCapacity)
@@ -53,14 +51,13 @@ TEST(MoveAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeGrat
 
     originalSut = std::move(replacingSut);
 
+    EXPECT_EQ(originalSut.size(), expectedNewSutSize);
+    EXPECT_EQ(originalSut.capacity(), expectedNewSutCapacity);
     for (auto originalSutIter = originalSut.begin();
          auto&& el : replacingSutCopyForComparison) {
         EXPECT_EQ(*originalSutIter, el);
         ++originalSutIter;
     }
-
-    EXPECT_EQ(originalSut.size(), expectedNewSutSize);
-    EXPECT_EQ(originalSut.capacity(), expectedNewSutCapacity);
 }
 
 TEST(MoveAssignmentTests, shouldDeallocateOldMemoryAndAllocateNewOneAndPreserveNewSizeAndCapacity)
