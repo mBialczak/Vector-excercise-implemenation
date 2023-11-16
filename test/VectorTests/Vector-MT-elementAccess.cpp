@@ -15,6 +15,12 @@ class AccessOperatorTests : public ExampleSuts
     // TODO: VERIFY
     //  const Vector<int> constSutOf5ints { 5, 10, 15, 20, 25 };
 };
+class FrontTests : public ExampleSuts
+{
+    //   protected:
+    // TODO: VERIFY
+    //  const Vector<int> constSutOf5ints { 5, 10, 15, 20, 25 };
+};
 
 TEST_F(AtTests, shouldThrowIfOutOfBandsElementsRequested)
 {
@@ -59,9 +65,6 @@ TEST_F(AtTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
 
 TEST_F(AccessOperatorTests, shouldReturnReferenceToCorrectElement)
 {
-    // TODO: REMOVE
-    // Vector sut { 5, 10, 15, 20 };
-
     EXPECT_EQ(sutOf5ints[0], 5);
     EXPECT_EQ(sutOf5ints[1], 10);
     EXPECT_EQ(sutOf5ints[2], 15);
@@ -73,9 +76,6 @@ TEST_F(AccessOperatorTests, shouldReturnReferenceToCorrectElement)
 
 TEST_F(AccessOperatorTests, shouldReturnConstReferenceToCorrectElement)
 {
-    // TODO: REMOVE
-    // const Vector sut { 5, 10, 15, 20 };
-
     EXPECT_EQ(constSutOf5ints[0], 5);
     EXPECT_EQ(constSutOf5ints[1], 10);
     EXPECT_EQ(constSutOf5ints[2], 15);
@@ -87,14 +87,39 @@ TEST_F(AccessOperatorTests, shouldReturnConstReferenceToCorrectElement)
 
 TEST_F(AccessOperatorTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
 {
-    // TODO: REMOVE
-    // Vector sut { 5, 10, 15, 20 };
     int valueBeforeChange = sutOf5ints[1];
 
     sutOf5ints.at(1) = 1000;
     int valueAfterChange = sutOf5ints[1];
 
     EXPECT_EQ(valueBeforeChange, 10);
+    EXPECT_EQ(valueAfterChange, 1000);
+}
+
+// === tests for constexpr reference front();
+// === tests for constexpr const_reference front() const;
+TEST_F(FrontTests, shouldReturnReferenceToFirstElement)
+{
+    EXPECT_EQ(sutOf5ints.front(), 5);
+
+    EXPECT_TRUE(( std::is_same_v<decltype(sutOf5ints.front()), int&> ) );
+}
+
+TEST_F(FrontTests, shouldReturnConstReferenceToFirstElement)
+{
+    EXPECT_EQ(constSutOf5ints.front(), 5);
+
+    EXPECT_TRUE(( std::is_same_v<decltype(constSutOf5ints.front()), const int&> ) );
+}
+
+TEST_F(FrontTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
+{
+    int valueBeforeChange = sutOf5ints.front();
+
+    sutOf5ints.front() = 1000;
+    int valueAfterChange = sutOf5ints.front();
+
+    EXPECT_EQ(valueBeforeChange, 5);
     EXPECT_EQ(valueAfterChange, 1000);
 }
 

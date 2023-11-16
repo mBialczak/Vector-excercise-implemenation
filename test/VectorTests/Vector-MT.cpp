@@ -1650,35 +1650,35 @@ struct DummyWithDestructionDetection
 
 // === tests for constexpr reference front();
 // === tests for constexpr const_reference front() const;
-TEST(frontTests, shouldReturnReferenceToFirstElement)
-{
-    Vector sut { 5, 10, 15, 20 };
+// TEST(frontTests, shouldReturnReferenceToFirstElement)
+// {
+//     Vector sut { 5, 10, 15, 20 };
 
-    EXPECT_EQ(sut.front(), 5);
+//     EXPECT_EQ(sut.front(), 5);
 
-    EXPECT_TRUE(( std::is_same_v<decltype(sut.front()), int&> ) );
-}
+//     EXPECT_TRUE(( std::is_same_v<decltype(sut.front()), int&> ) );
+// }
 
-TEST(frontTests, shouldReturnConstReferenceToFirstElement)
-{
-    const Vector sut { 5, 10, 15, 20 };
+// TEST(frontTests, shouldReturnConstReferenceToFirstElement)
+// {
+//     const Vector sut { 5, 10, 15, 20 };
 
-    EXPECT_EQ(sut.front(), 5);
+//     EXPECT_EQ(sut.front(), 5);
 
-    EXPECT_TRUE(( std::is_same_v<decltype(sut.front()), const int&> ) );
-}
+//     EXPECT_TRUE(( std::is_same_v<decltype(sut.front()), const int&> ) );
+// }
 
-TEST(frontTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
-{
-    Vector sut { 5, 10, 15, 20 };
-    int valueBeforeChange = sut.front();
+// TEST(frontTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
+// {
+//     Vector sut { 5, 10, 15, 20 };
+//     int valueBeforeChange = sut.front();
 
-    sut.front() = 1000;
-    int valueAfterChange = sut.front();
+//     sut.front() = 1000;
+//     int valueAfterChange = sut.front();
 
-    EXPECT_EQ(valueBeforeChange, 5);
-    EXPECT_EQ(valueAfterChange, 1000);
-}
+//     EXPECT_EQ(valueBeforeChange, 5);
+//     EXPECT_EQ(valueAfterChange, 1000);
+// }
 
 // === tests for constexpr reference back();
 // === tests constexpr const_reference back() const;
