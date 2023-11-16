@@ -1612,41 +1612,41 @@ struct DummyWithDestructionDetection
 
 // === tests for constexpr reference operator[](size_type pos);
 // === tests for constexpr const_reference operator[]( size_type pos ) const;
-TEST(accessOperatorTests, shouldReturnReferenceToCorrectElement)
-{
-    Vector sut { 5, 10, 15, 20 };
+// TEST(accessOperatorTests, shouldReturnReferenceToCorrectElement)
+// {
+//     Vector sut { 5, 10, 15, 20 };
 
-    EXPECT_EQ(sut[0], 5);
-    EXPECT_EQ(sut[1], 10);
-    EXPECT_EQ(sut[2], 15);
-    EXPECT_EQ(sut[3], 20);
+//     EXPECT_EQ(sut[0], 5);
+//     EXPECT_EQ(sut[1], 10);
+//     EXPECT_EQ(sut[2], 15);
+//     EXPECT_EQ(sut[3], 20);
 
-    EXPECT_TRUE(( std::is_same_v<decltype(sut[0]), int&> ) );
-}
+//     EXPECT_TRUE(( std::is_same_v<decltype(sut[0]), int&> ) );
+// }
 
-TEST(accessOperatorTests, shouldReturnConstReferenceToCorrectElement)
-{
-    const Vector sut { 5, 10, 15, 20 };
+// TEST(accessOperatorTests, shouldReturnConstReferenceToCorrectElement)
+// {
+//     const Vector sut { 5, 10, 15, 20 };
 
-    EXPECT_EQ(sut[0], 5);
-    EXPECT_EQ(sut[1], 10);
-    EXPECT_EQ(sut[2], 15);
-    EXPECT_EQ(sut[3], 20);
+//     EXPECT_EQ(sut[0], 5);
+//     EXPECT_EQ(sut[1], 10);
+//     EXPECT_EQ(sut[2], 15);
+//     EXPECT_EQ(sut[3], 20);
 
-    EXPECT_TRUE(( std::is_same_v<decltype(sut[0]), const int&> ) );
-}
+//     EXPECT_TRUE(( std::is_same_v<decltype(sut[0]), const int&> ) );
+// }
 
-TEST(accessOperatorTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
-{
-    Vector sut { 5, 10, 15, 20 };
-    int valueBeforeChange = sut[1];
+// TEST(accessOperatorTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
+// {
+//     Vector sut { 5, 10, 15, 20 };
+//     int valueBeforeChange = sut[1];
 
-    sut.at(1) = 1000;
-    int valueAfterChange = sut[1];
+//     sut.at(1) = 1000;
+//     int valueAfterChange = sut[1];
 
-    EXPECT_EQ(valueBeforeChange, 10);
-    EXPECT_EQ(valueAfterChange, 1000);
-}
+//     EXPECT_EQ(valueBeforeChange, 10);
+//     EXPECT_EQ(valueAfterChange, 1000);
+// }
 
 // === tests for constexpr reference front();
 // === tests for constexpr const_reference front() const;

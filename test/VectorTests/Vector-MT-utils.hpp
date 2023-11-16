@@ -90,6 +90,7 @@ class ExampleSuts : public testing::Test
     Vector<int> sutOf3ints { 1, 2, 3 };
     Vector<int> sutOf5ints { 5, 10, 15, 20, 25 };
     Vector<int> sutOf6ints { 1, 2, 3, 4, 5, 6 };
+    const Vector<int> constSutOf5ints { 5, 10, 15, 20, 25 };
 };
 
 }   // namespace my::test
