@@ -1563,52 +1563,52 @@ struct DummyWithDestructionDetection
 
 //=== tests for constexpr reference at( size_type pos );
 //=== constexpr const_reference at( size_type pos ) const;
-TEST(atTests, shouldThrowIfOutOfBandsElementsRequested)
-{
-    Vector sut { 5, 10, 15, 20, 25 };
-    const Vector sut2 { 5, 10, 15, 20, 25 };
+// TEST(atTests, shouldThrowIfOutOfBandsElementsRequested)
+// {
+//     Vector sut { 5, 10, 15, 20, 25 };
+//     const Vector sut2 { 5, 10, 15, 20, 25 };
 
-    EXPECT_THROW({ sut.at(5); }, std::out_of_range);
-    EXPECT_THROW({ sut.at(10); }, std::out_of_range);
-    EXPECT_THROW({ sut2.at(5); }, std::out_of_range);
-    EXPECT_THROW({ sut2.at(10); }, std::out_of_range);
-}
+//     EXPECT_THROW({ sut.at(5); }, std::out_of_range);
+//     EXPECT_THROW({ sut.at(10); }, std::out_of_range);
+//     EXPECT_THROW({ sut2.at(5); }, std::out_of_range);
+//     EXPECT_THROW({ sut2.at(10); }, std::out_of_range);
+// }
 
-TEST(atTests, shouldReturnReferenceToCorrectElement)
-{
-    Vector sut { 5, 10, 15, 20 };
+// TEST(atTests, shouldReturnReferenceToCorrectElement)
+// {
+//     Vector sut { 5, 10, 15, 20 };
 
-    EXPECT_EQ(sut.at(0), 5);
-    EXPECT_EQ(sut.at(1), 10);
-    EXPECT_EQ(sut.at(2), 15);
-    EXPECT_EQ(sut.at(3), 20);
+//     EXPECT_EQ(sut.at(0), 5);
+//     EXPECT_EQ(sut.at(1), 10);
+//     EXPECT_EQ(sut.at(2), 15);
+//     EXPECT_EQ(sut.at(3), 20);
 
-    EXPECT_TRUE(( std::is_same_v<decltype(sut.at(0)), int&> ) );
-}
+//     EXPECT_TRUE(( std::is_same_v<decltype(sut.at(0)), int&> ) );
+// }
 
-TEST(atTests, shouldReturnConstReferenceToCorrectElement)
-{
-    const Vector sut { 5, 10, 15, 20 };
+// TEST(atTests, shouldReturnConstReferenceToCorrectElement)
+// {
+//     const Vector sut { 5, 10, 15, 20 };
 
-    EXPECT_EQ(sut.at(0), 5);
-    EXPECT_EQ(sut.at(1), 10);
-    EXPECT_EQ(sut.at(2), 15);
-    EXPECT_EQ(sut.at(3), 20);
+//     EXPECT_EQ(sut.at(0), 5);
+//     EXPECT_EQ(sut.at(1), 10);
+//     EXPECT_EQ(sut.at(2), 15);
+//     EXPECT_EQ(sut.at(3), 20);
 
-    EXPECT_TRUE(( std::is_same_v<decltype(sut.at(0)), const int&> ) );
-}
+//     EXPECT_TRUE(( std::is_same_v<decltype(sut.at(0)), const int&> ) );
+// }
 
-TEST(atTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
-{
-    Vector sut { 5, 10, 15, 20 };
-    int valueBeforeChange = sut.at(1);
+// TEST(atTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
+// {
+//     Vector sut { 5, 10, 15, 20 };
+//     int valueBeforeChange = sut.at(1);
 
-    sut.at(1) = 1000;
-    int valueAfterChange = sut.at(1);
+//     sut.at(1) = 1000;
+//     int valueAfterChange = sut.at(1);
 
-    EXPECT_EQ(valueBeforeChange, 10);
-    EXPECT_EQ(valueAfterChange, 1000);
-}
+//     EXPECT_EQ(valueBeforeChange, 10);
+//     EXPECT_EQ(valueAfterChange, 1000);
+// }
 
 // === tests for constexpr reference operator[](size_type pos);
 // === tests for constexpr const_reference operator[]( size_type pos ) const;

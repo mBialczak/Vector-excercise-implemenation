@@ -84,4 +84,12 @@ struct CustomTestingAllocator
 template <typename Type>
 AllocatorCallDetectorMock<Type>* CustomTestingAllocator<Type>::callDetectionHelper_ { nullptr };
 
+class ExampleSuts : public testing::Test
+{
+  protected:
+    Vector<int> sutOf3ints { 1, 2, 3 };
+    Vector<int> sutOf5ints { 5, 10, 15, 20, 25 };
+    Vector<int> sutOf6ints { 1, 2, 3, 4, 5, 6 };
+};
+
 }   // namespace my::test

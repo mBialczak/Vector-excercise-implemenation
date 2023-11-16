@@ -2,20 +2,13 @@
 
 namespace my::test {
 
-class AssignTests : public testing::Test
-{
-  protected:
-    Vector<int> sutOf3ints { 1, 2, 3 };
-    Vector<int> sutOf6ints { 1, 2, 3, 4, 5, 6 };
-};
-
-class AssignTakingCountAndValueTests : public AssignTests
+class AssignTakingCountAndValueTests : public ExampleSuts
 { };
 
-class AssignTakingIteratorsTests : public AssignTests
+class AssignTakingIteratorsTests : public ExampleSuts
 { };
 
-class AssignTakingInitializerlistTests : public AssignTests
+class AssignTakingInitializerlistTests : public ExampleSuts
 { };
 
 //=== tests for constexpr void assign(size_type count, const T& value);
