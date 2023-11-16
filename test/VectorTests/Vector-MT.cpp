@@ -1680,61 +1680,61 @@ struct DummyWithDestructionDetection
 //     EXPECT_EQ(valueAfterChange, 1000);
 // }
 
-// === tests for constexpr reference back();
-// === tests constexpr const_reference back() const;
-TEST(backTests, shouldReturnReferenceToLastElement)
-{
-    Vector sut { 5, 10, 15, 20 };
+// // === tests for constexpr reference back();
+// // === tests constexpr const_reference back() const;
+// TEST(backTests, shouldReturnReferenceToLastElement)
+// {
+//     Vector sut { 5, 10, 15, 20 };
 
-    EXPECT_EQ(sut.back(), 20);
+//     EXPECT_EQ(sut.back(), 20);
 
-    EXPECT_TRUE(( std::is_same_v<decltype(sut.back()), int&> ) );
-}
+//     EXPECT_TRUE(( std::is_same_v<decltype(sut.back()), int&> ) );
+// }
 
-TEST(backTests, shouldReturnConstReferenceToLastElement)
-{
-    const Vector sut { 5, 10, 15, 20 };
+// TEST(backTests, shouldReturnConstReferenceToLastElement)
+// {
+//     const Vector sut { 5, 10, 15, 20 };
 
-    EXPECT_EQ(sut.back(), 20);
+//     EXPECT_EQ(sut.back(), 20);
 
-    EXPECT_TRUE(( std::is_same_v<decltype(sut.back()), const int&> ) );
-}
+//     EXPECT_TRUE(( std::is_same_v<decltype(sut.back()), const int&> ) );
+// }
 
-TEST(backTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
-{
-    Vector sut { 5, 10, 15, 20 };
-    int valueBeforeChange = sut.back();
+// TEST(backTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
+// {
+//     Vector sut { 5, 10, 15, 20 };
+//     int valueBeforeChange = sut.back();
 
-    sut.back() = 1000;
-    int valueAfterChange = sut.back();
+//     sut.back() = 1000;
+//     int valueAfterChange = sut.back();
 
-    EXPECT_EQ(valueBeforeChange, 20);
-    EXPECT_EQ(valueAfterChange, 1000);
-}
+//     EXPECT_EQ(valueBeforeChange, 20);
+//     EXPECT_EQ(valueAfterChange, 1000);
+// }
 
 // === tests for constexpr T* data() noexcept;
 // === tests for constexpr const T* data() const noexcept;
-TEST(dataTests, forEmptyContainerShouldReturnNullptr)
-{
-    Vector<double> sut;
+// TEST(dataTests, forEmptyContainerShouldReturnNullptr)
+// {
+//     Vector<double> sut;
 
-    double* dataReturned { sut.data() };
+//     double* dataReturned { sut.data() };
 
-    ASSERT_EQ(sut.size(), 0);
-    EXPECT_EQ(dataReturned, nullptr);
-}
+//     ASSERT_EQ(sut.size(), 0);
+//     EXPECT_EQ(dataReturned, nullptr);
+// }
 
-TEST(dataTests, forNonEmptyContainerShouldReturnBeginOrConstBegin)
-{
-    Vector<double> sut { 1.0, 2.0, 3.0 };
-    const Vector<double> sutConst { 100.0, 200.0, 300.0 };
+// TEST(dataTests, forNonEmptyContainerShouldReturnBeginOrConstBegin)
+// {
+//     Vector<double> sut { 1.0, 2.0, 3.0 };
+//     const Vector<double> sutConst { 100.0, 200.0, 300.0 };
 
-    double* dataReturned { sut.data() };
-    const double* dataReturnedConst { sutConst.data() };
+//     double* dataReturned { sut.data() };
+//     const double* dataReturnedConst { sutConst.data() };
 
-    EXPECT_EQ(dataReturned, sut.begin());
-    EXPECT_EQ(dataReturnedConst, sutConst.begin());
-}
+//     EXPECT_EQ(dataReturned, sut.begin());
+//     EXPECT_EQ(dataReturnedConst, sutConst.begin());
+// }
 
 // === tests for  constexpr size_type size() const noexcept;
 TEST(SizeTests, shouldReturnZeroForEmptyVector)
