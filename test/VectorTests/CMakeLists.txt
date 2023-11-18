@@ -1,9 +1,10 @@
 add_executable(Vector-MT
                Vector-MT-assignFunction.cpp
-               Vector-MT-constructors.cpp
+               Vector-MT-construction.cpp
                Vector-Mt-copyAssignment.cpp
                Vector-MT-destructor.cpp
                Vector-MT-elementAccess.cpp
+               Vector-Mt-inspectingFunctions.cpp
                Vector-MT-moveAssignment.cpp
                Vector-MT-typeAlias.cpp
               )

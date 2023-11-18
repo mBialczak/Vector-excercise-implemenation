@@ -84,10 +84,10 @@ namespace my::test {
 // template <typename Type>
 // AllocatorCallDetectorMock<Type>* CustomTestingAllocator<Type>::callDetectionHelper_ { nullptr };
 
-struct Size64Type
-{
-    char a, b, c, d;
-};
+// struct Size64Type
+// {
+//     char a, b, c, d;
+// };
 
 // TODO: VERIFY if needed
 struct DummyWithDestructionDetection
@@ -1737,44 +1737,44 @@ struct DummyWithDestructionDetection
 // }
 
 // === tests for  constexpr size_type size() const noexcept;
-TEST(SizeTests, shouldReturnZeroForEmptyVector)
-{
-    Vector<int> sut;
-    Vector<double, CustomTestingAllocator<double>> sut2;
+// TEST(SizeTests, shouldReturnZeroForEmptyVector)
+// {
+//     Vector<int> sut;
+//     Vector<double, CustomTestingAllocator<double>> sut2;
 
-    EXPECT_EQ(sut.size(), 0);
-    EXPECT_EQ(sut2.size(), 0);
-}
+//     EXPECT_EQ(sut.size(), 0);
+//     EXPECT_EQ(sut2.size(), 0);
+// }
 
-TEST(SizeTests, shouldReturnActualSizeOfVector)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector sutDouble { 10.0, 20.0, 30.0 };
-    Vector<std::string> sutString { "One", "Two" };
+// TEST(SizeTests, shouldReturnActualSizeOfVector)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector sutDouble { 10.0, 20.0, 30.0 };
+//     Vector<std::string> sutString { "One", "Two" };
 
-    EXPECT_EQ(sutInt.size(), 5);
-    EXPECT_EQ(sutDouble.size(), 3);
-    EXPECT_EQ(sutString.size(), 2);
-}
+//     EXPECT_EQ(sutInt.size(), 5);
+//     EXPECT_EQ(sutDouble.size(), 3);
+//     EXPECT_EQ(sutString.size(), 2);
+// }
 
-// === tests for  constexpr size_type max_size() const noexcept;
-TEST(MaxSizeTests, shouldReturnNumericLimitsDifferenceTypeForCharElement)
-{
-    auto expectedLimit = std::numeric_limits<Vector<char>::difference_type>::max();
+// // === tests for  constexpr size_type max_size() const noexcept;
+// TEST(MaxSizeTests, shouldReturnNumericLimitsDifferenceTypeForCharElement)
+// {
+//     auto expectedLimit = std::numeric_limits<Vector<char>::difference_type>::max();
 
-    Vector<char> sut;
+//     Vector<char> sut;
 
-    EXPECT_EQ(sut.max_size(), expectedLimit);
-}
+//     EXPECT_EQ(sut.max_size(), expectedLimit);
+// }
 
-TEST(MaxSizeTests, shouldReturnNumericLimitsDifferenceTypeDividedByElementSize)
-{
-    auto expectedLimit = std::numeric_limits<Vector<char>::difference_type>::max() / sizeof(Size64Type);
+// TEST(MaxSizeTests, shouldReturnNumericLimitsDifferenceTypeDividedByElementSize)
+// {
+//     auto expectedLimit = std::numeric_limits<Vector<char>::difference_type>::max() / sizeof(Size64Type);
 
-    Vector<Size64Type> sut;
+//     Vector<Size64Type> sut;
 
-    EXPECT_EQ(sut.max_size(), expectedLimit);
-}
+//     EXPECT_EQ(sut.max_size(), expectedLimit);
+// }
 
 // === tests for constexpr void reserve(size_type new_cap)
 TEST(ReserveTests, shouldThrowLengthErrorIfRequestedMoreThanMaxSize)

@@ -84,6 +84,11 @@ struct CustomTestingAllocator
 template <typename Type>
 AllocatorCallDetectorMock<Type>* CustomTestingAllocator<Type>::callDetectionHelper_ { nullptr };
 
+struct Size64Type
+{
+    char a, b, c, d;
+};
+
 class ExampleSuts : public testing::Test
 {
   protected:
@@ -91,6 +96,9 @@ class ExampleSuts : public testing::Test
     Vector<int> sutOf5ints { 5, 10, 15, 20, 25 };
     Vector<int> sutOf6ints { 1, 2, 3, 4, 5, 6 };
     const Vector<int> constSutOf5ints { 5, 10, 15, 20, 25 };
+
+    Vector<double> sutOf3doubles { 10.0, 20.0, 30.0 };
+    Vector<std::string> sutOf8strings { "one", "two", "three", "four", "five", "six", "seven", "eight" };
 };
 
 }   // namespace my::test

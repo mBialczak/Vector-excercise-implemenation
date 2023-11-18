@@ -2,6 +2,18 @@
 
 namespace my::test {
 
+TEST(VectorMemorySizeTest, sizeOfVectorShouldBeEqualTo24)
+{
+    Vector<int> sut;
+    Vector<double> sut2;
+    Vector<std::string> sut3;
+    std::size_t requiredSize { 24 };
+
+    EXPECT_EQ(sizeof(sut), requiredSize);
+    EXPECT_EQ(sizeof(sut2), requiredSize);
+    EXPECT_EQ(sizeof(sut3), requiredSize);
+}
+
 // ============= DefaultConstructorTests =====================
 TEST(DefaultConstructorTests, sizeOfDefaultConstructedVectorShouldBeZero)
 {
