@@ -89,9 +89,16 @@ struct Size64Type
     char a, b, c, d;
 };
 
-class ExampleSuts : public testing::Test
+//TODO: VERIFY if not struct
+class SutExamplesAndHelpers : public testing::Test
 {
   protected:
+    AllocatorCallDetectorMock<int> intAllocatorCallDetector;
+    AllocatorCallDetectorMock<std::string> stringAllocatorCallDetector;
+
+    CustomTestingAllocator<int> customIntTestingAllocator;
+    CustomTestingAllocator<std::string> customStringTestingAllocator;
+
     Vector<int> sutOf3ints { 1, 2, 3 };
     Vector<int> sutOf5ints { 5, 10, 15, 20, 25 };
     Vector<int> sutOf6ints { 1, 2, 3, 4, 5, 6 };

@@ -1,5 +1,6 @@
 add_executable(Vector-MT
                Vector-MT-assignFunction.cpp
+               Vector-MT-capacityChanging.cpp
                Vector-MT-construction.cpp
                Vector-Mt-copyAssignment.cpp
                Vector-MT-destructor.cpp

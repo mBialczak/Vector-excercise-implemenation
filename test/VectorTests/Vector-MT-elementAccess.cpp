@@ -2,14 +2,16 @@
 
 namespace my::test {
 
-class AtTests : public ExampleSuts
+class AtTests : public SutExamplesAndHelpers
 { };
 
-class AccessOperatorTests : public ExampleSuts
+class AccessOperatorTests : public SutExamplesAndHelpers
 { };
-class FrontTests : public ExampleSuts
+
+class FrontTests : public SutExamplesAndHelpers
 { };
-class BackTests : public ExampleSuts
+
+class BackTests : public SutExamplesAndHelpers
 { };
 
 TEST_F(AtTests, shouldThrowIfOutOfBandsElementsRequested)

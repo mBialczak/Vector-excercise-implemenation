@@ -2,37 +2,36 @@
 
 namespace my::test {
 
-TEST(DestructorTests, shouldCallDeallocate)
+class DestructorTests : public SutExamplesAndHelpers
+{ };
+
+TEST_F(DestructorTests, shouldCallDeallocate)
 {
-    AllocatorCallDetectorMock<int> callDetector;
-    CustomTestingAllocator<int> intAllocator;
-    intAllocator.setCallDetectionHelper(&callDetector);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+    customIntTestingAllocator.setCallDetectionHelper(&intAllocatorCallDetector);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
         .Times(5);
 
-    Vector sourceIntsSut({ 5, 10, 15, 20, 25 }, intAllocator);
+    Vector sourceIntsSut({ 5, 10, 15, 20, 25 }, customIntTestingAllocator);
 
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall());
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDeallocateCall());
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
         .Times(sourceIntsSut.size());
 }
 
-TEST(DestructorTests, shouldCallDestroyForEachElement)
+TEST_F(DestructorTests, shouldCallDestroyForEachElement)
 {
-    AllocatorCallDetectorMock<int> callDetector;
-    CustomTestingAllocator<int> intAllocator;
-    intAllocator.setCallDetectionHelper(&callDetector);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+    customIntTestingAllocator.setCallDetectionHelper(&intAllocatorCallDetector);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
         .Times(5);
 
-    Vector sourceIntsSut({ 5, 10, 15, 20, 25 }, intAllocator);
+    Vector sourceIntsSut({ 5, 10, 15, 20, 25 }, customIntTestingAllocator);
 
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall());
-    EXPECT_CALL(*intAllocator.callDetectionHelper_,
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDeallocateCall());
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_,
                 detectDestroyCall(An<int*>()))
         .Times(sourceIntsSut.size());
 }

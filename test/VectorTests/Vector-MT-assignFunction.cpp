@@ -2,13 +2,13 @@
 
 namespace my::test {
 
-class AssignTakingCountAndValueTests : public ExampleSuts
+class AssignTakingCountAndValueTests : public SutExamplesAndHelpers
 { };
 
-class AssignTakingIteratorsTests : public ExampleSuts
+class AssignTakingIteratorsTests : public SutExamplesAndHelpers
 { };
 
-class AssignTakingInitializerlistTests : public ExampleSuts
+class AssignTakingInitializerlistTests : public SutExamplesAndHelpers
 { };
 
 //=== tests for constexpr void assign(size_type count, const T& value);
@@ -61,28 +61,26 @@ TEST_F(AssignTakingCountAndValueTests,
        shouldDeallocateOldMemoryAndAllocateNewOneAndPreserveNewSizeAndCapacity)
 {
     // Arrange part
-    AllocatorCallDetectorMock<int> callDetector;
-    CustomTestingAllocator<int> intAllocator;
-    intAllocator.setCallDetectionHelper(&callDetector);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+    customIntTestingAllocator.setCallDetectionHelper(&intAllocatorCallDetector);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
         .Times(3);
 
-    Vector sut({ 5, 10, 15 }, intAllocator);
+    Vector sut({ 5, 10, 15 }, customIntTestingAllocator);
     auto sizeBefore = sut.size();
     Vector<int>::size_type numberOfElementsToAssign { 10 };
     int valueToBeAssigned = 100;
 
     // Act part
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
         .Times(numberOfElementsToAssign);
     // deallocate for old memory
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
     // destructor call for old elements
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
         .Times(sizeBefore);
     sut.assign(numberOfElementsToAssign, valueToBeAssigned);
     auto sizeAfter = sut.size();
@@ -93,8 +91,8 @@ TEST_F(AssignTakingCountAndValueTests,
     EXPECT_EQ(sut.capacity(), numberOfElementsToAssign);
 
     // calls expected on teardown
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_,
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_,
                 detectDestroyCall(An<int*>()))
         .Times(sut.size());
 }
@@ -155,28 +153,26 @@ TEST_F(AssignTakingIteratorsTests,
        shouldDeallocateOldMemoryAndAllocateNewOneAndPreserveNewSizeAndCapacity)
 {
     // Arrange part
-    AllocatorCallDetectorMock<int> callDetector;
-    CustomTestingAllocator<int> intAllocator;
-    intAllocator.setCallDetectionHelper(&callDetector);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+    customIntTestingAllocator.setCallDetectionHelper(&intAllocatorCallDetector);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
         .Times(3);
 
-    Vector sut({ 5, 10, 15 }, intAllocator);
+    Vector sut({ 5, 10, 15 }, customIntTestingAllocator);
     auto sizeBefore = sut.size();
     constexpr auto newSize = 10;
     std::array<int, newSize> replacingValues { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
 
     // Act part
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
         .Times(newSize);
     // deallocate for old memory
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
     // destructor call for old elements
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>())).Times(sizeBefore);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDestroyCall(An<int*>())).Times(sizeBefore);
     sut.assign(replacingValues.begin(), replacingValues.end());
     auto sizeAfter = sut.size();
 
@@ -186,8 +182,8 @@ TEST_F(AssignTakingIteratorsTests,
     EXPECT_EQ(sut.capacity(), newSize);
 
     // calls expected on teardown
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_,
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_,
                 detectDestroyCall(An<int*>()))
         .Times(sut.size());
 }
@@ -245,27 +241,25 @@ TEST_F(AssignTakingInitializerlistTests,
        shouldDeallocateOldMemoryAndAllocateNewOneAndPreserveNewSizeAndCapacity)
 {
     // Arrange part
-    AllocatorCallDetectorMock<int> callDetector;
-    CustomTestingAllocator<int> intAllocator;
-    intAllocator.setCallDetectionHelper(&callDetector);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+    customIntTestingAllocator.setCallDetectionHelper(&intAllocatorCallDetector);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
         .Times(3);
 
-    Vector sut({ 5, 10, 15 }, intAllocator);
+    Vector sut({ 5, 10, 15 }, customIntTestingAllocator);
     auto sizeBefore = sut.size();
     std::initializer_list replacingValues { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
 
     // Act part
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
         .Times(replacingValues.size());
     // deallocate for old memory
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
     // destructor call for old elements
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>())).Times(sizeBefore);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDestroyCall(An<int*>())).Times(sizeBefore);
     sut.assign(replacingValues);
     auto sizeAfter = sut.size();
 
@@ -275,8 +269,8 @@ TEST_F(AssignTakingInitializerlistTests,
     EXPECT_EQ(sut.capacity(), replacingValues.size());
 
     // calls expected on teardown
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_,
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_,
                 detectDestroyCall(An<int*>()))
         .Times(sut.size());
 }

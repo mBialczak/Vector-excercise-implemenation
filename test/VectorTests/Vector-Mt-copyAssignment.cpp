@@ -2,7 +2,13 @@
 
 namespace my::test {
 
-TEST(CopyAssignmentTests, shouldReplaceContentsWithGivenVectorForSameSizesAndPreserveNewSizeAndCapacity)
+class CopyAssignmentTests : public SutExamplesAndHelpers
+{ };
+
+class CopyAssignmentTakingInitializerListTests : public SutExamplesAndHelpers
+{ };
+
+TEST_F(CopyAssignmentTests, shouldReplaceContentsWithGivenVectorForSameSizesAndPreserveNewSizeAndCapacity)
 {
     Vector originalSut { 1, 2, 3 };
     Vector replacingSut { 30, 40, 50 };
@@ -13,7 +19,7 @@ TEST(CopyAssignmentTests, shouldReplaceContentsWithGivenVectorForSameSizesAndPre
     EXPECT_EQ(originalSut.capacity(), replacingSut.capacity());
 }
 
-TEST(CopyAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeSmallerAndPreserveNewSizeAndCapacity)
+TEST_F(CopyAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeSmallerAndPreserveNewSizeAndCapacity)
 {
     Vector originalSut { 1, 2, 3 };
     Vector replacingSut { 30, 40, 50, 60, 70, 80 };
@@ -24,7 +30,7 @@ TEST(CopyAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeSmal
     EXPECT_EQ(originalSut.capacity(), replacingSut.capacity());
 }
 
-TEST(CopyAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeGraterAndPreserveNewSizeAndCapacity)
+TEST_F(CopyAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeGraterAndPreserveNewSizeAndCapacity)
 {
     Vector originalSut { 30, 40, 50, 60, 70, 80 };
     Vector replacingSut { 1, 2, 3 };
@@ -35,35 +41,33 @@ TEST(CopyAssignmentTests, shouldReplaceContentsWithGivenVectorIfOriginalSizeGrat
     EXPECT_EQ(originalSut.capacity(), replacingSut.capacity());
 }
 
-TEST(CopyAssignmentTests, shouldDeallocateOldMemoryAndAllocateNewOneAndPreserveNewSizeAndCapacity)
+TEST_F(CopyAssignmentTests, shouldDeallocateOldMemoryAndAllocateNewOneAndPreserveNewSizeAndCapacity)
 {
     // Arrange part
-    AllocatorCallDetectorMock<int> callDetector;
-    CustomTestingAllocator<int> intAllocator;
-    intAllocator.setCallDetectionHelper(&callDetector);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+    customIntTestingAllocator.setCallDetectionHelper(&intAllocatorCallDetector);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
         .Times(3);
 
-    Vector originalSut({ 5, 10, 15 }, intAllocator);
+    Vector originalSut({ 5, 10, 15 }, customIntTestingAllocator);
     auto sizeBefore = originalSut.size();
 
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
         .Times(5);
-    Vector replacingSut({ 1, 2, 3, 4, 5 }, intAllocator);
+    Vector replacingSut({ 1, 2, 3, 4, 5 }, customIntTestingAllocator);
 
     // Act part
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
         .Times(0);
     // deallocate for old memory
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
     // destructor call for old elements
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
         .Times(sizeBefore);
     originalSut = replacingSut;
     auto sizeAfter = originalSut.size();
@@ -75,13 +79,13 @@ TEST(CopyAssignmentTests, shouldDeallocateOldMemoryAndAllocateNewOneAndPreserveN
     EXPECT_EQ(originalSut.capacity(), replacingSut.capacity());
 
     // calls expected on teardown
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(2);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_,
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(2);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_,
                 detectDestroyCall(An<int*>()))
         .Times(replacingSut.size() * 2);
 }
 
-TEST(CopyAssignmentTests, shouldDeepCopyElementsFromSource)
+TEST_F(CopyAssignmentTests, shouldDeepCopyElementsFromSource)
 {
     Vector originalSut { 30, 40, 50, 60, 70, 80 };
     Vector replacingSut { 1, 2, 3 };
@@ -100,8 +104,8 @@ TEST(CopyAssignmentTests, shouldDeepCopyElementsFromSource)
 }
 
 // == tests for constexpr vector& operator=(std::initializer_list<T> ilist);
-TEST(CopyAssignmentTakingInitializerListTests,
-     shouldReplaceContentsWithGivenListOfSameSizeAndPreserveNewSizeAndCapacity)
+TEST_F(CopyAssignmentTakingInitializerListTests,
+       shouldReplaceContentsWithGivenListOfSameSizeAndPreserveNewSizeAndCapacity)
 {
     Vector originalSut { 1, 2, 3 };
     std::initializer_list replacingList { 30, 40, 50 };
@@ -117,8 +121,8 @@ TEST(CopyAssignmentTakingInitializerListTests,
     }
 }
 
-TEST(CopyAssignmentTakingInitializerListTests,
-     shouldReplaceContentsWithGivenListIfOriginalSizeSmallerAndPreserveNewSizeAndCapacity)
+TEST_F(CopyAssignmentTakingInitializerListTests,
+       shouldReplaceContentsWithGivenListIfOriginalSizeSmallerAndPreserveNewSizeAndCapacity)
 {
     Vector originalSut { 1, 2, 3 };
     std::initializer_list replacingList { 30, 40, 50, 60, 70, 80 };
@@ -134,8 +138,8 @@ TEST(CopyAssignmentTakingInitializerListTests,
     }
 }
 
-TEST(CopyAssignmentTakingInitializerListTests,
-     shouldReplaceContentsWithGivenListIfOriginalSizeGraterAndPreserveNewSizeAndCapacity)
+TEST_F(CopyAssignmentTakingInitializerListTests,
+       shouldReplaceContentsWithGivenListIfOriginalSizeGraterAndPreserveNewSizeAndCapacity)
 {
     Vector originalSut { 30, 40, 50, 60, 70, 80 };
     std::initializer_list replacingList { 1, 2, 3 };
@@ -151,31 +155,29 @@ TEST(CopyAssignmentTakingInitializerListTests,
     }
 }
 
-TEST(CopyAssignmentTakingInitializerListTests,
-     shouldDeallocateOldMemoryAndAllocateNewOneAndPreserveNewSizeAndCapacity)
+TEST_F(CopyAssignmentTakingInitializerListTests,
+       shouldDeallocateOldMemoryAndAllocateNewOneAndPreserveNewSizeAndCapacity)
 {
     // Arrange part
-    AllocatorCallDetectorMock<int> callDetector;
-    CustomTestingAllocator<int> intAllocator;
-    intAllocator.setCallDetectionHelper(&callDetector);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+    customIntTestingAllocator.setCallDetectionHelper(&intAllocatorCallDetector);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
         .Times(3);
 
-    Vector originalSut({ 5, 10, 15 }, intAllocator);
+    Vector originalSut({ 5, 10, 15 }, customIntTestingAllocator);
     auto sizeBefore = originalSut.size();
     std::initializer_list replacingList { 1, 2, 3, 4, 5 };
 
     // Act part
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
         .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
         .Times(0);
     // deallocate for old memory
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
     // destructor call for old elements
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
         .Times(sizeBefore);
     originalSut = replacingList;
     auto sizeAfter = originalSut.size();
@@ -187,13 +189,13 @@ TEST(CopyAssignmentTakingInitializerListTests,
     EXPECT_EQ(originalSut.capacity(), replacingList.size());
 
     // calls expected on teardown
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_,
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+    EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_,
                 detectDestroyCall(An<int*>()))
         .Times(replacingList.size());
 }
 
-TEST(CopyAssignmentTakingInitializerListTests, shouldDeepCopyElementsFromSource)
+TEST_F(CopyAssignmentTakingInitializerListTests, shouldDeepCopyElementsFromSource)
 {
     Vector originalSut { 30, 40, 50, 60, 70, 80 };
     std::initializer_list replacingList { 1, 2, 3 };

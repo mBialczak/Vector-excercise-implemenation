@@ -2,7 +2,7 @@
 
 namespace my::test {
 
-class SizeTests : public ExampleSuts
+class SizeTests : public SutExamplesAndHelpers
 { };
 
 // === tests for  constexpr size_type size() const noexcept;
