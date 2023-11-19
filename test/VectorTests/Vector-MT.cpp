@@ -1931,46 +1931,46 @@ struct DummyWithDestructionDetection
 // }
 
 //=== tests for constexpr void clear() noexcept
-TEST(ClearTests, ShouldResetVectorStates)
-{
-    Vector sut { 1, 2, 3, 4, 5 };
-    auto beginBefore = sut.begin();
-    auto endBefore = sut.end();
-    auto sizeBefore = sut.size();
-    auto capacityBefore = sut.capacity();
+// TEST(ClearTests, ShouldResetVectorStates)
+// {
+//     Vector sut { 1, 2, 3, 4, 5 };
+//     auto beginBefore = sut.begin();
+//     auto endBefore = sut.end();
+//     auto sizeBefore = sut.size();
+//     auto capacityBefore = sut.capacity();
 
-    sut.clear();
+//     sut.clear();
 
-    EXPECT_NE(sizeBefore, sut.size());
-    EXPECT_NE(capacityBefore, sut.capacity());
-    EXPECT_NE(beginBefore, sut.begin());
-    EXPECT_NE(endBefore, sut.end());
-    EXPECT_NE(capacityBefore, sut.capacity());
-    EXPECT_EQ(sut.size(), 0);
-    EXPECT_EQ(sut.capacity(), 0);
-    EXPECT_EQ(sut.begin(), nullptr);
-    EXPECT_EQ(sut.end(), nullptr);
-}
+//     EXPECT_NE(sizeBefore, sut.size());
+//     EXPECT_NE(capacityBefore, sut.capacity());
+//     EXPECT_NE(beginBefore, sut.begin());
+//     EXPECT_NE(endBefore, sut.end());
+//     EXPECT_NE(capacityBefore, sut.capacity());
+//     EXPECT_EQ(sut.size(), 0);
+//     EXPECT_EQ(sut.capacity(), 0);
+//     EXPECT_EQ(sut.begin(), nullptr);
+//     EXPECT_EQ(sut.end(), nullptr);
+// }
 
-TEST(ClearTests, ShouldDeallocateOwnedMemoryAndDestroyElements)
-{
-    AllocatorCallDetectorMock<int> callDetector;
-    CustomTestingAllocator<int> intAllocator;
-    intAllocator.setCallDetectionHelper(&callDetector);
+// TEST(ClearTests, ShouldDeallocateOwnedMemoryAndDestroyElements)
+// {
+//     AllocatorCallDetectorMock<int> callDetector;
+//     CustomTestingAllocator<int> intAllocator;
+//     intAllocator.setCallDetectionHelper(&callDetector);
 
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
-        .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
-        .Times(4);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//         .Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+//         .Times(4);
 
-    Vector sut { 4, 5, intAllocator };
+//     Vector sut { 4, 5, intAllocator };
 
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
-        .Times(4);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+//         .Times(4);
 
-    sut.clear();
-}
+//     sut.clear();
+// }
 
 //=== tests for constexpr iterator insert(const_iterator pos, const T& value)
 TEST(InsertTakingValueTests, shouldWorkForEmptyVector)

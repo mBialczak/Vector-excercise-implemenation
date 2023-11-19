@@ -642,10 +642,11 @@ constexpr void Vector<Type, Allocator>::clear() noexcept
     destroyObjects(begin_, end_);
     // TODO: VERIFY
     //  allocator_.deallocate(begin_);
-    Allocator::deallocate(begin_);
-    begin_ = nullptr;
-    end_ = nullptr;
-    capacity_ = end_;
+    // TODO: REMOVE
+    // Allocator::deallocate(begin_);
+    // begin_ = nullptr;
+    end_ = begin_;
+    // capacity_ = end_;
 }
 
 template <typename Type, typename Allocator>

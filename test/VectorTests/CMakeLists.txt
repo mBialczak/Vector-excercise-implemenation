@@ -7,6 +7,7 @@ add_executable(Vector-MT
                Vector-MT-elementAccess.cpp
                Vector-Mt-inspectingFunctions.cpp
                Vector-MT-moveAssignment.cpp
+               Vector-MT-removingElements.cpp
                Vector-MT-typeAlias.cpp
               )
 # // TODO: REMOVE
