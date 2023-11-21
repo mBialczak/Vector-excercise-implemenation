@@ -89,7 +89,7 @@ struct Size64Type
     char a, b, c, d;
 };
 
-//TODO: VERIFY if not struct
+// TODO: VERIFY if not struct
 class SutExamplesAndHelpers : public testing::Test
 {
   protected:
@@ -105,6 +105,8 @@ class SutExamplesAndHelpers : public testing::Test
     const Vector<int> constSutOf5ints { 5, 10, 15, 20, 25 };
 
     Vector<double> sutOf3doubles { 10.0, 20.0, 30.0 };
+    Vector<std::string> sutOf3strings { "one", "two", "three" };
+    Vector<std::string> sutOf5strings { "one", "two", "three", "four", "five" };
     Vector<std::string> sutOf8strings { "one", "two", "three", "four", "five", "six", "seven", "eight" };
 };
 

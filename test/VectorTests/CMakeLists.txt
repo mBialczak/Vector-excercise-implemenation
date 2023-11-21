@@ -5,6 +5,7 @@ add_executable(Vector-MT
                Vector-Mt-copyAssignment.cpp
                Vector-MT-destructor.cpp
                Vector-MT-elementAccess.cpp
+               Vector-MT-insertingElements.cpp
                Vector-Mt-inspectingFunctions.cpp
                Vector-MT-moveAssignment.cpp
                Vector-MT-removingElements.cpp
