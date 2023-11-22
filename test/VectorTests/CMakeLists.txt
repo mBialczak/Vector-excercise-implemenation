@@ -2,10 +2,11 @@ add_executable(Vector-MT
                Vector-MT-assignFunction.cpp
                Vector-MT-capacityChanging.cpp
                Vector-MT-construction.cpp
-               Vector-Mt-copyAssignment.cpp
+               Vector-MT-copyAssignment.cpp
                Vector-MT-destructor.cpp
                Vector-MT-elementAccess.cpp
-               Vector-MT-insertingElements.cpp
+               Vector-MT-emplaceFunction.cpp
+               Vector-MT-insertFunction.cpp
                Vector-Mt-inspectingFunctions.cpp
                Vector-MT-moveAssignment.cpp
                Vector-MT-removingElements.cpp
