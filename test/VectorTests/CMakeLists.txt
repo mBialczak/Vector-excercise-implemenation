@@ -9,6 +9,7 @@ add_executable(Vector-MT
                Vector-MT-insertFunction.cpp
                Vector-Mt-inspectingFunctions.cpp
                Vector-MT-moveAssignment.cpp
+               Vector-MT-pushBack.cpp
                Vector-MT-removingElements.cpp
                Vector-MT-typeAlias.cpp
               )
