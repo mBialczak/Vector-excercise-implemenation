@@ -8,9 +8,6 @@ class EmplaceTests : public SutExamplesAndHelpers
 // === tets for constexpr iterator emplace(const_iterator pos, Args&&... args);
 TEST_F(EmplaceTests, shouldIncreaseSizeAfterEmplacingElement)
 {
-    // TODO: REMOVE
-    // Vector sutInt { 1, 2, 3, 4, 5 };
-    // Vector<std::string> sutString { "one", "two", "three" };
     auto sutIntSizeBefore = sutOf5ints.size();
     auto sutStringSizeBefore = sutOf3strings.size();
 
@@ -26,9 +23,6 @@ TEST_F(EmplaceTests, shouldIncreaseSizeAfterEmplacingElement)
 
 TEST_F(EmplaceTests, shouldCauseReallocationIfNewSizeGreaterThanOldCapacity)
 {
-    // TODO: VERIFY
-    //  AllocatorCallDetectorMock<int> callDetector;
-    //  CustomTestingAllocator<int> intAllocator;
     customIntTestingAllocator.setCallDetectionHelper(&intAllocatorCallDetector);
 
     EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
@@ -61,9 +55,6 @@ TEST_F(EmplaceTests, shouldCauseReallocationIfNewSizeGreaterThanOldCapacity)
 
 TEST_F(EmplaceTests, shouldNotReallocateIfCurentCapacityEnough)
 {
-    // TODO: VERIFY
-    //  AllocatorCallDetectorMock<int> callDetector;
-    //  CustomTestingAllocator<int> intAllocator;
     customIntTestingAllocator.setCallDetectionHelper(&intAllocatorCallDetector);
 
     EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
@@ -102,10 +93,6 @@ TEST_F(EmplaceTests, shouldNotReallocateIfCurentCapacityEnough)
 
 TEST_F(EmplaceTests, shouldEmplaceValueBeforeGivenPositionAndReturnIteratorToEmplaced)
 {
-    // TODO: REMOVE
-    // Vector sutInt { 1, 2, 3, 4, 5 };
-    // Vector<std::string> sutString { "one", "two", "three", "four", "five" };
-
     auto iteratorToFirstEmplaced = sutOf5ints.emplace(sutOf5ints.begin() + 2, 999);
     auto iteratorToSecondEmplaced = sutOf5ints.emplace(sutOf5ints.begin() + 4, 777);
     auto iteratorToStringEmplaced = sutOf5strings.emplace(sutOf5strings.begin() + 1, "twenty");
@@ -125,9 +112,6 @@ TEST_F(EmplaceTests, shouldEmplaceValueBeforeGivenPositionAndReturnIteratorToEmp
 
 TEST_F(EmplaceTests, shouldEmplaceValueBeforeGivenPositionAndReturnIteratorToEmplacedWhenNoReallocation)
 {
-    // TODO: REMOVE
-    // Vector sutInt { 1, 2, 3, 4, 5 };
-    // Vector<std::string> sutString { "one", "two", "three", "four", "five" };
     sutOf5ints.reserve(10);
     sutOf5strings.reserve(10);
 
@@ -150,22 +134,20 @@ TEST_F(EmplaceTests, shouldEmplaceValueBeforeGivenPositionAndReturnIteratorToEmp
 
 TEST_F(EmplaceTests, shouldWorkForEmptyVector)
 {
-    Vector<int> sutInt;
-    auto sutIntSizeBefore = sutInt.size();
-    Vector<std::string> sutString;
-    auto sutStringSizeBefore = sutString.size();
+    auto sutIntSizeBefore = emptySutInt.size();
+    auto sutStringSizeBefore = emptySutString.size();
 
-    sutInt.emplace(sutInt.begin(), 100);
-    sutString.emplace(sutString.begin(), "Emplaced");
+    emptySutInt.emplace(emptySutInt.begin(), 100);
+    emptySutString.emplace(emptySutString.begin(), "Emplaced");
 
     ASSERT_EQ(sutIntSizeBefore, 0);
     ASSERT_EQ(sutStringSizeBefore, 0);
-    EXPECT_EQ(sutInt.size(), 1);
-    EXPECT_EQ(sutInt.capacity(), 1);
-    EXPECT_EQ(sutString.size(), 1);
-    EXPECT_EQ(sutString.capacity(), 1);
-    EXPECT_EQ(*sutInt.begin(), 100);
-    EXPECT_EQ(*sutString.begin(), "Emplaced");
+    EXPECT_EQ(emptySutInt.size(), 1);
+    EXPECT_EQ(emptySutInt.capacity(), 1);
+    EXPECT_EQ(emptySutString.size(), 1);
+    EXPECT_EQ(emptySutString.capacity(), 1);
+    EXPECT_EQ(*emptySutInt.begin(), 100);
+    EXPECT_EQ(*emptySutString.begin(), "Emplaced");
 }
 
 }   // namespace my::test

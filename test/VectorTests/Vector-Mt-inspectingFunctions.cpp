@@ -8,10 +8,9 @@ class SizeTests : public SutExamplesAndHelpers
 // === tests for  constexpr size_type size() const noexcept;
 TEST_F(SizeTests, shouldReturnZeroForEmptyVector)
 {
-    Vector<int> sut;
     Vector<double, CustomTestingAllocator<double>> sut2;
 
-    EXPECT_EQ(sut.size(), 0);
+    EXPECT_EQ(emptySutInt.size(), 0);
     EXPECT_EQ(sut2.size(), 0);
 }
 

@@ -14,6 +14,9 @@ class FrontTests : public SutExamplesAndHelpers
 class BackTests : public SutExamplesAndHelpers
 { };
 
+class DataTests : public SutExamplesAndHelpers
+{ };
+
 TEST_F(AtTests, shouldThrowIfOutOfBandsElementsRequested)
 {
     EXPECT_THROW({ sutOf5ints.at(5); }, std::out_of_range);
@@ -109,7 +112,7 @@ TEST_F(FrontTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
     EXPECT_EQ(valueAfterChange, 1000);
 }
 
-// / === tests for constexpr reference back();
+// === tests for constexpr reference back();
 // === tests constexpr const_reference back() const;
 TEST_F(BackTests, shouldReturnReferenceToLastElement)
 {
@@ -134,26 +137,21 @@ TEST_F(BackTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
     EXPECT_EQ(valueAfterChange, 1000);
 }
 
-TEST(DataTests, forEmptyContainerShouldReturnNullptr)
+TEST_F(DataTests, forEmptyContainerShouldReturnNullptr)
 {
-    Vector<double> sut;
+    double* dataReturned { emptySutDouble.data() };
 
-    double* dataReturned { sut.data() };
-
-    ASSERT_EQ(sut.size(), 0);
+    ASSERT_EQ(emptySutDouble.size(), 0);
     EXPECT_EQ(dataReturned, nullptr);
 }
 
-TEST(DataTests, forNonEmptyContainerShouldReturnBeginOrConstBegin)
+TEST_F(DataTests, forNonEmptyContainerShouldReturnBeginOrConstBegin)
 {
-    Vector<double> sut { 1.0, 2.0, 3.0 };
-    const Vector<double> sutConst { 100.0, 200.0, 300.0 };
+    double* dataReturned { sutOf3doubles.data() };
+    const double* dataReturnedConst { constSutOf3doubles.data() };
 
-    double* dataReturned { sut.data() };
-    const double* dataReturnedConst { sutConst.data() };
-
-    EXPECT_EQ(dataReturned, sut.begin());
-    EXPECT_EQ(dataReturnedConst, sutConst.begin());
+    EXPECT_EQ(dataReturned, sutOf3doubles.begin());
+    EXPECT_EQ(dataReturnedConst, constSutOf3doubles.begin());
 }
 
 }   // namespace my::test

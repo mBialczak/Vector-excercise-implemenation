@@ -98,6 +98,10 @@ class SutExamplesAndHelpers : public testing::Test
 
     CustomTestingAllocator<int> customIntTestingAllocator;
     CustomTestingAllocator<std::string> customStringTestingAllocator;
+    // TODO: VERIFY if needed
+    Vector<int> emptySutInt;
+    Vector<double> emptySutDouble;
+    Vector<std::string> emptySutString;
 
     Vector<int> sutOf3ints { 1, 2, 3 };
     Vector<int> sutOf5ints { 5, 10, 15, 20, 25 };
@@ -105,6 +109,8 @@ class SutExamplesAndHelpers : public testing::Test
     const Vector<int> constSutOf5ints { 5, 10, 15, 20, 25 };
 
     Vector<double> sutOf3doubles { 10.0, 20.0, 30.0 };
+    const Vector<double> constSutOf3doubles { 100.0, 200.0, 300.0 };
+
     Vector<std::string> sutOf3strings { "one", "two", "three" };
     Vector<std::string> sutOf5strings { "one", "two", "three", "four", "five" };
     Vector<std::string> sutOf8strings { "one", "two", "three", "four", "five", "six", "seven", "eight" };
