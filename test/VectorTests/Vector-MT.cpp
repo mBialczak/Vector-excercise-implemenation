@@ -3391,399 +3391,399 @@ struct DummyWithDestructionDetection
 //     EXPECT_EQ(*sutString.begin(), "twenty");
 // }
 
-// === tests for constexpr reference emplace_back(Args&&... args);
-TEST(EmplaceBackTests, shouldIncreaseSizeAfterPushingElement)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    auto sutIntSizeBefore = sutInt.size();
-    Vector<std::string> sutString { "one", "two", "three" };
-    auto sutStringSizeBefore = sutString.size();
-
-    sutInt.emplace_back(999);
-    sutInt.emplace_back(777);
-    sutString.emplace_back("twenty");
-
-    EXPECT_NE(sutInt.size(), sutIntSizeBefore);
-    EXPECT_NE(sutString.size(), sutStringSizeBefore);
-    EXPECT_EQ(sutInt.size(), 7);
-    EXPECT_EQ(sutString.size(), 4);
-}
-
-TEST(EmplaceBackTests, shouldCauseReallocationIfNewSizeGreaterThanOldCapacity)
-{
-    AllocatorCallDetectorMock<int> callDetector;
-    CustomTestingAllocator<int> intAllocator;
-    intAllocator.setCallDetectionHelper(&callDetector);
-
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
-        .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
-        .Times(4);
-    Vector sutInt { 4, 5, intAllocator };
-    auto sizeBefore = sutInt.size();
-    auto capacityBefore = sutInt.capacity();
-
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
-        .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
-        .Times(1);
-    sutInt.emplace_back(999);
-    auto sizeAfter = sutInt.size();
-    auto capacityAfter = sutInt.capacity();
-
-    ASSERT_EQ(sizeBefore, 4);
-    ASSERT_EQ(capacityBefore, 4);
-    EXPECT_EQ(sizeAfter, 5);
-    // NOTE: as this is just a programming exercise, we make implementation assumption,
-    //       that vector size will be doubled each time we need more elements and capacity is exhausted
-    EXPECT_EQ(capacityAfter, 8);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
-        .Times(5);
-}
-
-TEST(EmplaceBackTests, shouldNotReallocateIfCurentCapacityEnough)
-{
-    AllocatorCallDetectorMock<int> callDetector;
-    CustomTestingAllocator<int> intAllocator;
-    intAllocator.setCallDetectionHelper(&callDetector);
-
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
-        .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
-        .Times(4);
-    Vector sutInt { 4, 5, intAllocator };
-    auto sizeBefore = sutInt.size();
-    // NOTE: additional memory is reserved explicitly before insertion
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
-        .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
-    sutInt.reserve(5);
-    auto capacityBefore = sutInt.capacity();
-
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
-        .Times(0);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(0);
-
-    // NOTE: one additional construct call strictly for insert
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
-        .Times(1);
-
-    sutInt.emplace_back(999);
-    auto sizeAfter = sutInt.size();
-    auto capacityAfter = sutInt.capacity();
-
-    ASSERT_EQ(sizeBefore, 4);
-    ASSERT_EQ(capacityBefore, 5);
-    EXPECT_EQ(capacityAfter, 5);
-    EXPECT_EQ(sizeAfter, 5);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
-        .Times(5);
-}
-
-TEST(EmplaceBackTests, shouldPushElementToTheEndOfVectorAndReturnReferenceToEmplaced)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
-    auto sutIntSizeBefore = sutInt.size();
-    auto sutStringSizeBefore = sutString.size();
-
-    auto emplacedInt = sutInt.emplace_back(999);
-    auto emplacedString = sutString.emplace_back("twenty");
-
-    EXPECT_EQ(sutInt.size(), sutIntSizeBefore + 1);
-    EXPECT_EQ(sutInt.capacity(), sutIntSizeBefore * 2);
-    EXPECT_EQ(sutString.size(), sutStringSizeBefore + 1);
-    EXPECT_EQ(sutString.capacity(), sutIntSizeBefore * 2);
-    EXPECT_EQ(emplacedInt, 999);
-    EXPECT_EQ(emplacedString, "twenty");
-}
-
-TEST(EmplaceBackTests, shouldPushElementToTheEndOfVectorWhenNoReallocation)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
-    auto sutIntSizeBefore = sutInt.size();
-    auto sutStringSizeBefore = sutString.size();
-    sutInt.reserve(10);
-    sutString.reserve(10);
-
-    auto emplacedInt = sutInt.emplace_back(999);
-    auto emplacedString = sutString.emplace_back("twenty");
-
-    EXPECT_EQ(sutInt.size(), sutIntSizeBefore + 1);
-    EXPECT_EQ(sutInt.capacity(), sutIntSizeBefore * 2);
-    EXPECT_EQ(sutString.size(), sutStringSizeBefore + 1);
-    EXPECT_EQ(sutString.capacity(), sutIntSizeBefore * 2);
-    EXPECT_EQ(emplacedInt, 999);
-    EXPECT_EQ(emplacedString, "twenty");
-}
-
-TEST(EmplaceBackTests, shouldWorkForEmptyVector)
-{
-    Vector<int> sutInt;
-    auto sutIntSizeBefore = sutInt.size();
-    Vector<std::string> sutString;
-    auto sutStringSizeBefore = sutString.size();
-
-    sutInt.emplace_back(999);
-    sutString.emplace_back("twenty");
-
-    ASSERT_EQ(sutIntSizeBefore, 0);
-    ASSERT_EQ(sutStringSizeBefore, 0);
-    EXPECT_EQ(sutInt.size(), 1);
-    EXPECT_EQ(sutInt.capacity(), 1);
-    EXPECT_EQ(sutString.size(), 1);
-    EXPECT_EQ(sutString.capacity(), 1);
-    EXPECT_EQ(*sutInt.begin(), 999);
-    EXPECT_EQ(*sutString.begin(), "twenty");
-}
-
-// === tests for constexpr iterator erase(const_iterator pos);
-TEST(EraseTakingSinglePositionTests, shouldRemoveRequestedElementAndDecreaseSizeByOneButNotChangeCapacity)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
-    auto sutIntSizeBefore = sutInt.size();
-    auto sutIntCapacityBefore = sutInt.capacity();
-    auto sutStringSizeBefore = sutString.size();
-    auto sutStringCapacityBefore = sutString.capacity();
-    auto intToRemove = sutInt.begin() + 2;
-    auto stringToRemove = sutString.begin() + 3;
-
-    sutInt.erase(intToRemove);
-    sutString.erase(stringToRemove);
-
-    EXPECT_EQ(sutInt.size(), sutIntSizeBefore - 1);
-    EXPECT_EQ(sutInt.capacity(), sutIntCapacityBefore);
-    EXPECT_EQ(sutString.size(), sutStringSizeBefore - 1);
-    EXPECT_EQ(sutString.capacity(), sutStringCapacityBefore);
-    EXPECT_THAT(sutInt, ElementsAre(1, 2, 4, 5));
-    EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "five"));
-}
-
-TEST(EraseTakingSinglePositionTests, shouldReturnIterToElementFolowingRemoved)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
-    auto intToRemove = sutInt.begin() + 2;
-    auto stringToRemove = sutString.begin() + 3;
-
-    auto intIterReturned = sutInt.erase(intToRemove);
-    auto stringIterReturned = sutString.erase(stringToRemove);
-
-    EXPECT_THAT(sutInt, ElementsAre(1, 2, 4, 5));
-    EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "five"));
-    EXPECT_EQ(*intIterReturned, 4);
-    EXPECT_EQ(*stringIterReturned, "five");
-}
-
-TEST(EraseTakingSinglePositionTests, shouldWorkForSingleElementVectorAndReturnEnd)
-{
-    Vector sutInt { 1 };
-    Vector<std::string> sutString { "one" };
-
-    auto intIterReturned = sutInt.erase(sutInt.begin());
-    auto stringIterReturned = sutString.erase(sutString.begin());
-
-    EXPECT_EQ(sutInt.size(), 0);
-    EXPECT_EQ(sutString.size(), 0);
-    EXPECT_EQ(sutInt.end(), intIterReturned);
-    EXPECT_EQ(sutString.end(), stringIterReturned);
-}
-
-TEST(EraseTakingSinglePositionTests, shouldDetroyErasedElementButNotDeallocateMemory)
-{
-    AllocatorCallDetectorMock<int> callDetector;
-    CustomTestingAllocator<int> intAllocator;
-    intAllocator.setCallDetectionHelper(&callDetector);
-
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
-        .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
-        .Times(4);
-    Vector sutInt { 4, 100, intAllocator };
-
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
-        .Times(1);
-    sutInt.erase(sutInt.begin() + 1);
-
-    // NOTE: only deallocation on vector destruction expected
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
-        .Times(3);
-}
-
-// === tests for constexpr iterator erase(const_iterator first, const_iterator last);
-TEST(EraseTakingPairOfIterators, shouldNotCrashForEmptyVector)
-{
-    Vector<std::string> vec;
-    vec.erase(vec.begin(), vec.end());
-}
-
-TEST(EraseTakingPairOfIterators, shouldNotChangeCapacity)
-{
-    Vector sutInt { 1, 2, 3, 4, 5, 6, 7, 8 };
-    auto sutIntCapacityBefore = sutInt.capacity();
-    Vector<std::string> sutString { "one", "two", "three", "four", "five", "six", "seven", "eight" };
-    auto sutStringCapacityBefore = sutString.capacity();
-    Vector sutDouble { 10.0, 11.0, 12.0, 13.0, 14.0 };
-    auto sutDoubleCapacityBefore = sutDouble.capacity();
-    Vector sutChar { 'A' };
-    auto sutCharCapacityBefore = sutChar.capacity();
-
-    sutInt.erase(sutInt.begin() + 1, sutInt.begin() + 6);
-    sutString.erase(sutString.begin(), sutString.begin() + 5);
-    sutDouble.erase(sutDouble.begin() + 2, sutDouble.end());
-    sutChar.erase(sutChar.begin(), sutChar.end());
-
-    EXPECT_EQ(sutInt.capacity(), sutIntCapacityBefore);
-    EXPECT_EQ(sutString.capacity(), sutStringCapacityBefore);
-    EXPECT_EQ(sutDouble.capacity(), sutDoubleCapacityBefore);
-    EXPECT_EQ(sutChar.capacity(), sutCharCapacityBefore);
-}
-
-TEST(EraseTakingPairOfIterators, shouldRemoveElementsInTheMiddleAndDecreaseSizeAccordingly)
-{
-    Vector sutInt { 1, 2, 3, 4, 5, 6, 7, 8 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five", "six", "seven", "eight" };
-
-    sutInt.erase(sutInt.begin() + 1, sutInt.begin() + 6);
-    sutString.erase(sutString.begin() + 3, sutString.begin() + 6);
-
-    EXPECT_EQ(sutInt.size(), 3);
-    EXPECT_EQ(sutString.size(), 5);
-
-    EXPECT_THAT(sutInt, ElementsAre(1, 7, 8));
-    EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "seven", "eight"));
-}
-
-TEST(EraseTakingPairOfIterators, shouldRemoveElementsFromBeginToTheMiddleAndDecreaseSizeAccordingly)
-{
-    Vector sutInt { 1, 2, 3, 4, 5, 6, 7, 8 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five", "six", "seven", "eight" };
-
-    sutInt.erase(sutInt.begin(), sutInt.begin() + 4);
-    sutString.erase(sutString.begin(), sutString.begin() + 5);
-
-    EXPECT_EQ(sutInt.size(), 4);
-    EXPECT_EQ(sutString.size(), 3);
-    EXPECT_THAT(sutInt, ElementsAre(5, 6, 7, 8));
-    EXPECT_THAT(sutString, ElementsAre("six", "seven", "eight"));
-}
-
-TEST(EraseTakingPairOfIterators, shouldRemoveElementsFromTheMiddleToTheEndAndDecreaseSizeAccordingly)
-{
-    Vector sutInt { 1, 2, 3, 4, 5, 6, 7, 8 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five", "six", "seven", "eight" };
-
-    sutInt.erase(sutInt.begin() + 4, sutInt.end());
-    sutString.erase(sutString.begin() + 5, sutString.end());
-
-    EXPECT_EQ(sutInt.size(), 4);
-    EXPECT_EQ(sutString.size(), 5);
-    EXPECT_THAT(sutInt, ElementsAre(1, 2, 3, 4));
-    EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four", "five"));
-}
-
-TEST(EraseTakingPairOfIterators, shouldReturnIterToElementFollowingRemovedOrEndIfRemovedTillEnd)
-{
-    Vector sutInt { 1, 2, 3, 4, 5, 6, 7, 8 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five", "six", "seven", "eight" };
-    Vector sutDouble { 10.0, 11.0, 12.0, 13.0, 14.0 };
-
-    auto iterReturnedInt = sutInt.erase(sutInt.begin() + 1, sutInt.begin() + 6);
-    auto iterReturnedString = sutString.erase(sutString.begin(), sutString.begin() + 5);
-    auto iterReturnedDouble = sutDouble.erase(sutDouble.begin() + 2, sutDouble.end());
-
-    EXPECT_EQ(*iterReturnedInt, 7);
-    EXPECT_EQ(*iterReturnedString, "six");
-    EXPECT_EQ(iterReturnedDouble, sutDouble.end());
-}
-
-TEST(EraseTakingPairOfIterators, shouldWorkForSingleElementVectorAndReturnEnd)
-{
-    Vector sutInt { 1 };
-    Vector<std::string> sutString { "one" };
-
-    auto intIterReturned = sutInt.erase(sutInt.begin(), sutInt.begin() + 1);
-    auto stringIterReturned = sutString.erase(sutString.begin(), sutString.begin() + 1);
-
-    EXPECT_EQ(sutInt.size(), 0);
-    EXPECT_EQ(sutString.size(), 0);
-    EXPECT_EQ(sutInt.end(), intIterReturned);
-    EXPECT_EQ(sutString.end(), stringIterReturned);
-}
-
-TEST(EraseTakingPairOfIterators, shouldDetroyErasedElementsButNotDeallocateMemory)
-{
-    AllocatorCallDetectorMock<int> callDetector;
-    CustomTestingAllocator<int> intAllocator;
-    intAllocator.setCallDetectionHelper(&callDetector);
-    Vector<int>::size_type howManyToStore { 10 };
-    int dummyValue { 100 };
-
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
-        .Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
-        .Times(howManyToStore);
-    Vector sutInt { howManyToStore, dummyValue, intAllocator };
-    auto eraseStart = sutInt.begin() + 1;
-    Vector<int>::size_type howManyToErase { 5 };
-
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
-        .Times(howManyToErase);
-    sutInt.erase(eraseStart, eraseStart + howManyToErase);
-
-    // NOTE: only deallocation on vector destruction expected
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
-    EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
-        .Times(howManyToStore - howManyToErase);
-}
-
-// === tests for constexpr void pop_back();
-TEST(PopBackTests, shouldNotCrashOnEmptyVector)
-{
-    Vector<int> sutInt;
-    Vector<std::string> sutString;
-
-    sutInt.pop_back();
-    sutString.pop_back();
-}
-
-TEST(PopBackTests, shouldRemoveLastElementDecreaseSizeButNotChangeCapacity)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
-    auto sutIntSizeBefore = sutInt.size();
-    auto sutIntCapacityBefore = sutInt.capacity();
-    auto sutStringSizeBefore = sutString.size();
-    auto sutStringCapacityBefore = sutString.capacity();
-
-    sutInt.pop_back();
-    sutString.pop_back();
-
-    EXPECT_EQ(sutInt.size(), sutIntSizeBefore - 1);
-    EXPECT_EQ(sutString.size(), sutStringSizeBefore - 1);
-    EXPECT_EQ(sutInt.capacity(), sutIntCapacityBefore);
-    EXPECT_EQ(sutString.capacity(), sutStringCapacityBefore);
-    EXPECT_THAT(sutInt, ElementsAre(1, 2, 3, 4));
-    EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four"));
-}
-
-TEST(PopBackTests, shouldWorkForSingleElementVector)
-{
-    Vector sutInt { 1 };
-    Vector<std::string> sutString { "one" };
-
-    sutInt.pop_back();
-    sutString.pop_back();
-
-    EXPECT_EQ(sutInt.size(), 0);
-    EXPECT_EQ(sutString.size(), 0);
-}
+// // === tests for constexpr reference emplace_back(Args&&... args);
+// TEST(EmplaceBackTests, shouldIncreaseSizeAfterPushingElement)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     auto sutIntSizeBefore = sutInt.size();
+//     Vector<std::string> sutString { "one", "two", "three" };
+//     auto sutStringSizeBefore = sutString.size();
+
+//     sutInt.emplace_back(999);
+//     sutInt.emplace_back(777);
+//     sutString.emplace_back("twenty");
+
+//     EXPECT_NE(sutInt.size(), sutIntSizeBefore);
+//     EXPECT_NE(sutString.size(), sutStringSizeBefore);
+//     EXPECT_EQ(sutInt.size(), 7);
+//     EXPECT_EQ(sutString.size(), 4);
+// }
+
+// TEST(EmplaceBackTests, shouldCauseReallocationIfNewSizeGreaterThanOldCapacity)
+// {
+//     AllocatorCallDetectorMock<int> callDetector;
+//     CustomTestingAllocator<int> intAllocator;
+//     intAllocator.setCallDetectionHelper(&callDetector);
+
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//         .Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+//         .Times(4);
+//     Vector sutInt { 4, 5, intAllocator };
+//     auto sizeBefore = sutInt.size();
+//     auto capacityBefore = sutInt.capacity();
+
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//         .Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+//         .Times(1);
+//     sutInt.emplace_back(999);
+//     auto sizeAfter = sutInt.size();
+//     auto capacityAfter = sutInt.capacity();
+
+//     ASSERT_EQ(sizeBefore, 4);
+//     ASSERT_EQ(capacityBefore, 4);
+//     EXPECT_EQ(sizeAfter, 5);
+//     // NOTE: as this is just a programming exercise, we make implementation assumption,
+//     //       that vector size will be doubled each time we need more elements and capacity is exhausted
+//     EXPECT_EQ(capacityAfter, 8);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+//         .Times(5);
+// }
+
+// TEST(EmplaceBackTests, shouldNotReallocateIfCurentCapacityEnough)
+// {
+//     AllocatorCallDetectorMock<int> callDetector;
+//     CustomTestingAllocator<int> intAllocator;
+//     intAllocator.setCallDetectionHelper(&callDetector);
+
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//         .Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+//         .Times(4);
+//     Vector sutInt { 4, 5, intAllocator };
+//     auto sizeBefore = sutInt.size();
+//     // NOTE: additional memory is reserved explicitly before insertion
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//         .Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+//     sutInt.reserve(5);
+//     auto capacityBefore = sutInt.capacity();
+
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//         .Times(0);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(0);
+
+//     // NOTE: one additional construct call strictly for insert
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+//         .Times(1);
+
+//     sutInt.emplace_back(999);
+//     auto sizeAfter = sutInt.size();
+//     auto capacityAfter = sutInt.capacity();
+
+//     ASSERT_EQ(sizeBefore, 4);
+//     ASSERT_EQ(capacityBefore, 5);
+//     EXPECT_EQ(capacityAfter, 5);
+//     EXPECT_EQ(sizeAfter, 5);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+//         .Times(5);
+// }
+
+// TEST(EmplaceBackTests, shouldPushElementToTheEndOfVectorAndReturnReferenceToEmplaced)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+//     auto sutIntSizeBefore = sutInt.size();
+//     auto sutStringSizeBefore = sutString.size();
+
+//     auto emplacedInt = sutInt.emplace_back(999);
+//     auto emplacedString = sutString.emplace_back("twenty");
+
+//     EXPECT_EQ(sutInt.size(), sutIntSizeBefore + 1);
+//     EXPECT_EQ(sutInt.capacity(), sutIntSizeBefore * 2);
+//     EXPECT_EQ(sutString.size(), sutStringSizeBefore + 1);
+//     EXPECT_EQ(sutString.capacity(), sutIntSizeBefore * 2);
+//     EXPECT_EQ(emplacedInt, 999);
+//     EXPECT_EQ(emplacedString, "twenty");
+// }
+
+// TEST(EmplaceBackTests, shouldPushElementToTheEndOfVectorWhenNoReallocation)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+//     auto sutIntSizeBefore = sutInt.size();
+//     auto sutStringSizeBefore = sutString.size();
+//     sutInt.reserve(10);
+//     sutString.reserve(10);
+
+//     auto emplacedInt = sutInt.emplace_back(999);
+//     auto emplacedString = sutString.emplace_back("twenty");
+
+//     EXPECT_EQ(sutInt.size(), sutIntSizeBefore + 1);
+//     EXPECT_EQ(sutInt.capacity(), sutIntSizeBefore * 2);
+//     EXPECT_EQ(sutString.size(), sutStringSizeBefore + 1);
+//     EXPECT_EQ(sutString.capacity(), sutIntSizeBefore * 2);
+//     EXPECT_EQ(emplacedInt, 999);
+//     EXPECT_EQ(emplacedString, "twenty");
+// }
+
+// TEST(EmplaceBackTests, shouldWorkForEmptyVector)
+// {
+//     Vector<int> sutInt;
+//     auto sutIntSizeBefore = sutInt.size();
+//     Vector<std::string> sutString;
+//     auto sutStringSizeBefore = sutString.size();
+
+//     sutInt.emplace_back(999);
+//     sutString.emplace_back("twenty");
+
+//     ASSERT_EQ(sutIntSizeBefore, 0);
+//     ASSERT_EQ(sutStringSizeBefore, 0);
+//     EXPECT_EQ(sutInt.size(), 1);
+//     EXPECT_EQ(sutInt.capacity(), 1);
+//     EXPECT_EQ(sutString.size(), 1);
+//     EXPECT_EQ(sutString.capacity(), 1);
+//     EXPECT_EQ(*sutInt.begin(), 999);
+//     EXPECT_EQ(*sutString.begin(), "twenty");
+// }
+
+// // === tests for constexpr iterator erase(const_iterator pos);
+// TEST(EraseTakingSinglePositionTests, shouldRemoveRequestedElementAndDecreaseSizeByOneButNotChangeCapacity)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+//     auto sutIntSizeBefore = sutInt.size();
+//     auto sutIntCapacityBefore = sutInt.capacity();
+//     auto sutStringSizeBefore = sutString.size();
+//     auto sutStringCapacityBefore = sutString.capacity();
+//     auto intToRemove = sutInt.begin() + 2;
+//     auto stringToRemove = sutString.begin() + 3;
+
+//     sutInt.erase(intToRemove);
+//     sutString.erase(stringToRemove);
+
+//     EXPECT_EQ(sutInt.size(), sutIntSizeBefore - 1);
+//     EXPECT_EQ(sutInt.capacity(), sutIntCapacityBefore);
+//     EXPECT_EQ(sutString.size(), sutStringSizeBefore - 1);
+//     EXPECT_EQ(sutString.capacity(), sutStringCapacityBefore);
+//     EXPECT_THAT(sutInt, ElementsAre(1, 2, 4, 5));
+//     EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "five"));
+// }
+
+// TEST(EraseTakingSinglePositionTests, shouldReturnIterToElementFolowingRemoved)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+//     auto intToRemove = sutInt.begin() + 2;
+//     auto stringToRemove = sutString.begin() + 3;
+
+//     auto intIterReturned = sutInt.erase(intToRemove);
+//     auto stringIterReturned = sutString.erase(stringToRemove);
+
+//     EXPECT_THAT(sutInt, ElementsAre(1, 2, 4, 5));
+//     EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "five"));
+//     EXPECT_EQ(*intIterReturned, 4);
+//     EXPECT_EQ(*stringIterReturned, "five");
+// }
+
+// TEST(EraseTakingSinglePositionTests, shouldWorkForSingleElementVectorAndReturnEnd)
+// {
+//     Vector sutInt { 1 };
+//     Vector<std::string> sutString { "one" };
+
+//     auto intIterReturned = sutInt.erase(sutInt.begin());
+//     auto stringIterReturned = sutString.erase(sutString.begin());
+
+//     EXPECT_EQ(sutInt.size(), 0);
+//     EXPECT_EQ(sutString.size(), 0);
+//     EXPECT_EQ(sutInt.end(), intIterReturned);
+//     EXPECT_EQ(sutString.end(), stringIterReturned);
+// }
+
+// TEST(EraseTakingSinglePositionTests, shouldDetroyErasedElementButNotDeallocateMemory)
+// {
+//     AllocatorCallDetectorMock<int> callDetector;
+//     CustomTestingAllocator<int> intAllocator;
+//     intAllocator.setCallDetectionHelper(&callDetector);
+
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//         .Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+//         .Times(4);
+//     Vector sutInt { 4, 100, intAllocator };
+
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+//         .Times(1);
+//     sutInt.erase(sutInt.begin() + 1);
+
+//     // NOTE: only deallocation on vector destruction expected
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+//         .Times(3);
+// }
+
+// // === tests for constexpr iterator erase(const_iterator first, const_iterator last);
+// TEST(EraseTakingPairOfIterators, shouldNotCrashForEmptyVector)
+// {
+//     Vector<std::string> vec;
+//     vec.erase(vec.begin(), vec.end());
+// }
+
+// TEST(EraseTakingPairOfIterators, shouldNotChangeCapacity)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5, 6, 7, 8 };
+//     auto sutIntCapacityBefore = sutInt.capacity();
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five", "six", "seven", "eight" };
+//     auto sutStringCapacityBefore = sutString.capacity();
+//     Vector sutDouble { 10.0, 11.0, 12.0, 13.0, 14.0 };
+//     auto sutDoubleCapacityBefore = sutDouble.capacity();
+//     Vector sutChar { 'A' };
+//     auto sutCharCapacityBefore = sutChar.capacity();
+
+//     sutInt.erase(sutInt.begin() + 1, sutInt.begin() + 6);
+//     sutString.erase(sutString.begin(), sutString.begin() + 5);
+//     sutDouble.erase(sutDouble.begin() + 2, sutDouble.end());
+//     sutChar.erase(sutChar.begin(), sutChar.end());
+
+//     EXPECT_EQ(sutInt.capacity(), sutIntCapacityBefore);
+//     EXPECT_EQ(sutString.capacity(), sutStringCapacityBefore);
+//     EXPECT_EQ(sutDouble.capacity(), sutDoubleCapacityBefore);
+//     EXPECT_EQ(sutChar.capacity(), sutCharCapacityBefore);
+// }
+
+// TEST(EraseTakingPairOfIterators, shouldRemoveElementsInTheMiddleAndDecreaseSizeAccordingly)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5, 6, 7, 8 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five", "six", "seven", "eight" };
+
+//     sutInt.erase(sutInt.begin() + 1, sutInt.begin() + 6);
+//     sutString.erase(sutString.begin() + 3, sutString.begin() + 6);
+
+//     EXPECT_EQ(sutInt.size(), 3);
+//     EXPECT_EQ(sutString.size(), 5);
+
+//     EXPECT_THAT(sutInt, ElementsAre(1, 7, 8));
+//     EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "seven", "eight"));
+// }
+
+// TEST(EraseTakingPairOfIterators, shouldRemoveElementsFromBeginToTheMiddleAndDecreaseSizeAccordingly)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5, 6, 7, 8 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five", "six", "seven", "eight" };
+
+//     sutInt.erase(sutInt.begin(), sutInt.begin() + 4);
+//     sutString.erase(sutString.begin(), sutString.begin() + 5);
+
+//     EXPECT_EQ(sutInt.size(), 4);
+//     EXPECT_EQ(sutString.size(), 3);
+//     EXPECT_THAT(sutInt, ElementsAre(5, 6, 7, 8));
+//     EXPECT_THAT(sutString, ElementsAre("six", "seven", "eight"));
+// }
+
+// TEST(EraseTakingPairOfIterators, shouldRemoveElementsFromTheMiddleToTheEndAndDecreaseSizeAccordingly)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5, 6, 7, 8 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five", "six", "seven", "eight" };
+
+//     sutInt.erase(sutInt.begin() + 4, sutInt.end());
+//     sutString.erase(sutString.begin() + 5, sutString.end());
+
+//     EXPECT_EQ(sutInt.size(), 4);
+//     EXPECT_EQ(sutString.size(), 5);
+//     EXPECT_THAT(sutInt, ElementsAre(1, 2, 3, 4));
+//     EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four", "five"));
+// }
+
+// TEST(EraseTakingPairOfIterators, shouldReturnIterToElementFollowingRemovedOrEndIfRemovedTillEnd)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5, 6, 7, 8 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five", "six", "seven", "eight" };
+//     Vector sutDouble { 10.0, 11.0, 12.0, 13.0, 14.0 };
+
+//     auto iterReturnedInt = sutInt.erase(sutInt.begin() + 1, sutInt.begin() + 6);
+//     auto iterReturnedString = sutString.erase(sutString.begin(), sutString.begin() + 5);
+//     auto iterReturnedDouble = sutDouble.erase(sutDouble.begin() + 2, sutDouble.end());
+
+//     EXPECT_EQ(*iterReturnedInt, 7);
+//     EXPECT_EQ(*iterReturnedString, "six");
+//     EXPECT_EQ(iterReturnedDouble, sutDouble.end());
+// }
+
+// TEST(EraseTakingPairOfIterators, shouldWorkForSingleElementVectorAndReturnEnd)
+// {
+//     Vector sutInt { 1 };
+//     Vector<std::string> sutString { "one" };
+
+//     auto intIterReturned = sutInt.erase(sutInt.begin(), sutInt.begin() + 1);
+//     auto stringIterReturned = sutString.erase(sutString.begin(), sutString.begin() + 1);
+
+//     EXPECT_EQ(sutInt.size(), 0);
+//     EXPECT_EQ(sutString.size(), 0);
+//     EXPECT_EQ(sutInt.end(), intIterReturned);
+//     EXPECT_EQ(sutString.end(), stringIterReturned);
+// }
+
+// TEST(EraseTakingPairOfIterators, shouldDetroyErasedElementsButNotDeallocateMemory)
+// {
+//     AllocatorCallDetectorMock<int> callDetector;
+//     CustomTestingAllocator<int> intAllocator;
+//     intAllocator.setCallDetectionHelper(&callDetector);
+//     Vector<int>::size_type howManyToStore { 10 };
+//     int dummyValue { 100 };
+
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
+//         .Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
+//         .Times(howManyToStore);
+//     Vector sutInt { howManyToStore, dummyValue, intAllocator };
+//     auto eraseStart = sutInt.begin() + 1;
+//     Vector<int>::size_type howManyToErase { 5 };
+
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+//         .Times(howManyToErase);
+//     sutInt.erase(eraseStart, eraseStart + howManyToErase);
+
+//     // NOTE: only deallocation on vector destruction expected
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDeallocateCall()).Times(1);
+//     EXPECT_CALL(*intAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
+//         .Times(howManyToStore - howManyToErase);
+// }
+
+// // === tests for constexpr void pop_back();
+// TEST(PopBackTests, shouldNotCrashOnEmptyVector)
+// {
+//     Vector<int> sutInt;
+//     Vector<std::string> sutString;
+
+//     sutInt.pop_back();
+//     sutString.pop_back();
+// }
+
+// TEST(PopBackTests, shouldRemoveLastElementDecreaseSizeButNotChangeCapacity)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+//     auto sutIntSizeBefore = sutInt.size();
+//     auto sutIntCapacityBefore = sutInt.capacity();
+//     auto sutStringSizeBefore = sutString.size();
+//     auto sutStringCapacityBefore = sutString.capacity();
+
+//     sutInt.pop_back();
+//     sutString.pop_back();
+
+//     EXPECT_EQ(sutInt.size(), sutIntSizeBefore - 1);
+//     EXPECT_EQ(sutString.size(), sutStringSizeBefore - 1);
+//     EXPECT_EQ(sutInt.capacity(), sutIntCapacityBefore);
+//     EXPECT_EQ(sutString.capacity(), sutStringCapacityBefore);
+//     EXPECT_THAT(sutInt, ElementsAre(1, 2, 3, 4));
+//     EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four"));
+// }
+
+// TEST(PopBackTests, shouldWorkForSingleElementVector)
+// {
+//     Vector sutInt { 1 };
+//     Vector<std::string> sutString { "one" };
+
+//     sutInt.pop_back();
+//     sutString.pop_back();
+
+//     EXPECT_EQ(sutInt.size(), 0);
+//     EXPECT_EQ(sutString.size(), 0);
+// }
 
 // === tests for  constexpr reverse_iterator rbegin() noexcept;
 // === tests for constexpr const_reverse_iterator rbegin() const noexcept;

@@ -106,9 +106,11 @@ class SutExamplesAndHelpers : public testing::Test
     Vector<int> sutOf3ints { 1, 2, 3 };
     Vector<int> sutOf5ints { 5, 10, 15, 20, 25 };
     Vector<int> sutOf6ints { 1, 2, 3, 4, 5, 6 };
+    Vector<int> sutOf8ints { 1, 2, 3, 4, 5, 6, 7, 8 };
     const Vector<int> constSutOf5ints { 5, 10, 15, 20, 25 };
 
     Vector<double> sutOf3doubles { 10.0, 20.0, 30.0 };
+    Vector<double> sutOf5doubles { 10.0, 11.0, 12.0, 13.0, 14.0 };
     const Vector<double> constSutOf3doubles { 100.0, 200.0, 300.0 };
 
     Vector<std::string> sutOf3strings { "one", "two", "three" };
