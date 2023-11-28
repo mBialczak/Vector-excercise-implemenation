@@ -116,6 +116,7 @@ class SutExamplesAndHelpers : public testing::Test
     Vector<std::string> sutOf3strings { "one", "two", "three" };
     Vector<std::string> sutOf5strings { "one", "two", "three", "four", "five" };
     Vector<std::string> sutOf8strings { "one", "two", "three", "four", "five", "six", "seven", "eight" };
+    const Vector<std::string> constSutOf3strings { "one", "two", "three" };
 };
 
 }   // namespace my::test

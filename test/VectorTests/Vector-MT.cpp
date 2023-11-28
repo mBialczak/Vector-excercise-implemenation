@@ -3787,165 +3787,165 @@ struct DummyWithDestructionDetection
 
 // === tests for  constexpr reverse_iterator rbegin() noexcept;
 // === tests for constexpr const_reverse_iterator rbegin() const noexcept;
-TEST(ReverseBeginTests, shouldReturnReverseIteratorType)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
-    Vector<std::string> sutString { "one", "two", "three" };
-    const Vector sutConstInt { 100, 200, 300, 400, 500 };
-    const Vector sutConstDouble { 100.0, 200.0, 300.0, 400.0, 500.0 };
-    const Vector<std::string> sutConstString { "one", "two", "three" };
+// TEST(ReverseBeginTests, shouldReturnReverseIteratorType)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
+//     Vector<std::string> sutString { "one", "two", "three" };
+//     const Vector sutConstInt { 100, 200, 300, 400, 500 };
+//     const Vector sutConstDouble { 100.0, 200.0, 300.0, 400.0, 500.0 };
+//     const Vector<std::string> sutConstString { "one", "two", "three" };
 
-    auto rIteratorInt = sutInt.rbegin();
-    auto rIteratorDouble = sutDouble.rbegin();
-    auto rIteratorString = sutString.rbegin();
-    auto rIteratorConstInt = sutConstInt.rbegin();
-    auto rIteratorConstDouble = sutConstDouble.rbegin();
-    auto rIteratorConstString = sutConstString.rbegin();
+//     auto rIteratorInt = sutInt.rbegin();
+//     auto rIteratorDouble = sutDouble.rbegin();
+//     auto rIteratorString = sutString.rbegin();
+//     auto rIteratorConstInt = sutConstInt.rbegin();
+//     auto rIteratorConstDouble = sutConstDouble.rbegin();
+//     auto rIteratorConstString = sutConstString.rbegin();
 
-    EXPECT_THAT(rIteratorInt, A<ReverseIterator<int*>>());
-    EXPECT_THAT(rIteratorDouble, A<ReverseIterator<double*>>());
-    EXPECT_THAT(rIteratorString, A<ReverseIterator<std::string*>>());
-    EXPECT_THAT(rIteratorConstInt, A<ReverseIterator<const int*>>());
-    EXPECT_THAT(rIteratorConstDouble, A<ReverseIterator<const double*>>());
-    EXPECT_THAT(rIteratorConstString, A<ReverseIterator<const std::string*>>());
-}
+//     EXPECT_THAT(rIteratorInt, A<ReverseIterator<int*>>());
+//     EXPECT_THAT(rIteratorDouble, A<ReverseIterator<double*>>());
+//     EXPECT_THAT(rIteratorString, A<ReverseIterator<std::string*>>());
+//     EXPECT_THAT(rIteratorConstInt, A<ReverseIterator<const int*>>());
+//     EXPECT_THAT(rIteratorConstDouble, A<ReverseIterator<const double*>>());
+//     EXPECT_THAT(rIteratorConstString, A<ReverseIterator<const std::string*>>());
+// }
 
-TEST(ReverseBeginCorrectnessTests, shouldPointToAcorrectElement)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
-    Vector<std::string> sutString { "one", "two", "three" };
-    const Vector sutConstInt { 100, 200, 300, 400, 500 };
-    const Vector sutConstDouble { 100.0, 200.0, 300.0, 400.0, 500.0 };
-    const Vector<std::string> sutConstString { "one", "two", "three" };
+// TEST(ReverseBeginCorrectnessTests, shouldPointToAcorrectElement)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
+//     Vector<std::string> sutString { "one", "two", "three" };
+//     const Vector sutConstInt { 100, 200, 300, 400, 500 };
+//     const Vector sutConstDouble { 100.0, 200.0, 300.0, 400.0, 500.0 };
+//     const Vector<std::string> sutConstString { "one", "two", "three" };
 
-    auto rIteratorInt = sutInt.rbegin();
-    auto rIteratorDouble = sutDouble.rbegin();
-    auto rIteratorString = sutString.rbegin();
-    auto rIteratorConstInt = sutConstInt.rbegin();
-    auto rIteratorConstDouble = sutConstDouble.rbegin();
-    auto rIteratorConstString = sutConstString.rbegin();
+//     auto rIteratorInt = sutInt.rbegin();
+//     auto rIteratorDouble = sutDouble.rbegin();
+//     auto rIteratorString = sutString.rbegin();
+//     auto rIteratorConstInt = sutConstInt.rbegin();
+//     auto rIteratorConstDouble = sutConstDouble.rbegin();
+//     auto rIteratorConstString = sutConstString.rbegin();
 
-    EXPECT_EQ(rIteratorInt, sutInt.end() - 1);
-    EXPECT_EQ(rIteratorDouble, sutDouble.end() - 1);
-    EXPECT_EQ(rIteratorString, sutString.end() - 1);
-    EXPECT_EQ(rIteratorConstInt, sutConstInt.end() - 1);
-    EXPECT_EQ(rIteratorConstDouble, sutConstDouble.end() - 1);
-    EXPECT_EQ(rIteratorConstString, sutConstString.end() - 1);
-}
+//     EXPECT_EQ(rIteratorInt, sutInt.end() - 1);
+//     EXPECT_EQ(rIteratorDouble, sutDouble.end() - 1);
+//     EXPECT_EQ(rIteratorString, sutString.end() - 1);
+//     EXPECT_EQ(rIteratorConstInt, sutConstInt.end() - 1);
+//     EXPECT_EQ(rIteratorConstDouble, sutConstDouble.end() - 1);
+//     EXPECT_EQ(rIteratorConstString, sutConstString.end() - 1);
+// }
 
-//=== constexpr const_reverse_iterator crbegin() const noexcept;
-TEST(ConstReverseBeginTests, shouldReturnReverseIteratorType)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
-    Vector<std::string> sutString { "one", "two", "three" };
+// //=== constexpr const_reverse_iterator crbegin() const noexcept;
+// TEST(ConstReverseBeginTests, shouldReturnReverseIteratorType)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
+//     Vector<std::string> sutString { "one", "two", "three" };
 
-    auto rIteratorConstInt = sutInt.crbegin();
-    auto rIteratorConstDouble = sutDouble.crbegin();
-    auto rIteratorConstString = sutString.crbegin();
+//     auto rIteratorConstInt = sutInt.crbegin();
+//     auto rIteratorConstDouble = sutDouble.crbegin();
+//     auto rIteratorConstString = sutString.crbegin();
 
-    EXPECT_THAT(rIteratorConstInt, A<ReverseIterator<const int*>>());
-    EXPECT_THAT(rIteratorConstDouble, A<ReverseIterator<const double*>>());
-    EXPECT_THAT(rIteratorConstString, A<ReverseIterator<const std::string*>>());
-}
+//     EXPECT_THAT(rIteratorConstInt, A<ReverseIterator<const int*>>());
+//     EXPECT_THAT(rIteratorConstDouble, A<ReverseIterator<const double*>>());
+//     EXPECT_THAT(rIteratorConstString, A<ReverseIterator<const std::string*>>());
+// }
 
-TEST(ConstReverseBeginTests, shouldPointToAcorrectElement)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
-    Vector<std::string> sutString { "one", "two", "three" };
+// TEST(ConstReverseBeginTests, shouldPointToAcorrectElement)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
+//     Vector<std::string> sutString { "one", "two", "three" };
 
-    auto rIteratorConstInt = sutInt.crbegin();
-    auto rIteratorConstDouble = sutDouble.crbegin();
-    auto rIteratorConstString = sutString.crbegin();
+//     auto rIteratorConstInt = sutInt.crbegin();
+//     auto rIteratorConstDouble = sutDouble.crbegin();
+//     auto rIteratorConstString = sutString.crbegin();
 
-    EXPECT_THAT(rIteratorConstInt, sutInt.end() - 1);
-    EXPECT_THAT(rIteratorConstDouble, sutDouble.end() - 1);
-    EXPECT_THAT(rIteratorConstString, sutString.end() - 1);
-}
+//     EXPECT_THAT(rIteratorConstInt, sutInt.end() - 1);
+//     EXPECT_THAT(rIteratorConstDouble, sutDouble.end() - 1);
+//     EXPECT_THAT(rIteratorConstString, sutString.end() - 1);
+// }
 
-//=== tests for constexpr reverse_iterator rend() noexcept;
-//=== tests for constexpr const_reverse_iterator rend() const noexcept;
-TEST(ReverseEndTests, shouldReturnReverseIteratorType)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
-    Vector<std::string> sutString { "one", "two", "three" };
-    const Vector sutConstInt { 100, 200, 300, 400, 500 };
-    const Vector sutConstDouble { 100.0, 200.0, 300.0, 400.0, 500.0 };
-    const Vector<std::string> sutConstString { "one", "two", "three" };
+// //=== tests for constexpr reverse_iterator rend() noexcept;
+// //=== tests for constexpr const_reverse_iterator rend() const noexcept;
+// TEST(ReverseEndTests, shouldReturnReverseIteratorType)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
+//     Vector<std::string> sutString { "one", "two", "three" };
+//     const Vector sutConstInt { 100, 200, 300, 400, 500 };
+//     const Vector sutConstDouble { 100.0, 200.0, 300.0, 400.0, 500.0 };
+//     const Vector<std::string> sutConstString { "one", "two", "three" };
 
-    auto rIteratorInt = sutInt.rend();
-    auto rIteratorDouble = sutDouble.rend();
-    auto rIteratorString = sutString.rend();
-    auto rIteratorConstInt = sutConstInt.rend();
-    auto rIteratorConstDouble = sutConstDouble.rend();
-    auto rIteratorConstString = sutConstString.rend();
+//     auto rIteratorInt = sutInt.rend();
+//     auto rIteratorDouble = sutDouble.rend();
+//     auto rIteratorString = sutString.rend();
+//     auto rIteratorConstInt = sutConstInt.rend();
+//     auto rIteratorConstDouble = sutConstDouble.rend();
+//     auto rIteratorConstString = sutConstString.rend();
 
-    EXPECT_THAT(rIteratorInt, A<ReverseIterator<int*>>());
-    EXPECT_THAT(rIteratorDouble, A<ReverseIterator<double*>>());
-    EXPECT_THAT(rIteratorString, A<ReverseIterator<std::string*>>());
-    EXPECT_THAT(rIteratorConstInt, A<ReverseIterator<const int*>>());
-    EXPECT_THAT(rIteratorConstDouble, A<ReverseIterator<const double*>>());
-    EXPECT_THAT(rIteratorConstString, A<ReverseIterator<const std::string*>>());
-}
+//     EXPECT_THAT(rIteratorInt, A<ReverseIterator<int*>>());
+//     EXPECT_THAT(rIteratorDouble, A<ReverseIterator<double*>>());
+//     EXPECT_THAT(rIteratorString, A<ReverseIterator<std::string*>>());
+//     EXPECT_THAT(rIteratorConstInt, A<ReverseIterator<const int*>>());
+//     EXPECT_THAT(rIteratorConstDouble, A<ReverseIterator<const double*>>());
+//     EXPECT_THAT(rIteratorConstString, A<ReverseIterator<const std::string*>>());
+// }
 
-TEST(ReverseEndTests, shouldPointToAcorrectElement)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
-    Vector<std::string> sutString { "one", "two", "three" };
-    const Vector sutConstInt { 100, 200, 300, 400, 500 };
-    const Vector sutConstDouble { 100.0, 200.0, 300.0, 400.0, 500.0 };
-    const Vector<std::string> sutConstString { "one", "two", "three" };
+// TEST(ReverseEndTests, shouldPointToAcorrectElement)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
+//     Vector<std::string> sutString { "one", "two", "three" };
+//     const Vector sutConstInt { 100, 200, 300, 400, 500 };
+//     const Vector sutConstDouble { 100.0, 200.0, 300.0, 400.0, 500.0 };
+//     const Vector<std::string> sutConstString { "one", "two", "three" };
 
-    auto rIteratorInt = sutInt.rend();
-    auto rIteratorDouble = sutDouble.rend();
-    auto rIteratorString = sutString.rend();
-    auto rIteratorConstInt = sutConstInt.rend();
-    auto rIteratorConstDouble = sutConstDouble.rend();
-    auto rIteratorConstString = sutConstString.rend();
+//     auto rIteratorInt = sutInt.rend();
+//     auto rIteratorDouble = sutDouble.rend();
+//     auto rIteratorString = sutString.rend();
+//     auto rIteratorConstInt = sutConstInt.rend();
+//     auto rIteratorConstDouble = sutConstDouble.rend();
+//     auto rIteratorConstString = sutConstString.rend();
 
-    EXPECT_EQ(rIteratorInt, sutInt.begin());
-    EXPECT_EQ(rIteratorDouble, sutDouble.begin());
-    EXPECT_EQ(rIteratorString, sutString.begin());
-    EXPECT_EQ(rIteratorConstInt, sutConstInt.begin());
-    EXPECT_EQ(rIteratorConstDouble, sutConstDouble.begin());
-    EXPECT_EQ(rIteratorConstString, sutConstString.begin());
-}
+//     EXPECT_EQ(rIteratorInt, sutInt.begin());
+//     EXPECT_EQ(rIteratorDouble, sutDouble.begin());
+//     EXPECT_EQ(rIteratorString, sutString.begin());
+//     EXPECT_EQ(rIteratorConstInt, sutConstInt.begin());
+//     EXPECT_EQ(rIteratorConstDouble, sutConstDouble.begin());
+//     EXPECT_EQ(rIteratorConstString, sutConstString.begin());
+// }
 
-//=== tests for constexpr const_reverse_iterator crend() const noexcept;
-TEST(ConstReverseEndTests, shouldReturnReverseIteratorType)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
-    Vector<std::string> sutString { "one", "two", "three" };
+// //=== tests for constexpr const_reverse_iterator crend() const noexcept;
+// TEST(ConstReverseEndTests, shouldReturnReverseIteratorType)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
+//     Vector<std::string> sutString { "one", "two", "three" };
 
-    auto rIteratorConstInt = sutInt.crend();
-    auto rIteratorConstDouble = sutDouble.crend();
-    auto rIteratorConstString = sutString.crend();
+//     auto rIteratorConstInt = sutInt.crend();
+//     auto rIteratorConstDouble = sutDouble.crend();
+//     auto rIteratorConstString = sutString.crend();
 
-    EXPECT_THAT(rIteratorConstInt, A<ReverseIterator<const int*>>());
-    EXPECT_THAT(rIteratorConstDouble, A<ReverseIterator<const double*>>());
-    EXPECT_THAT(rIteratorConstString, A<ReverseIterator<const std::string*>>());
-}
+//     EXPECT_THAT(rIteratorConstInt, A<ReverseIterator<const int*>>());
+//     EXPECT_THAT(rIteratorConstDouble, A<ReverseIterator<const double*>>());
+//     EXPECT_THAT(rIteratorConstString, A<ReverseIterator<const std::string*>>());
+// }
 
-TEST(ConstReverseEndTests, shouldPointToAcorrectElement)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
-    Vector<std::string> sutString { "one", "two", "three" };
+// TEST(ConstReverseEndTests, shouldPointToAcorrectElement)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector sutDouble { 10.0, 20.0, 30.0, 40.0, 50.0 };
+//     Vector<std::string> sutString { "one", "two", "three" };
 
-    auto rIteratorConstInt = sutInt.crend();
-    auto rIteratorConstDouble = sutDouble.crend();
-    auto rIteratorConstString = sutString.crend();
+//     auto rIteratorConstInt = sutInt.crend();
+//     auto rIteratorConstDouble = sutDouble.crend();
+//     auto rIteratorConstString = sutString.crend();
 
-    EXPECT_THAT(rIteratorConstInt, sutInt.begin());
-    EXPECT_THAT(rIteratorConstDouble, sutDouble.begin());
-    EXPECT_THAT(rIteratorConstString, sutString.begin());
-}
+//     EXPECT_THAT(rIteratorConstInt, sutInt.begin());
+//     EXPECT_THAT(rIteratorConstDouble, sutDouble.begin());
+//     EXPECT_THAT(rIteratorConstString, sutString.begin());
+// }
 
 //=== tests for [[nodiscard]] constexpr bool empty() const noexcept;
 TEST(EmptyTests, shouldReturnTrueForEmptyVector)
