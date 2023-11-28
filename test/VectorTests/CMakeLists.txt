@@ -13,6 +13,7 @@ add_executable(Vector-MT
                Vector-MT-moveAssignment.cpp
                Vector-MT-pushBack.cpp
                Vector-MT-removingElements.cpp
+               Vector-MT-resize.cpp
                Vector-MT-typeAlias.cpp
               )
 # // TODO: REMOVE

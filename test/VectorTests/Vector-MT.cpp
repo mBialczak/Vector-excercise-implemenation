@@ -3970,123 +3970,123 @@ struct DummyWithDestructionDetection
 //     EXPECT_FALSE(sutString.empty());
 // }
 
-// === tests for constexpr void resize(size_type count);
-TEST(ResizeTakingCountTests, shouldDoNothingIfCurrentSizeEqualsCount)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
-    auto sutIntSizeBefore = sutInt.size();
-    auto sutIntCapacityBefore = sutInt.capacity();
-    auto sutStringSizeBefore = sutString.size();
-    auto sutStringCapacityBefore = sutString.capacity();
+// // === tests for constexpr void resize(size_type count);
+// TEST(ResizeTakingCountTests, shouldDoNothingIfCurrentSizeEqualsCount)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+//     auto sutIntSizeBefore = sutInt.size();
+//     auto sutIntCapacityBefore = sutInt.capacity();
+//     auto sutStringSizeBefore = sutString.size();
+//     auto sutStringCapacityBefore = sutString.capacity();
 
-    sutInt.resize(sutIntSizeBefore);
-    sutString.resize(sutStringSizeBefore);
+//     sutInt.resize(sutIntSizeBefore);
+//     sutString.resize(sutStringSizeBefore);
 
-    EXPECT_EQ(sutIntSizeBefore, sutInt.size());
-    EXPECT_EQ(sutIntCapacityBefore, sutInt.capacity());
-    EXPECT_THAT(sutInt, ElementsAre(1, 2, 3, 4, 5));
-    EXPECT_EQ(sutStringSizeBefore, sutString.size());
-    EXPECT_EQ(sutStringCapacityBefore, sutString.capacity());
-    EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four", "five"));
-}
+//     EXPECT_EQ(sutIntSizeBefore, sutInt.size());
+//     EXPECT_EQ(sutIntCapacityBefore, sutInt.capacity());
+//     EXPECT_THAT(sutInt, ElementsAre(1, 2, 3, 4, 5));
+//     EXPECT_EQ(sutStringSizeBefore, sutString.size());
+//     EXPECT_EQ(sutStringCapacityBefore, sutString.capacity());
+//     EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four", "five"));
+// }
 
-TEST(ResizeTakingCountTests, shouldReduceSizeIfCountLessThanCurrentSizeButNotChangeCapacity)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
-    auto sutIntCapacityBefore = sutInt.capacity();
-    std::size_t intsToKeep { 3 };
-    auto sutStringCapacityBefore = sutString.capacity();
-    std::size_t stringsToKeep { 2 };
+// TEST(ResizeTakingCountTests, shouldReduceSizeIfCountLessThanCurrentSizeButNotChangeCapacity)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+//     auto sutIntCapacityBefore = sutInt.capacity();
+//     std::size_t intsToKeep { 3 };
+//     auto sutStringCapacityBefore = sutString.capacity();
+//     std::size_t stringsToKeep { 2 };
 
-    sutInt.resize(intsToKeep);
-    sutString.resize(stringsToKeep);
+//     sutInt.resize(intsToKeep);
+//     sutString.resize(stringsToKeep);
 
-    EXPECT_EQ(intsToKeep, sutInt.size());
-    EXPECT_EQ(sutIntCapacityBefore, sutInt.capacity());
-    EXPECT_THAT(sutInt, ElementsAre(1, 2, 3));
-    EXPECT_EQ(stringsToKeep, sutString.size());
-    EXPECT_EQ(sutStringCapacityBefore, sutString.capacity());
-    EXPECT_THAT(sutString, ElementsAre("one", "two"));
-}
+//     EXPECT_EQ(intsToKeep, sutInt.size());
+//     EXPECT_EQ(sutIntCapacityBefore, sutInt.capacity());
+//     EXPECT_THAT(sutInt, ElementsAre(1, 2, 3));
+//     EXPECT_EQ(stringsToKeep, sutString.size());
+//     EXPECT_EQ(sutStringCapacityBefore, sutString.capacity());
+//     EXPECT_THAT(sutString, ElementsAre("one", "two"));
+// }
 
-TEST(ResizeTakingCountTests, shouldAppendDefaultValuesIfCountGreaterThanCurrentSize)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
-    std::size_t newSutIntSize { 10 };
-    std::size_t newSutStringSize { 8 };
+// TEST(ResizeTakingCountTests, shouldAppendDefaultValuesIfCountGreaterThanCurrentSize)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+//     std::size_t newSutIntSize { 10 };
+//     std::size_t newSutStringSize { 8 };
 
-    sutInt.resize(newSutIntSize);
-    sutString.resize(newSutStringSize);
+//     sutInt.resize(newSutIntSize);
+//     sutString.resize(newSutStringSize);
 
-    EXPECT_EQ(newSutIntSize, sutInt.size());
-    EXPECT_EQ(newSutIntSize, sutInt.capacity());
-    EXPECT_THAT(sutInt, ElementsAre(1, 2, 3, 4, 5, 0, 0, 0, 0, 0));
-    EXPECT_EQ(newSutStringSize, sutString.size());
-    EXPECT_EQ(newSutStringSize, sutString.capacity());
-    EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four", "five", "", "", ""));
-}
+//     EXPECT_EQ(newSutIntSize, sutInt.size());
+//     EXPECT_EQ(newSutIntSize, sutInt.capacity());
+//     EXPECT_THAT(sutInt, ElementsAre(1, 2, 3, 4, 5, 0, 0, 0, 0, 0));
+//     EXPECT_EQ(newSutStringSize, sutString.size());
+//     EXPECT_EQ(newSutStringSize, sutString.capacity());
+//     EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four", "five", "", "", ""));
+// }
 
-//=== tests for constexpr void resize(size_type count, const value_type& value);
-TEST(ResizeTakingCountAndValueTests, shouldDoNothingIfCurrentSizeEqualsCount)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
-    auto sutIntSizeBefore = sutInt.size();
-    auto sutIntCapacityBefore = sutInt.capacity();
-    auto sutStringSizeBefore = sutString.size();
-    auto sutStringCapacityBefore = sutString.capacity();
+// //=== tests for constexpr void resize(size_type count, const value_type& value);
+// TEST(ResizeTakingCountAndValueTests, shouldDoNothingIfCurrentSizeEqualsCount)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+//     auto sutIntSizeBefore = sutInt.size();
+//     auto sutIntCapacityBefore = sutInt.capacity();
+//     auto sutStringSizeBefore = sutString.size();
+//     auto sutStringCapacityBefore = sutString.capacity();
 
-    sutInt.resize(sutIntSizeBefore, 999);
-    sutString.resize(sutStringSizeBefore, "Yupi!");
+//     sutInt.resize(sutIntSizeBefore, 999);
+//     sutString.resize(sutStringSizeBefore, "Yupi!");
 
-    EXPECT_EQ(sutIntSizeBefore, sutInt.size());
-    EXPECT_EQ(sutIntCapacityBefore, sutInt.capacity());
-    EXPECT_THAT(sutInt, ElementsAre(1, 2, 3, 4, 5));
-    EXPECT_EQ(sutStringSizeBefore, sutString.size());
-    EXPECT_EQ(sutStringCapacityBefore, sutString.capacity());
-    EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four", "five"));
-}
+//     EXPECT_EQ(sutIntSizeBefore, sutInt.size());
+//     EXPECT_EQ(sutIntCapacityBefore, sutInt.capacity());
+//     EXPECT_THAT(sutInt, ElementsAre(1, 2, 3, 4, 5));
+//     EXPECT_EQ(sutStringSizeBefore, sutString.size());
+//     EXPECT_EQ(sutStringCapacityBefore, sutString.capacity());
+//     EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four", "five"));
+// }
 
-TEST(ResizeTakingCountAndValueTests, shouldReduceSizeIfCountLessThanCurrentSizeButNotChangeCapacity)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
-    auto sutIntCapacityBefore = sutInt.capacity();
-    std::size_t intsToKeep { 3 };
-    auto sutStringCapacityBefore = sutString.capacity();
-    std::size_t stringsToKeep { 2 };
+// TEST(ResizeTakingCountAndValueTests, shouldReduceSizeIfCountLessThanCurrentSizeButNotChangeCapacity)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+//     auto sutIntCapacityBefore = sutInt.capacity();
+//     std::size_t intsToKeep { 3 };
+//     auto sutStringCapacityBefore = sutString.capacity();
+//     std::size_t stringsToKeep { 2 };
 
-    sutInt.resize(intsToKeep, 999);
-    sutString.resize(stringsToKeep, "Yupi!");
+//     sutInt.resize(intsToKeep, 999);
+//     sutString.resize(stringsToKeep, "Yupi!");
 
-    EXPECT_EQ(intsToKeep, sutInt.size());
-    EXPECT_EQ(sutIntCapacityBefore, sutInt.capacity());
-    EXPECT_THAT(sutInt, ElementsAre(1, 2, 3));
-    EXPECT_EQ(stringsToKeep, sutString.size());
-    EXPECT_EQ(sutStringCapacityBefore, sutString.capacity());
-    EXPECT_THAT(sutString, ElementsAre("one", "two"));
-}
+//     EXPECT_EQ(intsToKeep, sutInt.size());
+//     EXPECT_EQ(sutIntCapacityBefore, sutInt.capacity());
+//     EXPECT_THAT(sutInt, ElementsAre(1, 2, 3));
+//     EXPECT_EQ(stringsToKeep, sutString.size());
+//     EXPECT_EQ(sutStringCapacityBefore, sutString.capacity());
+//     EXPECT_THAT(sutString, ElementsAre("one", "two"));
+// }
 
-TEST(ResizeTakingCountAndValueTests, shouldAppendGivenValueIfCountGreaterThanCurrentSize)
-{
-    Vector sutInt { 1, 2, 3, 4, 5 };
-    Vector<std::string> sutString { "one", "two", "three", "four", "five" };
-    std::size_t newSutIntSize { 10 };
-    std::size_t newSutStringSize { 8 };
+// TEST(ResizeTakingCountAndValueTests, shouldAppendGivenValueIfCountGreaterThanCurrentSize)
+// {
+//     Vector sutInt { 1, 2, 3, 4, 5 };
+//     Vector<std::string> sutString { "one", "two", "three", "four", "five" };
+//     std::size_t newSutIntSize { 10 };
+//     std::size_t newSutStringSize { 8 };
 
-    sutInt.resize(newSutIntSize, 999);
-    sutString.resize(newSutStringSize, "Yupi!");
+//     sutInt.resize(newSutIntSize, 999);
+//     sutString.resize(newSutStringSize, "Yupi!");
 
-    EXPECT_EQ(newSutIntSize, sutInt.size());
-    EXPECT_EQ(newSutIntSize, sutInt.capacity());
-    EXPECT_THAT(sutInt, ElementsAre(1, 2, 3, 4, 5, 999, 999, 999, 999, 999));
-    EXPECT_EQ(newSutStringSize, sutString.size());
-    EXPECT_EQ(newSutStringSize, sutString.capacity());
-    EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four", "five", "Yupi!", "Yupi!", "Yupi!"));
-}
+//     EXPECT_EQ(newSutIntSize, sutInt.size());
+//     EXPECT_EQ(newSutIntSize, sutInt.capacity());
+//     EXPECT_THAT(sutInt, ElementsAre(1, 2, 3, 4, 5, 999, 999, 999, 999, 999));
+//     EXPECT_EQ(newSutStringSize, sutString.size());
+//     EXPECT_EQ(newSutStringSize, sutString.capacity());
+//     EXPECT_THAT(sutString, ElementsAre("one", "two", "three", "four", "five", "Yupi!", "Yupi!", "Yupi!"));
+// }
 
 //=== tests for  constexpr void swap( vector& other ) noexcept;
 TEST(SwapTests, shouldExchangeContentsOfTwoVectors)
