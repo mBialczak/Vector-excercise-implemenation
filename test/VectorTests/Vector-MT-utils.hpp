@@ -1,22 +1,16 @@
 #pragma once
-// TODO: VERIFY
-//  #include "DefaultAllocator.hpp"
+
 #include "Vector.hpp"
-// TODO: VERIFY
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace my::test {
-// TODO: VERIFY which needed
+
 using testing::A;
 using testing::An;
-// TODO: REMOVE
-// using testing::NiceMock;
-// TODO: VERIFY
-// using testing::_;
 using testing::AnyNumber;
 using testing::ElementsAre;
-using testing::Return;
 
 template <typename Type>
 struct AllocatorCallDetectorMock
@@ -33,7 +27,6 @@ struct CustomTestingAllocator
 {
     using size_type = std::size_t;
 
-    // TODO: VERIFY
     ~CustomTestingAllocator()
     {
         callDetectionHelper_ = nullptr;
@@ -72,15 +65,15 @@ struct CustomTestingAllocator
             callDetectionHelper_->detectDestroyCall(ptr);
         }
     }
-    // TODO: VERIFY
+
     void setCallDetectionHelper(AllocatorCallDetectorMock<Type>* detectionHelper)
     {
         callDetectionHelper_ = detectionHelper;
     }
-    // TODO: VERIFY
+
     static AllocatorCallDetectorMock<Type>* callDetectionHelper_;
 };
-// TODO: VERIFY if needed
+
 template <typename Type>
 AllocatorCallDetectorMock<Type>* CustomTestingAllocator<Type>::callDetectionHelper_ { nullptr };
 
@@ -89,7 +82,6 @@ struct Size64Type
     char a, b, c, d;
 };
 
-// TODO: VERIFY if not struct
 class SutExamplesAndHelpers : public testing::Test
 {
   protected:
@@ -98,7 +90,7 @@ class SutExamplesAndHelpers : public testing::Test
 
     CustomTestingAllocator<int> customIntTestingAllocator;
     CustomTestingAllocator<std::string> customStringTestingAllocator;
-    // TODO: VERIFY if needed
+
     Vector<int> emptySutInt;
     Vector<double> emptySutDouble;
     Vector<std::string> emptySutString;

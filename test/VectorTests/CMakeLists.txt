@@ -2,6 +2,7 @@ add_executable(Vector-MT
                Vector-MT-assignFunction.cpp
                Vector-MT-reverseAlike.cpp
                Vector-MT-capacityChanging.cpp
+               Vector-MT-comparison.cpp
                Vector-MT-construction.cpp
                Vector-MT-copyAssignment.cpp
                Vector-MT-destructor.cpp
@@ -14,10 +15,9 @@ add_executable(Vector-MT
                Vector-MT-pushBack.cpp
                Vector-MT-removingElements.cpp
                Vector-MT-resize.cpp
+               Vector-MT-swap.cpp
                Vector-MT-typeAlias.cpp
               )
-# // TODO: REMOVE
-            #    Vector-MT.cpp)
 
 target_include_directories(Vector-MT
                            PRIVATE

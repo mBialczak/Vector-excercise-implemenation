@@ -20,11 +20,8 @@ class InsertTakingInitializerList : public SutExamplesAndHelpers
 //=== tests for constexpr iterator insert(const_iterator pos, const T& value)
 TEST_F(InsertTakingValueTests, shouldWorkForEmptyVector)
 {
-    // TODO: REMOVE
-    // Vector<int> sutInt;
     auto sutIntSizeBefore = emptySutInt.size();
     int intValueToInsert = 100;
-    // Vector<std::string> sutString;
     auto sutStringSizeBefore = emptySutString.size();
     std::string stringValueToInsert = "Inserted to empty vector";
 
@@ -518,9 +515,7 @@ TEST_F(InsertTakingCountAndValue, shouldWorkForEmptyVector)
     EXPECT_EQ(*emptySutString.begin(), stringValueToInsert);
 }
 
-//=== tests for
-// template <class InputIt>
-// constexpr iterator insert(const_iterator pos, InputIt first, InputIt last);
+//=== tests for constexpr iterator insert(const_iterator pos, InputIt first, InputIt last);
 TEST_F(InsertTakingPairOfIterators, shouldIncreaseSizeBySizeOfPassedRangeAfterInsertingElements)
 {
     auto sutIntSizeBefore = sutOf5ints.size();
