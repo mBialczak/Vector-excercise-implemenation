@@ -25,7 +25,9 @@ set(EXECUTABLE_OUTPUT_PATH
 add_subdirectory(DefaultAllocatorTests)
 add_subdirectory(ReverseIteratorTests)
 add_subdirectory(VectorTests)
+add_subdirectory(removeTests)
 
 add_test(NAME DefaultAllocator-UT COMMAND DefaultAllocator-UT)
 add_test(NAME ReverseIterator-UT COMMAND ReverseIterator-UT)
 add_test(NAME VectorTests-MT COMMAND Vector-MT)
+add_test(NAME removeFunction-UT COMMAND removeFunction-UT)
