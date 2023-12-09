@@ -5,6 +5,8 @@
 
 #include <limits>
 #include <memory>
+// TODO: VERIFY
+// #include <bitset>
 namespace my {
 
 template <typename Type, typename Allocator = DefaultAllocator<Type>>
@@ -1167,3 +1169,5 @@ constexpr void Vector<Type, Allocator>::shiftElements(iterator shiftStartPositio
 }
 
 }   // namespace my
+// TODO: VERIFY
+#include "VectorBool.hpp"

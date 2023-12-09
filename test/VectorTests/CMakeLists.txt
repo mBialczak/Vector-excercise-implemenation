@@ -24,8 +24,8 @@ target_include_directories(Vector-MT
                            ${TESTED_LIBRARY_DIR})
 
  target_link_libraries(Vector-MT
-                      gtest_main
-                      gmock_main)
+                       gtest_main
+                       gmock_main)
 
 target_compile_options(Vector-MT
                        PRIVATE
