@@ -6,7 +6,6 @@ target_include_directories(removeFunction-UT
                            PRIVATE
                            ${TESTED_LIBRARY_DIR})
 
-                        #    //TODO: VERIFY
  target_link_libraries(removeFunction-UT
                        gtest_main
                        gmock_main)
