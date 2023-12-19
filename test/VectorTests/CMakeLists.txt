@@ -23,7 +23,7 @@ target_include_directories(Vector-MT
                            PRIVATE
                            ${TESTED_LIBRARY_DIR})
 
- target_link_libraries(Vector-MT
+target_link_libraries(Vector-MT
                        gtest_main
                        gmock_main)
 

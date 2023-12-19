@@ -15,42 +15,38 @@ TEST(VectorBoolTypeAliasTest, valueTypeAliasShouldBeDefinedAsBool)
 
     EXPECT_THAT(valueType, A<bool>());
 }
+// TODO: VERIFY if needed
+// TEST(VectorTypeAliasTest, allocatorTypeAliasShouldBeDefinedAndPointToSpecializedAllocator)
+// {
+//     Vector<bool>::allocator_type allocator;
 
-TEST(VectorTypeAliasTest, allocatorTypeAliasShouldBeDefinedAndPointToDefaultAllocatorIfNonePassed)
+//     EXPECT_THAT(allocator, A<DefaultAllocator<std::bitset<CHUNK_SIZE>>>());
+// }
+// TODO: VERIFY if something  better posilbe
+//  TEST(VectorTypeAliasTest, allocatorTypeAliasShouldBeDefinedAndPointToConcreteAllocator)
+//  {
+//      Vector<bool>::allocator_type allocatorForBool;
+
+//     EXPECT_THAT(allocatorForBool, A<CustomTestingAllocator<int>>());
+// }
+
+TEST(VectorTypeAliasTest, sizeTypeAliasShouldBeDefinedAndPointToStdSizeType)
 {
-    Vector<bool>::allocator_type allocator;
+    Vector<int>::size_type sizeTypeForInt;
+    Vector<double>::size_type sizeTypeForDouble;
+    Vector<std::string>::size_type sizeTypeForString;
 
-    EXPECT_THAT(allocator, A<DefaultAllocator<std::bitset<CHUNK_SIZE>>>());
+    EXPECT_THAT(sizeTypeForInt, A<std::size_t>());
+    EXPECT_THAT(sizeTypeForDouble, A<std::size_t>());
+    EXPECT_THAT(sizeTypeForString, A<std::size_t>());
 }
-
-// TEST(VectorTypeAliasTest, allocatorTypeAliasShouldBeDefinedAndPointToExplicitlyPassedAllocator)
-// {
-//     Vector<int, CustomTestingAllocator<int>>::allocator_type allocatorForInt;
-//     Vector<double, CustomTestingAllocator<double>>::allocator_type allocatorForDouble;
-//     Vector<std::string, CustomTestingAllocator<std::string>>::allocator_type allocatorForString;
-
-//     EXPECT_THAT(allocatorForInt, A<CustomTestingAllocator<int>>());
-//     EXPECT_THAT(allocatorForDouble, A<CustomTestingAllocator<double>>());
-//     EXPECT_THAT(allocatorForString, A<CustomTestingAllocator<std::string>>());
-// }
-
-// TEST(VectorTypeAliasTest, sizeTypeAliasShouldBeDefinedAndPointToStdSizeType)
-// {
-//     Vector<int>::size_type sizeTypeForInt;
-//     Vector<double>::size_type sizeTypeForDouble;
-//     Vector<std::string>::size_type sizeTypeForString;
-
-//     EXPECT_THAT(sizeTypeForInt, A<std::size_t>());
-//     EXPECT_THAT(sizeTypeForDouble, A<std::size_t>());
-//     EXPECT_THAT(sizeTypeForString, A<std::size_t>());
-// }
-
-// TEST(VectorTypeAliasTest, iteratorTypeAliasShouldBeDefinedAndMeetExpectations)
-// {
-//     EXPECT_TRUE(std::random_access_iterator<Vector<int>::iterator>);
-//     EXPECT_TRUE(std::contiguous_iterator<Vector<int>::iterator>);
-// }
-
+// TODO: VERIFY
+//  TEST(VectorTypeAliasTest, iteratorTypeAliasShouldBeDefinedAndMeetExpectations)
+//  {
+//      EXPECT_TRUE(std::random_access_iterator<Vector<int>::iterator>);
+//      EXPECT_TRUE(std::contiguous_iterator<Vector<int>::iterator>);
+//  }
+// TODO: VERIFY
 // TEST(VectorTypeAliasTest, constIteratorTypeAliasShouldBeDefinedAndMeetExpectations)
 // {
 //     Vector<int> sut(10, 5);
@@ -60,14 +56,14 @@ TEST(VectorTypeAliasTest, allocatorTypeAliasShouldBeDefinedAndPointToDefaultAllo
 //     EXPECT_TRUE(std::contiguous_iterator<Vector<int>::const_iterator>);
 //     EXPECT_TRUE(( std::is_same_v<decltype(constBeginIterator), const int*> ) );
 // }
-
+// TODO: VERIFY
 // TEST(VectorTypeAliasTest, reverseIteratorTypeAliasShouldBeDefinedAndMeetExpectations)
 // {
 //     Vector<int> sut(10, 5);
 
 //     EXPECT_THAT(Vector<int>::reverse_iterator { sut.rbegin() }, An<ReverseIterator<int*>>());
 // }
-
+// TODO: VERIFY
 // TEST(VectorTypeAliasTest, constReverseIteratorTypeAliasShouldBeDefinedAndMeetExpectations)
 // {
 //     Vector<int> sut(10, 5);
@@ -75,10 +71,10 @@ TEST(VectorTypeAliasTest, allocatorTypeAliasShouldBeDefinedAndPointToDefaultAllo
 //     EXPECT_THAT(Vector<int>::const_reverse_iterator { sut.crbegin() }, An<ReverseIterator<const int*>>());
 // }
 
-// TEST(VectorTypeAliasTest, referenceAndConstReferenceAliasesShouldBeDefinedAndMeetExpectations)
-// {
-//     EXPECT_TRUE(( std::is_same_v<Vector<int>::reference, int&> ) );
-//     EXPECT_TRUE(( std::is_same_v<Vector<int>::const_reference, const int&> ) );
-// }
+TEST(VectorTypeAliasTest, referenceAndConstReferenceAliasesShouldBeDefinedAndMeetExpectations)
+{
+    EXPECT_TRUE(( std::is_same_v<Vector<bool>::reference, Vector<bool>::ChunkProxy<CHUNK_SIZE>> ) );
+    EXPECT_TRUE(( std::is_same_v<Vector<bool>::const_reference, bool> ) );
+}
 
 }   // namespace my::test

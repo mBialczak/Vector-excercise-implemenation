@@ -18,8 +18,8 @@ class ChunkProxyTests : public testing::Test
   protected:
     std::bitset<8> nullBitset_;
     std::bitset<8> specificBitset_;
-    ChunkProxy<8> proxyForNullBitset_;
-    ChunkProxy<8> proxyForSpecificBitset_;
+    Vector<bool>::ChunkProxy<8> proxyForNullBitset_;
+    Vector<bool>::ChunkProxy<8> proxyForSpecificBitset_;
 };
 
 TEST_F(ChunkProxyTests, ShouldAllowToReadSpecificBitFromHandledBitset)

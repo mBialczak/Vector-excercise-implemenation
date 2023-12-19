@@ -3,7 +3,7 @@ add_executable(VectorBool-MT
             #    VectorBool-MT-reverseAlike.cpp
             #    VectorBool-MT-capacityChanging.cpp
             #    VectorBool-MT-comparison.cpp
-            #    VectorBool-MT-construction.cpp
+               VectorBool-MT-construction.cpp
             #    VectorBool-MT-copyAssignment.cpp
             #    VectorBool-MT-destructor.cpp
             #    VectorBool-MT-elementAccess.cpp
@@ -22,8 +22,8 @@ add_executable(VectorBool-MT
 target_include_directories(VectorBool-MT
                            PRIVATE
                            ${TESTED_LIBRARY_DIR})
-
- target_link_libraries(VectorBool-MT
+# //TODO: VERIFY
+target_link_libraries(VectorBool-MT
                        gtest_main
                        gmock_main)
 
