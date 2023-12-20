@@ -9,6 +9,9 @@
 #include <bitset>
 #include <limits>
 #include <memory>
+// TODO: REMOVE
+#include <iostream>
+#include <string>
 namespace my {
 // TODO: VERIFY were to keep
 constexpr std::size_t CHUNK_SIZE { 64 };
@@ -20,8 +23,10 @@ constexpr std::size_t CHUNK_SIZE { 64 };
 // Vector(bool, Allocator) -> Vector<bool, DefaultAllocator<std::bitset<CHUNK_SIZE>>>;
 
 // template <typename Allocator = DefaultAllocator<std::bitset<CHUNK_SIZE>>>
-template <typename Allocator>
-class Vector<bool, Allocator>
+// template <typename Allocator>
+// class Vector<bool, Allocator>
+template <>
+class Vector<bool>
 {
   public:
     template <std::size_t SizeOfChunk = CHUNK_SIZE>
@@ -31,20 +36,28 @@ class Vector<bool, Allocator>
     // TODO: VERIFY maybe can be used if new is used instead
     // using allocator_type = Allocator;
     // using allocator_type = DefaultAllocator<std::bitset<CHUNK_SIZE>>;
-    using allocator_type = Allocator;
+    // using allocator_type = Allocator;
     using size_type = std::size_t;
     using reference = ChunkProxy<CHUNK_SIZE>;
     using const_reference = bool;
     // TODO: VERIFY rest
     //      using difference_type = std::ptrdiff_t;
-    //      using iterator = Type*;
-    //      using const_iterator = const Type*;
+    // using iterator = ChunkProxy<CHUNK_SIZE>*;
+    // using iterator = ChunkProxy<CHUNK_SIZE>*;
+    using iterator = std::bitset<CHUNK_SIZE>*;
+    using const_iterator = const ChunkProxy<CHUNK_SIZE>*;
     //      using reverse_iterator = ReverseIterator<Type*>;
     //      using const_reverse_iterator = ReverseIterator<const Type*>;
 
-    // constexpr Vector() noexcept(noexcept(Allocator()));
+    // TODO: VERIFY replacement defined?
+    //  constexpr Vector() noexcept(noexcept(Allocator()));
+    constexpr Vector() noexcept;
+    // TODO: REMOVE
     //     constexpr explicit Vector(const Allocator& alloc) noexcept;
+    // TODO: VERIFY replacement
     //     constexpr Vector(size_type count, const Type& value, const Allocator& alloc = Allocator());
+    constexpr Vector(size_type count, bool value);
+
     //     constexpr explicit Vector(size_type count, const Allocator& alloc = Allocator());
 
     //     template <typename InputIt>
@@ -63,7 +76,7 @@ class Vector<bool, Allocator>
     //     template <typename OtherAllocator>
     //     constexpr Vector(Vector<Type, OtherAllocator>&& other, const Allocator& alloc);
 
-    //     constexpr ~Vector();
+    constexpr ~Vector();
 
     //     constexpr Vector& operator=(const Vector& other);
     //     constexpr Vector& operator=(Vector&& other) noexcept;
@@ -94,12 +107,12 @@ class Vector<bool, Allocator>
     //     constexpr Type* data() noexcept;
     //     constexpr const Type* data() const noexcept;
 
-    //     constexpr iterator begin() noexcept;
+    constexpr iterator begin() noexcept;
     //     constexpr const_iterator begin() const noexcept;
     //     constexpr const_iterator cbegin() const noexcept;
 
-    //     constexpr iterator end() noexcept;
-    //     constexpr const_iterator end() const noexcept;
+    constexpr iterator end() noexcept;
+    // constexpr const_iterator end() const noexcept;
     //     constexpr const_iterator cend() const noexcept;
 
     //     constexpr reverse_iterator rbegin() noexcept;
@@ -112,13 +125,13 @@ class Vector<bool, Allocator>
 
     //     [[nodiscard]] constexpr bool empty() const noexcept;
 
-    //     constexpr size_type size() const noexcept;
+    constexpr size_type size() const noexcept;
 
     //     constexpr size_type max_size() const noexcept;
 
     //     constexpr void reserve(size_type new_cap);
 
-    //     constexpr size_type capacity() const noexcept;
+    constexpr size_type capacity() const noexcept;
 
     //     constexpr void shrink_to_fit();
 
@@ -189,8 +202,11 @@ class Vector<bool, Allocator>
     //     Type* begin_;
     //     Type* end_;
     //     Type* capacity_;
+    // TODO: VERIFY
+    // std::unique_ptr<ChunkProxy<CHUNK_SIZE>> chunks_;
+    std::bitset<CHUNK_SIZE>* chunks_;
     size_type currentSize_;
-    std::unique_ptr<ChunkProxy<CHUNK_SIZE>> values_;
+    size_type numberOfChunks_;
 };
 // TODO: REMOVE
 // template <bool, typename Allocator>
@@ -198,9 +214,12 @@ class Vector<bool, Allocator>
 // class Vector<bool, Allocator>::ChunkProxy
 // class Vector::ChunkProxy
 // template <std::size_t SizeOfChunk = CHUNK_SIZE>
-template <typename Allocator>
+// TODO: VERIFY
+// template <typename Allocator>
 template <std::size_t SizeOfChunk>
-class Vector<bool, Allocator>::ChunkProxy
+// TODO: VERIFY
+//  class Vector<bool, Allocator>::ChunkProxy
+class Vector<bool>::ChunkProxy
 {
   public:
     ChunkProxy(std::bitset<SizeOfChunk>& chunk)
@@ -235,20 +254,29 @@ class Vector<bool, Allocator>::ChunkProxy
 //     return std::lexicographical_compare_three_way(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 // }
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::Vector() noexcept(noexcept(Allocator()))
-//     : begin_(nullptr)
-//     , end_(nullptr)
-//     , capacity_(nullptr)
-// {
-// }
+// TODO: VERIFY
+//  template <typename Type, typename Allocator>
+//  constexpr Vector<Type, Allocator>::Vector() noexcept(noexcept(Allocator()))
+//      : begin_(nullptr)
+//      , end_(nullptr)
+//      , capacity_(nullptr)
+//  {
+//  }
 
+// template <>
+constexpr Vector<bool>::Vector() noexcept
+    : chunks_(nullptr)
+    , currentSize_(0)
+    , numberOfChunks_(0)
+{
+}
+// TODO: REMOVE
 // template <typename Type, typename Allocator>
 // constexpr Vector<Type, Allocator>::Vector([[maybe_unused]] const Allocator& alloc) noexcept
 //     : Vector()
 // {
 // }
-
+// TODO: REMOVE replacement
 // template <typename Type, typename Allocator>
 // constexpr Vector<Type, Allocator>::Vector(size_type count, const Type& value, const Allocator& alloc)
 //     : begin_(alloc.allocate(count))
@@ -259,6 +287,32 @@ class Vector<bool, Allocator>::ChunkProxy
 //         alloc.construct(it, value);
 //     }
 // }
+constexpr Vector<bool>::Vector(size_type count, bool value)
+    : currentSize_(count)
+{
+
+    // TODO: REMOVE
+    std::cout << "CONSTRUCTOR taking (COUNT,VALUE)\n";
+
+    auto fullChunksNumber = count / CHUNK_SIZE;
+    auto reminder = count % CHUNK_SIZE;
+
+    numberOfChunks_ = reminder ? fullChunksNumber + 1
+                               : fullChunksNumber;
+    chunks_ = new std::bitset<CHUNK_SIZE>[numberOfChunks_] {};
+
+    if (value) {
+        for (size_type i = 0; i < fullChunksNumber; ++i) {
+            chunks_[i].set();
+        }
+        if (reminder) {
+            auto& lastChunk = chunks_[numberOfChunks_ - 1];
+            for (size_type i = 0; i < reminder; ++i) {
+                lastChunk.set(i, true);
+            }
+        }
+    }
+}
 
 // template <typename Type, typename Allocator>
 // constexpr Vector<Type, Allocator>::Vector(size_type count, const Allocator& alloc)
@@ -352,16 +406,13 @@ class Vector<bool, Allocator>::ChunkProxy
 //     other.capacity_ = nullptr;
 // }
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::~Vector()
-// {
-//     if (begin_ == nullptr) {
-//         return;
-//     }
-
-//     destroyObjects(begin_, end_);
-//     Allocator::deallocate(begin_);
-// }
+constexpr Vector<bool>::~Vector()
+{
+    // TODO: VERIFY
+    if (chunks_) {
+        delete[] chunks_;
+    }
+}
 
 // template <typename Type, typename Allocator>
 // constexpr Vector<Type, Allocator>& Vector<Type, Allocator>::operator=(const Vector& other)
@@ -555,11 +606,10 @@ class Vector<bool, Allocator>::ChunkProxy
 //     return !size();
 // }
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::size_type Vector<Type, Allocator>::size() const noexcept
-// {
-//     return end_ - begin_;
-// }
+constexpr Vector<bool>::size_type Vector<bool>::size() const noexcept
+{
+    return currentSize_;
+}
 
 // template <typename Type, typename Allocator>
 // constexpr Vector<Type, Allocator>::size_type Vector<Type, Allocator>::max_size() const noexcept
@@ -976,19 +1026,15 @@ class Vector<bool, Allocator>::ChunkProxy
 //     std::swap(capacity_, other.capacity_);
 // }
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::size_type
-//     Vector<Type, Allocator>::capacity() const noexcept
-// {
-//     return std::distance(begin_, capacity_);
-// }
+constexpr Vector<bool>::size_type Vector<bool>::capacity() const noexcept
+{
+    return numberOfChunks_ * CHUNK_SIZE;
+}
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::iterator
-//     Vector<Type, Allocator>::begin() noexcept
-// {
-//     return begin_;
-// }
+constexpr Vector<bool>::iterator Vector<bool>::begin() noexcept
+{
+    return chunks_;
+}
 
 // template <typename Type, typename Allocator>
 // constexpr Vector<Type, Allocator>::const_iterator
@@ -1004,12 +1050,10 @@ class Vector<bool, Allocator>::ChunkProxy
 //     return begin_;
 // }
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::iterator
-//     Vector<Type, Allocator>::end() noexcept
-// {
-//     return end_;
-// }
+constexpr Vector<bool>::iterator Vector<bool>::end() noexcept
+{
+    return std::next(chunks_, numberOfChunks_);
+}
 
 // template <typename Type, typename Allocator>
 // constexpr Vector<Type, Allocator>::const_iterator
@@ -1219,5 +1263,12 @@ class Vector<bool, Allocator>::ChunkProxy
 //         }
 //     }
 // }
+// TODO: VERIFY
+// namespace helpers {
+//     constexpr std::size_t countNeededChunks(std::size_t neededElements, const std::size_t chunkSize = CHUNK_SIZE)
+//     {
+
+//     }
+// }   // namespace helpers
 
 }   // namespace my

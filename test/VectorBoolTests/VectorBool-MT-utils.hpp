@@ -86,15 +86,18 @@ namespace my::test {
 class BoolSutExamplesAndHelpers : public testing::Test
 {
   protected:
-    // AllocatorCallDetectorMock<int> intAllocatorCallDetector;
-    // AllocatorCallDetectorMock<std::string> stringAllocatorCallDetector;
-
-    // CustomTestingAllocator<int> customIntTestingAllocator;
-    // CustomTestingAllocator<std::string> customStringTestingAllocator;
+    static constexpr std::size_t countLessThenChunkSize { CHUNK_SIZE - 60 };
+    static constexpr std::size_t countEqualToChunkSize { CHUNK_SIZE };
+    static constexpr std::size_t countGreaterThanOneChunk { CHUNK_SIZE + 4 };
+    static constexpr std::size_t countEqualToMultipleSizeOfChunk { CHUNK_SIZE * 5 };
+    static constexpr std::size_t countGreaterThanFiveChunks { CHUNK_SIZE * 5 + 5 };
 
     Vector<bool> emptySutBool;
-    // Vector<double> emptySutDouble;
-    // Vector<std::string> emptySutString;
+    // Vector sutWithOneNotFullChunkFalse { countLessThenChunkSize, false };
+    // Vector sutWithOneFullChunkTrue { countEqualToChunkSize, true };
+    // Vector sutWithSizeGreaterThanOneChunkFalse { countGreaterThanOneChunk, false };
+    // Vector sutWithSizeEqualToMultipleSizeOfChunkFalse { countEqualToMultipleSizeOfChunk, false };
+    // Vector sutWithSizeGreaterThanACoupleOfChunkTrue { countGreaterThanFiveChunks, true };
 
     // Vector<int> sutOf3ints { 1, 2, 3 };
     // Vector<int> sutOf5ints { 5, 10, 15, 20, 25 };

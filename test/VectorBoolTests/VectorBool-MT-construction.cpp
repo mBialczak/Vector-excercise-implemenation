@@ -1,79 +1,46 @@
 #include "VectorBool-MT-utils.hpp"
 
 namespace my::test {
-// TODO: VERIFY
-//  class ConstructorTakingOnlyAllocatorTests : public SutExamplesAndHelpers
-//  { };
 
-// class ConstructorTakingCountValueAndAllocatorTests : public SutExamplesAndHelpers
-// { };
-
-// class ConstructorTakingInputIteratorsTests : public SutExamplesAndHelpers
-// { };
-
-// class ConstructorTakingInitializerListTests : public SutExamplesAndHelpers
-// { };
-
-// class CopyConstructorWithAllocatorArgumentTests : public SutExamplesAndHelpers
-// { };
-
-// class MoveConstructorWithAllocatorArgumentTests : public SutExamplesAndHelpers
-// { };
-
-// class ConstructorTakingCountAndAllocatorTests : public SutExamplesAndHelpers
-// { };
 // TODO: VERIFY
 class VectorMemorySizeTest : public BoolSutExamplesAndHelpers
 { };
 
-// class CopyConstructorTests : public SutExamplesAndHelpers
-// { };
+class ConstructorTakingCountAndValueTests : public BoolSutExamplesAndHelpers
+{ };
 
-// class MoveConstructorTests : public SutExamplesAndHelpers
-// { };
-
+// TODO: VERIFY maybe test_f not needed
 TEST_F(VectorMemorySizeTest, sizeOfVectorBoolShouldBeEqualTo24)
 {
     // TODO: VERIFY
-    std::size_t requiredSize { 16 };
+    std::size_t requiredSize { 24 };
 
     EXPECT_EQ(sizeof(emptySutBool), requiredSize);
 }
 
-// // ============= DefaultConstructorTests =====================
-// TEST(DefaultConstructorTests, sizeOfDefaultConstructedVectorShouldBeZero)
-// {
-//     Vector<int> sut;
-//     Vector<double> sut2;
-//     Vector<std::string> sut3;
+// ============= DefaultConstructorTests =====================
+TEST(DefaultConstructorTests, sizeOfDefaultConstructedVectorShouldBeZero)
+{
+    Vector<bool> sut;
 
-//     EXPECT_EQ(sut.size(), 0);
-//     EXPECT_EQ(sut2.size(), 0);
-//     EXPECT_EQ(sut3.size(), 0);
-// }
+    EXPECT_EQ(sut.size(), 0);
+}
 
-// TEST(DefaultConstructorTests, capacityOfDefaultConstructedVectorShouldBeZero)
-// {
-//     Vector<int> sut;
-//     Vector<double> sut2;
-//     Vector<std::string> sut3;
+TEST(DefaultConstructorTests, capacityOfDefaultConstructedVectorShouldBeZero)
+{
+    Vector<bool> sut;
 
-//     EXPECT_EQ(sut.capacity(), 0);
-//     EXPECT_EQ(sut2.capacity(), 0);
-//     EXPECT_EQ(sut3.capacity(), 0);
-// }
+    EXPECT_EQ(sut.capacity(), 0);
+}
 
-// TEST(DefaultConstructorTests, iteratorsReturnedByBeginAndEndShouldBeEqual)
-// {
-//     Vector<int> sut;
-//     Vector<double> sut2;
-//     Vector<std::string> sut3;
+TEST(DefaultConstructorTests, iteratorsReturnedByBeginAndEndShouldBeEqual)
+{
+    Vector<bool> sut;
 
-//     EXPECT_EQ(sut.begin(), sut.end());
-//     EXPECT_EQ(sut2.begin(), sut2.end());
-//     EXPECT_EQ(sut3.begin(), sut3.end());
-// }
+    EXPECT_EQ(sut.begin(), sut.end());
+}
 
+// TODO: REMOVE ?
 // //  ========== tests for: constexpr explicit Vector(const Allocator& alloc) noexcept; ==================
 // TEST_F(ConstructorTakingOnlyAllocatorTests, passedAllocatorShouldBeRemembered)
 // {
@@ -83,7 +50,7 @@ TEST_F(VectorMemorySizeTest, sizeOfVectorBoolShouldBeEqualTo24)
 //     EXPECT_THAT(sutInt.get_allocator(), A<CustomTestingAllocator<int>>());
 //     EXPECT_THAT(sutString.get_allocator(), A<CustomTestingAllocator<std::string>>());
 // }
-
+// TODO: REMOVE ?
 // TEST_F(ConstructorTakingOnlyAllocatorTests, sizeAndCapacityShouldBeZero)
 // {
 //     Vector<int, CustomTestingAllocator<int>> sut { customIntTestingAllocator };
@@ -92,7 +59,7 @@ TEST_F(VectorMemorySizeTest, sizeOfVectorBoolShouldBeEqualTo24)
 //     EXPECT_EQ(sut.size(), 0);
 //     EXPECT_EQ(sut2.size(), 0);
 // }
-
+// TODO: REMOVE ?
 // TEST_F(ConstructorTakingOnlyAllocatorTests, iteratorsReturnedByBeginAndEndShouldBeEqual)
 // {
 //     Vector<int, CustomTestingAllocator<int>> sut { customIntTestingAllocator };
@@ -102,7 +69,39 @@ TEST_F(VectorMemorySizeTest, sizeOfVectorBoolShouldBeEqualTo24)
 //     EXPECT_EQ(sut2.begin(), sut2.end());
 // }
 
-// //  ===== tests for:  constexpr Vector(size_type count, const T& value,const Allocator& alloc = Allocator())
+// TODO: VERIFY counter part is used
+//  //  ===== tests for:  constexpr Vector(size_type count, const T& value,const Allocator& alloc = Allocator())
+// TODO: VERIFY WIP
+//=== tests for constexpr Vector(size_type count, bool value)
+TEST_F(ConstructorTakingCountAndValueTests, sizeShouldBeEqualToCount)
+{
+    Vector sutWithOneNotFullChunkFalse { countLessThenChunkSize, false };
+    Vector sutWithOneFullChunkTrue { countEqualToChunkSize, true };
+    Vector sutWithSizeGreaterThanOneChunkFalse { countGreaterThanOneChunk, false };
+    Vector sutWithSizeEqualToMultipleSizeOfChunkFalse { countEqualToMultipleSizeOfChunk, false };
+    Vector sutWithSizeGreaterThanFiveChunksTrue { countGreaterThanFiveChunks, true };
+
+    EXPECT_EQ(sutWithOneNotFullChunkFalse.size(), countLessThenChunkSize);
+    EXPECT_EQ(sutWithOneFullChunkTrue.size(), countEqualToChunkSize);
+    EXPECT_EQ(sutWithSizeGreaterThanOneChunkFalse.size(), countGreaterThanOneChunk);
+    EXPECT_EQ(sutWithSizeEqualToMultipleSizeOfChunkFalse.size(), countEqualToMultipleSizeOfChunk);
+    EXPECT_EQ(sutWithSizeGreaterThanFiveChunksTrue.size(), countGreaterThanFiveChunks);
+}
+
+TEST_F(ConstructorTakingCountAndValueTests, capacityShouldBeEqualToNumberOfChunksMultipliedByChunkSize)
+{
+    Vector sutWithOneNotFullChunkFalse { countLessThenChunkSize, false };
+    Vector sutWithOneFullChunkTrue { countEqualToChunkSize, true };
+    Vector sutWithSizeGreaterThanOneChunkFalse { countGreaterThanOneChunk, false };
+    Vector sutWithSizeEqualToMultipleSizeOfChunkFalse { countEqualToMultipleSizeOfChunk, false };
+    Vector sutWithSizeGreaterThanFiveChunksTrue { countGreaterThanFiveChunks, true };
+
+    EXPECT_EQ(sutWithOneNotFullChunkFalse.capacity(), CHUNK_SIZE);
+    EXPECT_EQ(sutWithOneFullChunkTrue.capacity(), CHUNK_SIZE);
+    EXPECT_EQ(sutWithSizeGreaterThanOneChunkFalse.capacity(), 2 * CHUNK_SIZE);
+    EXPECT_EQ(sutWithSizeEqualToMultipleSizeOfChunkFalse.capacity(), countEqualToMultipleSizeOfChunk);
+    EXPECT_EQ(sutWithSizeGreaterThanFiveChunksTrue.capacity(), 6 * CHUNK_SIZE);
+}
 // TEST_F(ConstructorTakingCountValueAndAllocatorTests, sizeShouldBeEqualToCountAndCapacityAfterConstruction)
 // {
 //     const std::size_t sutIntSize { 1 };

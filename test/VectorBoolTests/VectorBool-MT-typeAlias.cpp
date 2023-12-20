@@ -41,21 +41,21 @@ TEST(VectorTypeAliasTest, sizeTypeAliasShouldBeDefinedAndPointToStdSizeType)
     EXPECT_THAT(sizeTypeForString, A<std::size_t>());
 }
 // TODO: VERIFY
-//  TEST(VectorTypeAliasTest, iteratorTypeAliasShouldBeDefinedAndMeetExpectations)
-//  {
-//      EXPECT_TRUE(std::random_access_iterator<Vector<int>::iterator>);
-//      EXPECT_TRUE(std::contiguous_iterator<Vector<int>::iterator>);
-//  }
-// TODO: VERIFY
-// TEST(VectorTypeAliasTest, constIteratorTypeAliasShouldBeDefinedAndMeetExpectations)
-// {
-//     Vector<int> sut(10, 5);
-//     auto constBeginIterator = sut.cbegin();
+TEST(VectorTypeAliasTest, iteratorTypeAliasShouldBeDefinedAndMeetExpectations)
+{
+    EXPECT_TRUE(std::random_access_iterator<Vector<bool>::iterator>);
+    EXPECT_TRUE(std::contiguous_iterator<Vector<bool>::iterator>);
+}
+// TODO : VERIFY
+TEST(VectorTypeAliasTest, constIteratorTypeAliasShouldBeDefinedAndMeetExpectations)
+{
+    // Vector<int> sut(10, 5);
+    // auto constBeginIterator = sut.cbegin();
 
-//     EXPECT_TRUE(std::random_access_iterator<Vector<int>::const_iterator>);
-//     EXPECT_TRUE(std::contiguous_iterator<Vector<int>::const_iterator>);
-//     EXPECT_TRUE(( std::is_same_v<decltype(constBeginIterator), const int*> ) );
-// }
+    EXPECT_TRUE(std::random_access_iterator<Vector<bool>::const_iterator>);
+    EXPECT_TRUE(std::contiguous_iterator<Vector<int>::const_iterator>);
+    // EXPECT_TRUE(( std::is_same_v<decltype(constBeginIterator), const int*> ) );
+}
 // TODO: VERIFY
 // TEST(VectorTypeAliasTest, reverseIteratorTypeAliasShouldBeDefinedAndMeetExpectations)
 // {
