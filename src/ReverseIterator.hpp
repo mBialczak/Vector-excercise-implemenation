@@ -97,7 +97,7 @@ constexpr ReverseIterator<Type*>& ReverseIterator<Type*>::operator-=(difference_
 template <typename Type>
 constexpr Type& ReverseIterator<Type*>::operator[](difference_type n) const
 {
-    return *(elementPointer_ + n);
+    return *(elementPointer_ - n);
 }
 
 template <typename Type>

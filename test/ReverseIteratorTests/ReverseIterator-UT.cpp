@@ -29,7 +29,7 @@ class OperatorPlusEqualShould : public ReverseIteratorShould
 { };
 class OperatorMinusEqualShould : public ReverseIteratorShould
 { };
-class ElementAccessOperatorShould : public ReverseIteratorShould
+class RandomAccessOperatorShould : public ReverseIteratorShould
 { };
 
 struct TestStruct
@@ -176,15 +176,58 @@ TEST_F(OperatorMinusEqualShould, incrementInternalPointerByPassedValueAndReturnS
     EXPECT_EQ(valuePointedAfter2, 20);
 }
 
-TEST_F(ElementAccessOperatorShould, provideDirectAccessToRequestedElementReverseOrder)
+TEST(StartOperatorShould, provideReadAccessToRequestedElement)
 {
-    ReverseIterator<int*> sut { &elements_[0] };
+    TestStruct elementPointed;
+    ReverseIterator<TestStruct*> sut { &elementPointed };
 
-    EXPECT_EQ(sut[0], 5);
-    EXPECT_EQ(sut[1], 10);
+    EXPECT_EQ((*sut).text, "DEFAULT");
+    EXPECT_EQ((*sut).number, 0);
+}
+
+TEST(StartOperatorShould, allowToModifyPointedElement)
+{
+    TestStruct elementPointed;
+    auto [textBefore, numberBefore] = elementPointed;
+    ReverseIterator<TestStruct*> sut { &elementPointed };
+
+    (*sut).text = "CHANGED";
+    (*sut).number = 111;
+
+    EXPECT_EQ(textBefore, "DEFAULT");
+    EXPECT_EQ(numberBefore, 0);
+    EXPECT_EQ(elementPointed.text, "CHANGED");
+    EXPECT_EQ(elementPointed.number, 111);
+}
+
+TEST_F(RandomAccessOperatorShould, provideDirectAccessToRequestedElementReverseOrder)
+{
+    ReverseIterator<int*> sut { &elements_[4] };
+
+    EXPECT_EQ(sut[0], 25);
+    EXPECT_EQ(sut[1], 20);
     EXPECT_EQ(sut[2], 15);
-    EXPECT_EQ(sut[3], 20);
-    EXPECT_EQ(sut[4], 25);
+    EXPECT_EQ(sut[3], 10);
+    EXPECT_EQ(sut[4], 5);
+}
+
+TEST_F(RandomAccessOperatorShould, allowToModifyPointedElement)
+{
+    ReverseIterator<int*> sut { &elements_[4] };
+    int firstReverseValueBeforeChange = sut[0];
+    int middleReverseValueBeforeChange = sut[2];
+    int lastReverseValueBeforeChange = sut[4];
+
+    sut[0] = 111;
+    sut[2] = 333;
+    sut[4] = 555;
+
+    EXPECT_EQ(firstReverseValueBeforeChange, 25);
+    EXPECT_EQ(middleReverseValueBeforeChange, 15);
+    EXPECT_EQ(lastReverseValueBeforeChange, 5);
+    EXPECT_EQ(sut[0], 111);
+    EXPECT_EQ(sut[2], 333);
+    EXPECT_EQ(sut[4], 555);
 }
 
 TEST(ArrowOperatorShould, provideArrowOperatorAccessToMembersOfPointedElements)
@@ -211,6 +254,21 @@ TEST(ArrowOperatorShould, provideArrowOperatorAccessToMembersOfPointedElements)
     EXPECT_EQ(numberBeforeOne, 0);
     EXPECT_EQ(numberBeforeTwo, 0);
     EXPECT_EQ(numberBeforeThree, 0);
+}
+
+TEST(ArrowOperatorShould, allowToModifyPointedElement)
+{
+    TestStruct elementPointed;
+    auto [textBefore, numberBefore] = elementPointed;
+    ReverseIterator<TestStruct*> sut { &elementPointed };
+
+    sut->text = "CHANGED";
+    sut->number = 111;
+
+    EXPECT_EQ(textBefore, "DEFAULT");
+    EXPECT_EQ(numberBefore, 0);
+    EXPECT_EQ(elementPointed.text, "CHANGED");
+    EXPECT_EQ(elementPointed.number, 111);
 }
 
 TEST_F(ReverseIteratorShould, provideAllComparisonOperators)
