@@ -73,7 +73,7 @@ TEST(VectorTypeAliasTest, constIteratorTypeAliasShouldBeDefinedAndMeetExpectatio
 
 TEST(VectorTypeAliasTest, referenceAndConstReferenceAliasesShouldBeDefinedAndMeetExpectations)
 {
-    EXPECT_TRUE(( std::is_same_v<Vector<bool>::reference, Vector<bool>::ChunkProxy<CHUNK_SIZE>> ) );
+    EXPECT_TRUE(( std::is_same_v<Vector<bool>::reference, std::bitset<CHUNK_SIZE>::reference> ) );
     EXPECT_TRUE(( std::is_same_v<Vector<bool>::const_reference, bool> ) );
 }
 

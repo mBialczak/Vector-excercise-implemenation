@@ -22,6 +22,8 @@ set(TESTED_LIBRARY_DIR
 set(EXECUTABLE_OUTPUT_PATH
     "../")
 
+    # //TODO: VERIFY if needed
+# add_subdirectory(BitProxyTests)
 add_subdirectory(ChunkProxyTests)
 add_subdirectory(DefaultAllocatorTests)
 add_subdirectory(ReverseIteratorTests)

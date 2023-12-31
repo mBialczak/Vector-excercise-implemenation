@@ -5,7 +5,7 @@ namespace my::test {
 class AtTests : public SutExamplesAndHelpers
 { };
 
-class AccessOperatorTests : public SutExamplesAndHelpers
+class RandomAccessOperatorTests : public SutExamplesAndHelpers
 { };
 
 class FrontTests : public SutExamplesAndHelpers
@@ -56,7 +56,7 @@ TEST_F(AtTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
     EXPECT_EQ(valueAfterChange, 1000);
 }
 
-TEST_F(AccessOperatorTests, shouldReturnReferenceToCorrectElement)
+TEST_F(RandomAccessOperatorTests, shouldReturnReferenceToCorrectElement)
 {
     EXPECT_EQ(sutOf5ints[0], 5);
     EXPECT_EQ(sutOf5ints[1], 10);
@@ -66,7 +66,7 @@ TEST_F(AccessOperatorTests, shouldReturnReferenceToCorrectElement)
     EXPECT_TRUE(( std::is_same_v<decltype(sutOf5ints[0]), int&> ) );
 }
 
-TEST_F(AccessOperatorTests, shouldReturnConstReferenceToCorrectElement)
+TEST_F(RandomAccessOperatorTests, shouldReturnConstReferenceToCorrectElement)
 {
     EXPECT_EQ(constSutOf5ints[0], 5);
     EXPECT_EQ(constSutOf5ints[1], 10);
@@ -76,7 +76,7 @@ TEST_F(AccessOperatorTests, shouldReturnConstReferenceToCorrectElement)
     EXPECT_TRUE(( std::is_same_v<decltype(constSutOf5ints[0]), const int&> ) );
 }
 
-TEST_F(AccessOperatorTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
+TEST_F(RandomAccessOperatorTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
 {
     int valueBeforeChange = sutOf5ints[1];
 

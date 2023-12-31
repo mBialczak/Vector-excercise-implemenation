@@ -1,4 +1,6 @@
-// TODO: VERIFY
+// TODO: VERIFY if even needed
+
+// TODO: VERIFY includes
 //  #include "VectorBool.hpp"
 #include "Vector.hpp"
 

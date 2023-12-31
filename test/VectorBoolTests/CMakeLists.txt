@@ -6,7 +6,7 @@ add_executable(VectorBool-MT
                VectorBool-MT-construction.cpp
             #    VectorBool-MT-copyAssignment.cpp
             #    VectorBool-MT-destructor.cpp
-            #    VectorBool-MT-elementAccess.cpp
+               VectorBool-MT-elementAccess.cpp
             #    VectorBool-MT-emplaceBack.cpp
             #    VectorBool-MT-emplaceFunction.cpp
             #    VectorBool-MT-insertFunction.cpp

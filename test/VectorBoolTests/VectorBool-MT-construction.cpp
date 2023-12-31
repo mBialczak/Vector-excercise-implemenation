@@ -9,6 +9,9 @@ class VectorMemorySizeTest : public BoolSutExamplesAndHelpers
 class ConstructorTakingCountAndValueTests : public BoolSutExamplesAndHelpers
 { };
 
+class ConstructorTakingCountOnlyTests : public BoolSutExamplesAndHelpers
+{ };
+
 // TODO: VERIFY maybe test_f not needed
 TEST_F(VectorMemorySizeTest, sizeOfVectorBoolShouldBeEqualTo24)
 {
@@ -75,12 +78,6 @@ TEST(DefaultConstructorTests, iteratorsReturnedByBeginAndEndShouldBeEqual)
 //=== tests for constexpr Vector(size_type count, bool value)
 TEST_F(ConstructorTakingCountAndValueTests, sizeShouldBeEqualToCount)
 {
-    Vector sutWithOneNotFullChunkFalse { countLessThenChunkSize, false };
-    Vector sutWithOneFullChunkTrue { countEqualToChunkSize, true };
-    Vector sutWithSizeGreaterThanOneChunkFalse { countGreaterThanOneChunk, false };
-    Vector sutWithSizeEqualToMultipleSizeOfChunkFalse { countEqualToMultipleSizeOfChunk, false };
-    Vector sutWithSizeGreaterThanFiveChunksTrue { countGreaterThanFiveChunks, true };
-
     EXPECT_EQ(sutWithOneNotFullChunkFalse.size(), countLessThenChunkSize);
     EXPECT_EQ(sutWithOneFullChunkTrue.size(), countEqualToChunkSize);
     EXPECT_EQ(sutWithSizeGreaterThanOneChunkFalse.size(), countGreaterThanOneChunk);
@@ -90,156 +87,91 @@ TEST_F(ConstructorTakingCountAndValueTests, sizeShouldBeEqualToCount)
 
 TEST_F(ConstructorTakingCountAndValueTests, capacityShouldBeEqualToNumberOfChunksMultipliedByChunkSize)
 {
-    Vector sutWithOneNotFullChunkFalse { countLessThenChunkSize, false };
-    Vector sutWithOneFullChunkTrue { countEqualToChunkSize, true };
-    Vector sutWithSizeGreaterThanOneChunkFalse { countGreaterThanOneChunk, false };
-    Vector sutWithSizeEqualToMultipleSizeOfChunkFalse { countEqualToMultipleSizeOfChunk, false };
-    Vector sutWithSizeGreaterThanFiveChunksTrue { countGreaterThanFiveChunks, true };
-
     EXPECT_EQ(sutWithOneNotFullChunkFalse.capacity(), CHUNK_SIZE);
     EXPECT_EQ(sutWithOneFullChunkTrue.capacity(), CHUNK_SIZE);
     EXPECT_EQ(sutWithSizeGreaterThanOneChunkFalse.capacity(), 2 * CHUNK_SIZE);
     EXPECT_EQ(sutWithSizeEqualToMultipleSizeOfChunkFalse.capacity(), countEqualToMultipleSizeOfChunk);
     EXPECT_EQ(sutWithSizeGreaterThanFiveChunksTrue.capacity(), 6 * CHUNK_SIZE);
 }
-// TEST_F(ConstructorTakingCountValueAndAllocatorTests, sizeShouldBeEqualToCountAndCapacityAfterConstruction)
-// {
-//     const std::size_t sutIntSize { 1 };
-//     const std::size_t sutDoubleSize { 10 };
-//     const std::size_t sutStringSize { 5 };
 
-//     Vector sutInt { sutIntSize, 3, DefaultAllocator<int> {} };
-//     Vector sutDouble { sutDoubleSize, 555.0, DefaultAllocator<double> {} };
-//     Vector sutString { sutStringSize, std::string { "ConstructorTest" }, DefaultAllocator<std::string> {} };
+TEST_F(ConstructorTakingCountAndValueTests, shouldInitializeAllocatedElementsWithProvidedValue)
+{
+    for (std::size_t i = 0; i < countLessThenChunkSize; ++i) {
+        EXPECT_EQ(sutWithOneNotFullChunkTrue[i], true);
+    }
 
-//     EXPECT_EQ(sutInt.size(), sutIntSize);
-//     EXPECT_EQ(sutDouble.size(), sutDoubleSize);
-//     EXPECT_EQ(sutString.size(), sutStringSize);
+    for (std::size_t i = 0; i < countGreaterThanOneChunk; ++i) {
+        EXPECT_EQ(sutWithSizeGreaterThanOneChunkFalse[i], false);
+    }
 
-//     EXPECT_EQ(sutInt.capacity(), sutIntSize);
-//     EXPECT_EQ(sutDouble.capacity(), sutDoubleSize);
-//     EXPECT_EQ(sutString.capacity(), sutStringSize);
-// }
+    for (std::size_t i = 0; i < countEqualToMultipleSizeOfChunk; ++i) {
+        EXPECT_EQ(sutWithSizeEqualToMultipleSizeOfChunkTrue[i], true);
+    }
 
-// TEST_F(ConstructorTakingCountValueAndAllocatorTests, shouldInitializeAllocatedElementsWithProvidedValue)
-// {
-//     const std::size_t sutIntSize { 1 };
-//     const int sutIntExpectedElementsValue { 3 };
+    for (std::size_t i = 0; i < countGreaterThanFiveChunks; ++i) {
+        EXPECT_EQ(sutWithSizeGreaterThanFiveChunksTrue[i], true);
+    }
+}
 
-//     const std::size_t sutDoubleSize { 10 };
-//     const double sutDoubleExpectedElementsValue { 555.0 };
+// === tests for constexpr explicit Vector(size_type count);
+TEST_F(ConstructorTakingCountOnlyTests, sizeShouldBeEqualToCount)
+{
+    Vector<bool> sutWithOneNotFullChunk { countLessThenChunkSize };
+    Vector<bool> sutWithOneFullChunk { countEqualToChunkSize };
+    Vector<bool> sutWithSizeGreaterThanOneChunk { countGreaterThanOneChunk };
+    Vector<bool> sutWithSizeEqualToMultipleSizeOfChunk { countEqualToMultipleSizeOfChunk };
+    Vector<bool> sutWithSizeGreaterThanFiveChunks { countGreaterThanFiveChunks };
 
-//     const std::size_t sutStringSize { 5 };
-//     const std::string sutStringExpectedElementsValue { "ConstructorTest" };
+    EXPECT_EQ(sutWithOneNotFullChunk.size(), countLessThenChunkSize);
+    EXPECT_EQ(sutWithOneFullChunk.size(), countEqualToChunkSize);
+    EXPECT_EQ(sutWithSizeGreaterThanOneChunk.size(), countGreaterThanOneChunk);
+    EXPECT_EQ(sutWithSizeEqualToMultipleSizeOfChunk.size(), countEqualToMultipleSizeOfChunk);
+    EXPECT_EQ(sutWithSizeGreaterThanFiveChunks.size(), countGreaterThanFiveChunks);
+}
 
-//     Vector sutInt(sutIntSize, sutIntExpectedElementsValue);
-//     Vector sutDouble { sutDoubleSize, 555.0, DefaultAllocator<double> {} };
-//     Vector sutString { sutStringSize, sutStringExpectedElementsValue, DefaultAllocator<std::string> {} };
+TEST_F(ConstructorTakingCountOnlyTests, capacityShouldBeEqualToNumberOfChunksMultipliedByChunkSize)
+{
+    Vector<bool> sutWithOneNotFullChunk { countLessThenChunkSize };
+    Vector<bool> sutWithOneFullChunk { countEqualToChunkSize };
+    Vector<bool> sutWithSizeGreaterThanOneChunk { countGreaterThanOneChunk };
+    Vector<bool> sutWithSizeEqualToMultipleSizeOfChunk { countEqualToMultipleSizeOfChunk };
+    Vector<bool> sutWithSizeGreaterThanFiveChunks { countGreaterThanFiveChunks };
 
-//     for (const auto& el : sutInt) {
-//         EXPECT_EQ(el, sutIntExpectedElementsValue);
-//     }
+    EXPECT_EQ(sutWithOneNotFullChunk.capacity(), CHUNK_SIZE);
+    EXPECT_EQ(sutWithOneFullChunk.capacity(), CHUNK_SIZE);
+    EXPECT_EQ(sutWithSizeGreaterThanOneChunk.capacity(), 2 * CHUNK_SIZE);
+    EXPECT_EQ(sutWithSizeEqualToMultipleSizeOfChunk.capacity(), countEqualToMultipleSizeOfChunk);
+    EXPECT_EQ(sutWithSizeGreaterThanFiveChunks.capacity(), 6 * CHUNK_SIZE);
+}
 
-//     for (const auto& el : sutDouble) {
-//         EXPECT_DOUBLE_EQ(el, sutDoubleExpectedElementsValue);
-//     }
+TEST_F(ConstructorTakingCountOnlyTests, shouldInitializeAllocatedElementsWithDefaultValueFalse)
+{
+    Vector<bool> sutWithOneNotFullChunk { countLessThenChunkSize };
+    Vector<bool> sutWithOneFullChunk { countEqualToChunkSize };
+    Vector<bool> sutWithSizeGreaterThanOneChunk { countGreaterThanOneChunk };
+    Vector<bool> sutWithSizeEqualToMultipleSizeOfChunk { countEqualToMultipleSizeOfChunk };
+    Vector<bool> sutWithSizeGreaterThanFiveChunks { countGreaterThanFiveChunks };
 
-//     for (const auto& el : sutString) {
-//         EXPECT_EQ(el, sutStringExpectedElementsValue);
-//     }
-// }
+    for (std::size_t i = 0; i < countLessThenChunkSize; ++i) {
+        EXPECT_EQ(sutWithOneNotFullChunk[i], false);
+    }
 
-// TEST_F(ConstructorTakingCountValueAndAllocatorTests, shouldCorrectlyDeduceAllocatorTypePassed)
-// {
-//     Vector sut(5, 7, customIntTestingAllocator);
-//     Vector sutDefault(20, 30);
+    for (std::size_t i = 0; i < countEqualToChunkSize; ++i) {
+        EXPECT_EQ(sutWithOneFullChunk[i], false);
+    }
 
-//     EXPECT_THAT(sut.get_allocator(), A<CustomTestingAllocator<int>>());
-//     EXPECT_THAT(sutDefault.get_allocator(), A<DefaultAllocator<int>>());
-// }
+    for (std::size_t i = 0; i < countGreaterThanOneChunk; ++i) {
+        EXPECT_EQ(sutWithSizeGreaterThanOneChunk[i], false);
+    }
 
-// TEST_F(ConstructorTakingCountValueAndAllocatorTests, shouldCallAllocateAndConstruct)
-// {
-//     customIntTestingAllocator.setCallDetectionHelper(&intAllocatorCallDetector);
+    for (std::size_t i = 0; i < countEqualToMultipleSizeOfChunk; ++i) {
+        EXPECT_EQ(sutWithSizeEqualToMultipleSizeOfChunk[i], false);
+    }
 
-//     EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
-//         .Times(1);
-//     EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectConstructCall(An<int*>(), An<int>()))
-//         .Times(4);
-
-//     Vector sut { 4, 5, customIntTestingAllocator };
-
-//     EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(AnyNumber());
-//     EXPECT_CALL(*customIntTestingAllocator.callDetectionHelper_, detectDestroyCall(An<int*>()))
-//         .Times(AnyNumber());
-// }
-
-// // === tests for constexpr explicit Vector(size_type count, const Allocator& alloc = Allocator());
-// TEST_F(ConstructorTakingCountAndAllocatorTests, sizeShouldBeEqualToCountAndCapacityAfterConstruction)
-// {
-//     const std::size_t sutIntSize { 1 };
-//     const std::size_t sutDoubleSize { 10 };
-//     const std::size_t sutStringSize { 5 };
-
-//     Vector<int> sutInt(sutIntSize);
-//     Vector<double> sutDouble(sutDoubleSize, DefaultAllocator<double> {});
-//     Vector<std::string> sutString(sutStringSize, DefaultAllocator<std::string> {});
-
-//     EXPECT_EQ(sutInt.size(), sutIntSize);
-//     EXPECT_EQ(sutDouble.size(), sutDoubleSize);
-//     EXPECT_EQ(sutString.size(), sutStringSize);
-
-//     EXPECT_EQ(sutInt.capacity(), sutIntSize);
-//     EXPECT_EQ(sutDouble.capacity(), sutDoubleSize);
-//     EXPECT_EQ(sutString.capacity(), sutStringSize);
-// }
-
-// TEST_F(ConstructorTakingCountAndAllocatorTests, allElementsShouldHaveDefaultValue)
-// {
-//     const std::size_t sutIntSize { 1 };
-//     const std::size_t sutDoubleSize { 10 };
-//     const std::size_t sutStringSize { 5 };
-
-//     Vector<int> sutInt(sutIntSize);
-//     Vector<double> sutDouble(sutDoubleSize, DefaultAllocator<double> {});
-//     Vector<std::string> sutString(sutStringSize, DefaultAllocator<std::string> {});
-
-//     for (const auto& el : sutInt) {
-//         EXPECT_EQ(el, int {});
-//     }
-
-//     for (const auto& el : sutDouble) {
-//         EXPECT_DOUBLE_EQ(el, double {});
-//     }
-//     for (const auto& el : sutString) {
-//         EXPECT_EQ(el, std::string {});
-//     }
-// }
-
-// TEST_F(ConstructorTakingCountAndAllocatorTests, shouldRememberCorrectAllocator)
-// {
-//     Vector<int, CustomTestingAllocator<int>> sut(5, customIntTestingAllocator);
-//     Vector<int> sutDefault(20);
-
-//     EXPECT_THAT(sut.get_allocator(), A<CustomTestingAllocator<int>>());
-//     EXPECT_THAT(sutDefault.get_allocator(), A<DefaultAllocator<int>>());
-// }
-
-// TEST_F(ConstructorTakingCountAndAllocatorTests, shouldCallAllocateAndConstruct)
-// {
-//     customStringTestingAllocator.setCallDetectionHelper(&stringAllocatorCallDetector);
-
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
-//         .Times(1);
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectConstructCall(An<std::string*>(), An<std::string>()))
-//         .Times(4);
-
-//     Vector<std::string, CustomTestingAllocator<std::string>> sut { 4, customStringTestingAllocator };
-
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(AnyNumber());
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectDestroyCall(An<std::string*>()))
-//         .Times(AnyNumber());
-// }
+    for (std::size_t i = 0; i < countGreaterThanFiveChunks; ++i) {
+        EXPECT_EQ(sutWithSizeGreaterThanFiveChunks[i], false);
+    }
+}
 
 // // ==== tests for: constexpr vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
 // TEST_F(ConstructorTakingInputIteratorsTests, sizeOfConstructedVectorShouldBeSameAsContainersOriginatingIterators)

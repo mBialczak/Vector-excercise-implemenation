@@ -29,8 +29,11 @@ template <>
 class Vector<bool>
 {
   public:
+    // TODO: VERIFY
     template <std::size_t SizeOfChunk = CHUNK_SIZE>
     class ChunkProxy;
+    // // TODO: VERIFY
+    // class BitProxy;
 
     using value_type = bool;
     // TODO: VERIFY maybe can be used if new is used instead
@@ -38,13 +41,15 @@ class Vector<bool>
     // using allocator_type = DefaultAllocator<std::bitset<CHUNK_SIZE>>;
     // using allocator_type = Allocator;
     using size_type = std::size_t;
-    using reference = ChunkProxy<CHUNK_SIZE>;
+    // using reference = ChunkProxy<CHUNK_SIZE>;
+    using reference = std::bitset<CHUNK_SIZE>::reference;
     using const_reference = bool;
     // TODO: VERIFY rest
     //      using difference_type = std::ptrdiff_t;
     // using iterator = ChunkProxy<CHUNK_SIZE>*;
     // using iterator = ChunkProxy<CHUNK_SIZE>*;
     using iterator = std::bitset<CHUNK_SIZE>*;
+    // TODO: VERIFY
     using const_iterator = const ChunkProxy<CHUNK_SIZE>*;
     //      using reverse_iterator = ReverseIterator<Type*>;
     //      using const_reverse_iterator = ReverseIterator<const Type*>;
@@ -58,7 +63,7 @@ class Vector<bool>
     //     constexpr Vector(size_type count, const Type& value, const Allocator& alloc = Allocator());
     constexpr Vector(size_type count, bool value);
 
-    //     constexpr explicit Vector(size_type count, const Allocator& alloc = Allocator());
+    constexpr explicit Vector(size_type count);
 
     //     template <typename InputIt>
     //         requires std::input_iterator<InputIt>
@@ -95,8 +100,11 @@ class Vector<bool>
     //     constexpr reference at(size_type pos);
     //     constexpr const_reference at(size_type pos) const;
 
-    //     constexpr reference operator[](size_type pos);
-    //     constexpr const_reference operator[](size_type pos) const;
+    // TODO: VERIFY constexpr due to bitset operator not constexpr
+    // constexpr reference operator[](size_type pos);
+    // constexpr const_reference operator[](size_type pos) const;
+    reference operator[](size_type pos);
+    const_reference operator[](size_type pos) const;
 
     //     constexpr reference front();
     //     constexpr const_reference front() const;
@@ -238,6 +246,34 @@ class Vector<bool>::ChunkProxy
     std::bitset<SizeOfChunk>& chunk_;
 };
 
+// TODO: VERIFY if needed and overall
+// class Vector<bool>::BitProxy
+// {
+//   public:
+//     BitProxy(std::bitset<SizeOfChunk>& chunk, size_type bitNumber)
+//         : chunk_(chunk)
+//         , bitNumber_(bitNumber)
+//     { }
+//     // TODO: REMOVE
+//     // bool operator[](std::size_t index) const
+//     // {
+//     //     return chunk_[index];
+//     // }
+//     // TODO: REMOVE
+//     // std::bitset<SizeOfChunk>::reference operator[](std::size_t index)
+//     // {
+//     //     return chunk_[index];
+//     // }
+//     BitProxy& operator=(bool bitValue)
+//     {
+//         chunk_[bitNumber_] = bitValue;
+//     }
+
+//   private:
+//     std::bitset<SizeOfChunk>& chunk_;
+//     size_type bitNumber_;
+// };
+
 // template <typename Type, typename Allocator>
 // constexpr bool operator==(const Vector<Type, Allocator>& lhs, const Vector<Type, Allocator>& rhs)
 // {
@@ -290,9 +326,8 @@ constexpr Vector<bool>::Vector() noexcept
 constexpr Vector<bool>::Vector(size_type count, bool value)
     : currentSize_(count)
 {
-
     // TODO: REMOVE
-    std::cout << "CONSTRUCTOR taking (COUNT,VALUE)\n";
+    // std::cout << "CONSTRUCTOR taking (COUNT,VALUE)\n";
 
     auto fullChunksNumber = count / CHUNK_SIZE;
     auto reminder = count % CHUNK_SIZE;
@@ -314,16 +349,12 @@ constexpr Vector<bool>::Vector(size_type count, bool value)
     }
 }
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::Vector(size_type count, const Allocator& alloc)
-//     : begin_(alloc.allocate(count))
-//     , end_(std::next(begin_, count))
-//     , capacity_(end_)
-// {
-//     for (auto it = begin_; it != end_; ++it) {
-//         alloc.construct(it, Type {});
-//     }
-// }
+constexpr Vector<bool>::Vector(size_type count)
+    : Vector(count, false)
+{
+    // TODO: REMOVE
+    // std::cout << "CONSTRUCTOR taking (COUNT) - only\n";
+}
 
 // template <typename Type, typename Allocator>
 // template <typename InputIt>
@@ -551,18 +582,26 @@ constexpr Vector<bool>::~Vector()
 
 //     return *(begin_ + pos);
 // }
+// TODO: VERIFY constexpr due to bitset operator not constexpr
+// constexpr Vector<bool>::reference Vector<bool>::operator[](size_type pos)
+inline Vector<bool>::reference Vector<bool>::operator[](size_type pos)
+{
+    auto chunk = pos / CHUNK_SIZE;
+    auto reminder = pos % CHUNK_SIZE;
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::reference Vector<Type, Allocator>::operator[](size_type pos)
-// {
-//     return *(begin_ + pos);
-// }
+    return chunks_[chunk][reminder];
+    // return *(begin_ + pos);
+}
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::const_reference Vector<Type, Allocator>::operator[](size_type pos) const
-// {
-//     return *(begin_ + pos);
-// }
+// TODO: VERIFY constexpr due to bitset operator not constexpr
+// constexpr Vector<bool>::const_reference Vector<bool>::operator[](size_type pos) const
+inline Vector<bool>::const_reference Vector<bool>::operator[](size_type pos) const
+{
+    auto chunk = pos / CHUNK_SIZE;
+    auto reminder = pos % CHUNK_SIZE;
+
+    return chunks_[chunk][reminder];
+}
 
 // template <typename Type, typename Allocator>
 // constexpr Vector<Type, Allocator>::reference Vector<Type, Allocator>::front()

@@ -93,8 +93,13 @@ class BoolSutExamplesAndHelpers : public testing::Test
     static constexpr std::size_t countGreaterThanFiveChunks { CHUNK_SIZE * 5 + 5 };
 
     Vector<bool> emptySutBool;
-    // Vector sutWithOneNotFullChunkFalse { countLessThenChunkSize, false };
-    // Vector sutWithOneFullChunkTrue { countEqualToChunkSize, true };
+    Vector<bool> sutWithOneNotFullChunkFalse { countLessThenChunkSize, false };
+    Vector<bool> sutWithOneNotFullChunkTrue { countLessThenChunkSize, true };
+    Vector<bool> sutWithOneFullChunkTrue { countEqualToChunkSize, true };
+    Vector<bool> sutWithSizeGreaterThanOneChunkFalse { countGreaterThanOneChunk, false };
+    Vector<bool> sutWithSizeEqualToMultipleSizeOfChunkFalse { countEqualToMultipleSizeOfChunk, false };
+    Vector<bool> sutWithSizeEqualToMultipleSizeOfChunkTrue { countEqualToMultipleSizeOfChunk, true };
+    Vector<bool> sutWithSizeGreaterThanFiveChunksTrue { countGreaterThanFiveChunks, true };
     // Vector sutWithSizeGreaterThanOneChunkFalse { countGreaterThanOneChunk, false };
     // Vector sutWithSizeEqualToMultipleSizeOfChunkFalse { countEqualToMultipleSizeOfChunk, false };
     // Vector sutWithSizeGreaterThanACoupleOfChunkTrue { countGreaterThanFiveChunks, true };
