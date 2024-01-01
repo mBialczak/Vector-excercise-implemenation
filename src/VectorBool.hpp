@@ -65,9 +65,13 @@ class Vector<bool>
 
     constexpr explicit Vector(size_type count);
 
-    //     template <typename InputIt>
-    //         requires std::input_iterator<InputIt>
-    //     constexpr Vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
+    template <typename InputIt>
+        requires std::input_iterator<InputIt>
+    constexpr Vector(InputIt first, InputIt last);
+    // TODO: VERIFY replacement
+    //      template <typename InputIt>
+    //          requires std::input_iterator<InputIt>
+    //      constexpr Vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
 
     //     constexpr Vector(std::initializer_list<Type> init, const Allocator& alloc = Allocator());
 
@@ -181,6 +185,9 @@ class Vector<bool>
     //     friend class Vector;
 
   private:
+    // TODO: VERIFY if needed
+    //  std::pair<size_type, size_type> calcFullChunksAndReminder(size_type count) const;
+
     // TODO: VERIFY
     //  static constexpr std::size_t CHUNK_SIZE { 64 };
     //      constexpr iterator allocateMemoryForInsert(const size_type sizeNeeded);
@@ -325,10 +332,13 @@ constexpr Vector<bool>::Vector() noexcept
 // }
 constexpr Vector<bool>::Vector(size_type count, bool value)
     : currentSize_(count)
+// TODO: REMOVE
+// , numberOfChunks_(calcNeededChunks(count))
+// , chunks_(new std::bitset<CHUNK_SIZE>[numberOfChunks_] {})
 {
     // TODO: REMOVE
     // std::cout << "CONSTRUCTOR taking (COUNT,VALUE)\n";
-
+    // TODO: VERIFY most likely extract common part returning reminder
     auto fullChunksNumber = count / CHUNK_SIZE;
     auto reminder = count % CHUNK_SIZE;
 
@@ -356,22 +366,37 @@ constexpr Vector<bool>::Vector(size_type count)
     // std::cout << "CONSTRUCTOR taking (COUNT) - only\n";
 }
 
-// template <typename Type, typename Allocator>
-// template <typename InputIt>
-//     requires std::input_iterator<InputIt>
-// constexpr Vector<Type, Allocator>::Vector(InputIt first, InputIt last, const Allocator& alloc)
-//     : begin_(alloc.allocate(std::distance(first, last)))
-//     , end_(std::next(begin_, std::distance(first, last)))
-//     , capacity_(end_)
-// {
-//     auto iter = begin_;
+template <typename InputIt>
+    requires std::input_iterator<InputIt>
+constexpr Vector<bool>::Vector(InputIt first, InputIt last)
+    : currentSize_(std::distance(first, last))
+{
+    // TODO: REMOVE
+    // std::cout << "CONSTRUCTOR taking PAIR of iterators\n";
 
-//     while (first != last) {
-//         alloc.construct(iter, Type { *first });
-//         ++iter;
-//         ++first;
-//     }
-// }
+    // TODO: VERIFY maybe extract common part
+    auto fullChunksNumber = currentSize_ / CHUNK_SIZE;
+    auto reminder = currentSize_ % CHUNK_SIZE;
+
+    numberOfChunks_ = reminder ? fullChunksNumber + 1
+                               : fullChunksNumber;
+    chunks_ = new std::bitset<CHUNK_SIZE>[numberOfChunks_] {};
+
+    size_type currentChunk { 0 };
+    size_type currentBit { 0 };
+
+    while (first != last) {
+        chunks_[currentChunk][currentBit] = *first;
+        ++first;
+        if (currentBit == CHUNK_SIZE - 1) {
+            ++currentChunk;
+            currentBit = 0;
+        }
+        else {
+            ++currentBit;
+        }
+    }
+}
 
 // template <typename Type, typename Allocator>
 // constexpr Vector<Type, Allocator>::Vector(std::initializer_list<Type> init, const Allocator& alloc)
@@ -1309,5 +1334,16 @@ constexpr Vector<bool>::iterator Vector<bool>::end() noexcept
 
 //     }
 // }   // namespace helpers
+
+// TODO: VERIFY if needed
+//  returns pair<fullChunksNumber, reminder>
+//  constexpr std::pair<Vector<bool>::size_type, Vector<bool>::size_type>
+//      Vector<bool>::calcFullChunksAndReminder(size_type count) const
+//  {
+//      auto fullChunksNumber = count / CHUNK_SIZE;
+//      auto reminder = count % CHUNK_SIZE;
+
+//     return { fullChunksNumber, reminder };
+// }
 
 }   // namespace my

@@ -12,6 +12,9 @@ class ConstructorTakingCountAndValueTests : public BoolSutExamplesAndHelpers
 class ConstructorTakingCountOnlyTests : public BoolSutExamplesAndHelpers
 { };
 
+class ConstructorTakingInputIteratorsTests : public BoolSutExamplesAndHelpers
+{ };
+
 // TODO: VERIFY maybe test_f not needed
 TEST_F(VectorMemorySizeTest, sizeOfVectorBoolShouldBeEqualTo24)
 {
@@ -94,23 +97,25 @@ TEST_F(ConstructorTakingCountAndValueTests, capacityShouldBeEqualToNumberOfChunk
     EXPECT_EQ(sutWithSizeGreaterThanFiveChunksTrue.capacity(), 6 * CHUNK_SIZE);
 }
 
-TEST_F(ConstructorTakingCountAndValueTests, shouldInitializeAllocatedElementsWithProvidedValue)
+TEST_F(ConstructorTakingCountAndValueTests, shouldInitializeVectorElementsWithProvidedValue)
 {
-    for (std::size_t i = 0; i < countLessThenChunkSize; ++i) {
-        EXPECT_EQ(sutWithOneNotFullChunkTrue[i], true);
-    }
+    checkIfVectorElementsAreGivenValue(sutWithOneNotFullChunkFalse, false);
+    checkIfVectorElementsAreGivenValue(sutWithOneNotFullChunkTrue, true);
+    checkIfVectorElementsAreGivenValue(sutWithSizeGreaterThanOneChunkFalse, false);
+    checkIfVectorElementsAreGivenValue(sutWithSizeEqualToMultipleSizeOfChunkTrue, true);
+    checkIfVectorElementsAreGivenValue(sutWithSizeEqualToMultipleSizeOfChunkFalse, false);
+    checkIfVectorElementsAreGivenValue(sutWithSizeGreaterThanFiveChunksTrue, true);
+}
 
-    for (std::size_t i = 0; i < countGreaterThanOneChunk; ++i) {
-        EXPECT_EQ(sutWithSizeGreaterThanOneChunkFalse[i], false);
-    }
+TEST_F(ConstructorTakingCountAndValueTests, shouldYieldEmptyVectorIfCountPassedEquals0)
+{
+    Vector<bool> emptySut1 { 0, false };
+    Vector<bool> emptySut2 { 0, true };
 
-    for (std::size_t i = 0; i < countEqualToMultipleSizeOfChunk; ++i) {
-        EXPECT_EQ(sutWithSizeEqualToMultipleSizeOfChunkTrue[i], true);
-    }
-
-    for (std::size_t i = 0; i < countGreaterThanFiveChunks; ++i) {
-        EXPECT_EQ(sutWithSizeGreaterThanFiveChunksTrue[i], true);
-    }
+    EXPECT_EQ(emptySut1.size(), 0);
+    EXPECT_EQ(emptySut1.capacity(), 0);
+    EXPECT_EQ(emptySut2.size(), 0);
+    EXPECT_EQ(emptySut2.capacity(), 0);
 }
 
 // === tests for constexpr explicit Vector(size_type count);
@@ -152,40 +157,69 @@ TEST_F(ConstructorTakingCountOnlyTests, shouldInitializeAllocatedElementsWithDef
     Vector<bool> sutWithSizeEqualToMultipleSizeOfChunk { countEqualToMultipleSizeOfChunk };
     Vector<bool> sutWithSizeGreaterThanFiveChunks { countGreaterThanFiveChunks };
 
-    for (std::size_t i = 0; i < countLessThenChunkSize; ++i) {
-        EXPECT_EQ(sutWithOneNotFullChunk[i], false);
-    }
-
-    for (std::size_t i = 0; i < countEqualToChunkSize; ++i) {
-        EXPECT_EQ(sutWithOneFullChunk[i], false);
-    }
-
-    for (std::size_t i = 0; i < countGreaterThanOneChunk; ++i) {
-        EXPECT_EQ(sutWithSizeGreaterThanOneChunk[i], false);
-    }
-
-    for (std::size_t i = 0; i < countEqualToMultipleSizeOfChunk; ++i) {
-        EXPECT_EQ(sutWithSizeEqualToMultipleSizeOfChunk[i], false);
-    }
-
-    for (std::size_t i = 0; i < countGreaterThanFiveChunks; ++i) {
-        EXPECT_EQ(sutWithSizeGreaterThanFiveChunks[i], false);
-    }
+    checkIfVectorElementsAreGivenValue(sutWithOneNotFullChunk, false);
+    checkIfVectorElementsAreGivenValue(sutWithOneFullChunk, false);
+    checkIfVectorElementsAreGivenValue(sutWithSizeGreaterThanOneChunk, false);
+    checkIfVectorElementsAreGivenValue(sutWithSizeEqualToMultipleSizeOfChunk, false);
+    checkIfVectorElementsAreGivenValue(sutWithSizeGreaterThanFiveChunks, false);
 }
 
-// // ==== tests for: constexpr vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
-// TEST_F(ConstructorTakingInputIteratorsTests, sizeOfConstructedVectorShouldBeSameAsContainersOriginatingIterators)
-// {
-//     std::array<int, 4> originalContainer { 5, 10, 15, 20 };
-//     std::array<std::string, 4> originalContainer2 { "First", "Second", "Third", "Fourth" };
+//  ==== tests for: constexpr vector(InputIt first, InputIt last);
+TEST_F(ConstructorTakingInputIteratorsTests, sizeOfConstructedVectorShouldBeSameAsContainersOriginatingIterators)
+{
+    Vector<bool> sutSmallerThanOneChunk { arraySmallerThanChunk.begin(), arraySmallerThanChunk.end() };
+    Vector<bool> sutSizedToOneChunk { arrayOneChunkSize.begin(), arrayOneChunkSize.end() };
+    Vector<bool> sutSizedGreaterThanOneChunk { arrayGreaterThanOneChunk.begin(), arrayGreaterThanOneChunk.end() };
+    Vector<bool> sutSizedToThreeChunks { arrayThreeChunksSize.begin(), arrayThreeChunksSize.end() };
 
-//     Vector<int> sutInt { originalContainer.begin(), originalContainer.end(), DefaultAllocator<int> {} };
-//     Vector<std::string> sutString { originalContainer2.begin(), originalContainer2.end() };
+    EXPECT_EQ(sutSmallerThanOneChunk.size(), arraySmallerThanChunk.size());
+    EXPECT_EQ(sutSizedToOneChunk.size(), arrayOneChunkSize.size());
+    EXPECT_EQ(sutSizedGreaterThanOneChunk.size(), arrayGreaterThanOneChunk.size());
+    EXPECT_EQ(sutSizedToThreeChunks.size(), arrayThreeChunksSize.size());
+}
 
-//     EXPECT_EQ(originalContainer.size(), sutInt.size());
-//     EXPECT_EQ(originalContainer2.size(), sutString.size());
-// }
+TEST_F(ConstructorTakingInputIteratorsTests, capacityOfConstructedVectorShouldBeRoundedUpToFullChunks)
+{
+    Vector<bool> sutSmallerThanOneChunk { arraySmallerThanChunk.begin(), arraySmallerThanChunk.end() };
+    Vector<bool> sutSizedToOneChunk { arrayOneChunkSize.begin(), arrayOneChunkSize.end() };
+    Vector<bool> sutSizedGreaterThanOneChunk { arrayGreaterThanOneChunk.begin(), arrayGreaterThanOneChunk.end() };
+    Vector<bool> sutSizedToThreeChunks { arrayThreeChunksSize.begin(), arrayThreeChunksSize.end() };
 
+    EXPECT_EQ(sutSmallerThanOneChunk.capacity(), CHUNK_SIZE);
+    EXPECT_EQ(sutSizedToOneChunk.capacity(), CHUNK_SIZE);
+    EXPECT_EQ(sutSizedGreaterThanOneChunk.capacity(), CHUNK_SIZE * 2);
+    EXPECT_EQ(sutSizedToThreeChunks.capacity(), CHUNK_SIZE * 3);
+}
+
+TEST_F(ConstructorTakingInputIteratorsTests, copyValuesInGivenRangeToConstructedVector)
+{
+    Vector<bool> sutSmallerThanOneChunk { arraySmallerThanChunk.begin(), arraySmallerThanChunk.end() };
+    Vector<bool> sutSizedToOneChunk { arrayOneChunkSize.begin(), arrayOneChunkSize.end() };
+    Vector<bool> sutSizedGreaterThanOneChunk { arrayGreaterThanOneChunk.begin(), arrayGreaterThanOneChunk.end() };
+    Vector<bool> sutSizedToThreeChunks { arrayThreeChunksSize.begin(), arrayThreeChunksSize.end() };
+
+    checkIfVectorHasSameElementsAsRange(sutSmallerThanOneChunk,
+                                        arraySmallerThanChunk.begin(),
+                                        arraySmallerThanChunk.end());
+    checkIfVectorHasSameElementsAsRange(sutSizedToOneChunk,
+                                        arrayOneChunkSize.begin(),
+                                        arrayOneChunkSize.end());
+    checkIfVectorHasSameElementsAsRange(sutSizedGreaterThanOneChunk,
+                                        arrayGreaterThanOneChunk.begin(),
+                                        arrayGreaterThanOneChunk.end());
+    checkIfVectorHasSameElementsAsRange(sutSizedToThreeChunks,
+                                        arrayThreeChunksSize.begin(),
+                                        arrayThreeChunksSize.end());
+}
+
+TEST_F(ConstructorTakingInputIteratorsTests, forEmptyRangeShouldConstructEmptyVector)
+{
+    std::vector<bool> emptySource {};
+    Vector<bool> sutFromEmptySourceRange { emptySource.begin(), emptySource.end() };
+
+    EXPECT_EQ(sutFromEmptySourceRange.size(), 0);
+    EXPECT_EQ(sutFromEmptySourceRange.capacity(), 0);
+}
 // TEST_F(ConstructorTakingInputIteratorsTests, elementsStoredShouldBeEqualToElementsPassedThroughIterators)
 // {
 //     std::array<int, 4> originalContainer { 5, 10, 15, 20 };
