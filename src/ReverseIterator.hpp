@@ -12,7 +12,7 @@ struct ReverseIterator<Type*>
 {
     using difference_type = std::ptrdiff_t;
 
-    ReverseIterator(Type* iter);
+    constexpr ReverseIterator(Type* iter);
 
     constexpr ReverseIterator& operator++();
     constexpr ReverseIterator operator++(int);
@@ -33,7 +33,7 @@ struct ReverseIterator<Type*>
 };
 
 template <typename Type>
-ReverseIterator<Type*>::ReverseIterator(Type* iter)
+constexpr ReverseIterator<Type*>::ReverseIterator(Type* iter)
     : elementPointer_(iter)
 {
 }

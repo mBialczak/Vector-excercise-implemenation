@@ -176,7 +176,7 @@ TEST_F(OperatorMinusEqualShould, incrementInternalPointerByPassedValueAndReturnS
     EXPECT_EQ(valuePointedAfter2, 20);
 }
 
-TEST(StartOperatorShould, provideReadAccessToRequestedElement)
+TEST(StarOperatorShould, provideReadAccessToRequestedElement)
 {
     TestStruct elementPointed;
     ReverseIterator<TestStruct*> sut { &elementPointed };
@@ -185,7 +185,7 @@ TEST(StartOperatorShould, provideReadAccessToRequestedElement)
     EXPECT_EQ((*sut).number, 0);
 }
 
-TEST(StartOperatorShould, allowToModifyPointedElement)
+TEST(StarOperatorShould, allowToModifyPointedElement)
 {
     TestStruct elementPointed;
     auto [textBefore, numberBefore] = elementPointed;

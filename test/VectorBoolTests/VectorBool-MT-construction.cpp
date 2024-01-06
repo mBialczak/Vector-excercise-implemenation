@@ -15,6 +15,9 @@ class ConstructorTakingCountOnlyTests : public BoolSutExamplesAndHelpers
 class ConstructorTakingInputIteratorsTests : public BoolSutExamplesAndHelpers
 { };
 
+class ConstructorTakingInitializerListTests : public BoolSutExamplesAndHelpers
+{ };
+
 // TODO: VERIFY maybe test_f not needed
 TEST_F(VectorMemorySizeTest, sizeOfVectorBoolShouldBeEqualTo24)
 {
@@ -220,80 +223,36 @@ TEST_F(ConstructorTakingInputIteratorsTests, forEmptyRangeShouldConstructEmptyVe
     EXPECT_EQ(sutFromEmptySourceRange.size(), 0);
     EXPECT_EQ(sutFromEmptySourceRange.capacity(), 0);
 }
-// TEST_F(ConstructorTakingInputIteratorsTests, elementsStoredShouldBeEqualToElementsPassedThroughIterators)
+
+// TODO: REMOVE
+TEST_F(ConstructorTakingInputIteratorsTests, dummyVisualToRemove)
+{
+    // Vector<bool> sut { arrayOneChunkSize.begin(), arrayOneChunkSize.end() };
+
+    // std::cout << "Array:  ";
+
+    // for (std::size_t i = 0; i < CHUNK_SIZE; ++i) {
+    //     std::cout << arrayOneChunkSize[i];
+    // }
+
+    // std::cout << "\n"
+    //           << std::endl;
+
+    // std::cout << "Vector: ";
+
+    // for (std::size_t i = 0; i < CHUNK_SIZE; ++i) {
+    //     std::cout << sut[i];
+    // }
+
+    // std::cout << "\n--------------------------------------------------------------\n";
+}
+// TEST_F(ConstructorTakingInitializerListTests, elementsShouldBeSameAsThoseInInInitializerList)
 // {
-//     std::array<int, 4> originalContainer { 5, 10, 15, 20 };
-//     std::array<std::string, 4> originalContainer2 { "First", "Second", "Third", "Fourth" };
-//     auto iterOriginal { originalContainer.begin() };
-//     auto iterOriginal2 { originalContainer2.begin() };
+//     Vector sutSmallerThanOneChunk { false, true, true, false, true, false, false, true, false, true, true };
 
-//     Vector<int> sutInt { originalContainer.begin(), originalContainer.end(), DefaultAllocator<int> {} };
-//     auto iterSutInt { sutInt.begin() };
-//     Vector<std::string> sutString { originalContainer2.begin(), originalContainer2.end() };
-//     auto iterSutString { sutString.begin() };
-
-//     ASSERT_EQ(sutInt.size(), originalContainer.size());
-//     ASSERT_EQ(sutString.size(), sutString.size());
-
-//     while (iterOriginal != originalContainer.end() && iterSutInt != sutInt.end()) {
-//         EXPECT_EQ(*iterSutInt, *iterOriginal);
-//         ++iterOriginal;
-//         ++iterSutInt;
-//     }
-
-//     while (iterOriginal2 != originalContainer2.end() && iterSutString != sutString.end()) {
-//         EXPECT_EQ(*iterSutString, *iterOriginal2);
-//         ++iterOriginal2;
-//         ++iterSutString;
-//     }
+//     EXPECT_THAT(sutSmallerThanOneChunk,
+//                 testing::ElementsAre(false, true, true, false, true, false, false, true, false, true, true));
 // }
-
-// TEST_F(ConstructorTakingInputIteratorsTests, shouldRememberCorrectAllocator)
-// {
-//     std::array<int, 4> originalContainer { 5, 10, 15, 20 };
-//     std::array<std::string, 4> originalContainer2 { "First", "Second", "Third", "Fourth" };
-
-//     Vector<int, CustomTestingAllocator<int>> sutCustom { originalContainer.begin(),
-//                                                          originalContainer.end(),
-//                                                          customIntTestingAllocator };
-//     Vector<std::string> sutDefault { originalContainer2.begin(), originalContainer2.end() };
-
-//     EXPECT_THAT(sutCustom.get_allocator(), A<CustomTestingAllocator<int>>());
-//     EXPECT_THAT(sutDefault.get_allocator(), A<DefaultAllocator<std::string>>());
-// }
-
-// TEST_F(ConstructorTakingInputIteratorsTests, shouldCallAllocateAndConstruct)
-// {
-//     customStringTestingAllocator.setCallDetectionHelper(&stringAllocatorCallDetector);
-//     std::array<std::string, 4> originalContainer { "First", "Second", "Third", "Fourth" };
-
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
-//         .Times(1);
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectConstructCall(An<std::string*>(), An<std::string>()))
-//         .Times(4);
-
-//     Vector<std::string, CustomTestingAllocator<std::string>> sutCustom { originalContainer.begin(),
-//                                                                          originalContainer.end(),
-//                                                                          customStringTestingAllocator };
-
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(AnyNumber());
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectDestroyCall(An<std::string*>()))
-//         .Times(AnyNumber());
-// }
-
-// // === tests for constexpr Vector(std::initializer_list<T> init, const Allocator& alloc = Allocator());
-// TEST_F(ConstructorTakingInitializerListTests, sizeAndCapacityShouldBeEqualToSizeOfInitializerList)
-// {
-//     Vector sutInt { 1, 4, 9, 13 };
-//     Vector sutString { "InitializerConstructorTest" };
-
-//     EXPECT_EQ(sutInt.size(), 4);
-//     EXPECT_EQ(sutInt.capacity(), 4);
-
-//     EXPECT_EQ(sutString.size(), 1);
-//     EXPECT_EQ(sutString.capacity(), 1);
-// }
-
 // TEST_F(ConstructorTakingInitializerListTests, elementsShouldBeSameAsThoseInInInitializerList)
 // {
 //     std::string stringElement { "first element" };

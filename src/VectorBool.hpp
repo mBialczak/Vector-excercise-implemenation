@@ -48,9 +48,11 @@ class Vector<bool>
     //      using difference_type = std::ptrdiff_t;
     // using iterator = ChunkProxy<CHUNK_SIZE>*;
     // using iterator = ChunkProxy<CHUNK_SIZE>*;
-    using iterator = std::bitset<CHUNK_SIZE>*;
+    // using iterator = std::bitset<CHUNK_SIZE>*;
+    using iterator = std::bitset<CHUNK_SIZE>::reference*;
     // TODO: VERIFY
-    using const_iterator = const ChunkProxy<CHUNK_SIZE>*;
+    // using const_iterator = const ChunkProxy<CHUNK_SIZE>*;
+    using const_iterator = const std::bitset<CHUNK_SIZE>::reference*;
     //      using reverse_iterator = ReverseIterator<Type*>;
     //      using const_reverse_iterator = ReverseIterator<const Type*>;
 
@@ -59,7 +61,7 @@ class Vector<bool>
     constexpr Vector() noexcept;
     // TODO: REMOVE
     //     constexpr explicit Vector(const Allocator& alloc) noexcept;
-    // TODO: VERIFY replacement
+    // TODO: VERIFY replacement without allocator used
     //     constexpr Vector(size_type count, const Type& value, const Allocator& alloc = Allocator());
     constexpr Vector(size_type count, bool value);
 
@@ -68,12 +70,16 @@ class Vector<bool>
     template <typename InputIt>
         requires std::input_iterator<InputIt>
     constexpr Vector(InputIt first, InputIt last);
-    // TODO: VERIFY replacement
+
+    // TODO: VERIFY replacement without allocator used
     //      template <typename InputIt>
     //          requires std::input_iterator<InputIt>
     //      constexpr Vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
 
-    //     constexpr Vector(std::initializer_list<Type> init, const Allocator& alloc = Allocator());
+    // TODO: VERIFY replacement without allocator used
+    //      constexpr Vector(std::initializer_list<Type> init, const Allocator& alloc = Allocator());
+
+    // constexpr Vector(std::initializer_list<bool> init);
 
     //     constexpr Vector(const Vector& other);
 
@@ -120,7 +126,7 @@ class Vector<bool>
     //     constexpr const Type* data() const noexcept;
 
     constexpr iterator begin() noexcept;
-    //     constexpr const_iterator begin() const noexcept;
+    constexpr const_iterator begin() const noexcept;
     //     constexpr const_iterator cbegin() const noexcept;
 
     constexpr iterator end() noexcept;
@@ -347,13 +353,27 @@ constexpr Vector<bool>::Vector(size_type count, bool value)
     chunks_ = new std::bitset<CHUNK_SIZE>[numberOfChunks_] {};
 
     if (value) {
+        // for (size_type i = 0; i < fullChunksNumber; ++i) {
+        //     chunks_[i].set();
+        // }
+        // if (reminder) {
+        //     auto& lastChunk = chunks_[numberOfChunks_ - 1];
+        //     for (size_type i = 0; i < reminder; ++i) {
+        //         lastChunk.set(i, true);
+        //     }
+        // }
         for (size_type i = 0; i < fullChunksNumber; ++i) {
             chunks_[i].set();
         }
         if (reminder) {
+            // TODO: VERIFY need to set from most significant
             auto& lastChunk = chunks_[numberOfChunks_ - 1];
+            size_type mostSignificantIndex { CHUNK_SIZE - 1 };
+
             for (size_type i = 0; i < reminder; ++i) {
-                lastChunk.set(i, true);
+                // lastChunk.set(i, true);
+                lastChunk.set(mostSignificantIndex, true);
+                --mostSignificantIndex;
             }
         }
     }
@@ -383,32 +403,38 @@ constexpr Vector<bool>::Vector(InputIt first, InputIt last)
     chunks_ = new std::bitset<CHUNK_SIZE>[numberOfChunks_] {};
 
     size_type currentChunk { 0 };
-    size_type currentBit { 0 };
+    // size_type currentBit { 0 };
+    // TODO: VERIFY need to set from most significant
+    size_type currentBit { CHUNK_SIZE - 1 };
 
     while (first != last) {
         chunks_[currentChunk][currentBit] = *first;
         ++first;
-        if (currentBit == CHUNK_SIZE - 1) {
+        // if (currentBit == CHUNK_SIZE - 1) {
+        if (currentBit == 0) {
             ++currentChunk;
-            currentBit = 0;
+            // currentBit = 0;
+            currentBit = CHUNK_SIZE - 1;
         }
         else {
-            ++currentBit;
+            // ++currentBit;
+            --currentBit;
         }
     }
 }
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::Vector(std::initializer_list<Type> init, const Allocator& alloc)
-//     : begin_(alloc.allocate(std::distance(init.begin(), init.end())))
-//     , end_(std::next(begin_, std::distance(init.begin(), init.end())))
-//     , capacity_(end_)
+// constexpr Vector<bool>::Vector(std::initializer_list<bool> init)
+// // : begin_(alloc.allocate(std::distance(init.begin(), init.end())))
+// // , end_(std::next(begin_, std::distance(init.begin(), init.end())))
+// // , capacity_(end_)
 // {
-//     for (auto iter = begin_;
-//          const auto& el : init) {
-//         alloc.construct(iter, Type { el });
-//         ++iter;
-//     }
+//     // TODO: REMOVE
+//     std::cout << "CONSTRUCTOR taking INITIALIZER LIST\n";
+//     // for (auto iter = begin_;
+//     //      const auto& el : init) {
+//     //     alloc.construct(iter, Type { el });
+//     //     ++iter;
+//     // }
 // }
 
 // template <typename Type, typename Allocator>
@@ -614,8 +640,8 @@ inline Vector<bool>::reference Vector<bool>::operator[](size_type pos)
     auto chunk = pos / CHUNK_SIZE;
     auto reminder = pos % CHUNK_SIZE;
 
-    return chunks_[chunk][reminder];
-    // return *(begin_ + pos);
+    // return chunks_[chunk][reminder];
+    return chunks_[chunk][CHUNK_SIZE - 1 - reminder];
 }
 
 // TODO: VERIFY constexpr due to bitset operator not constexpr
@@ -625,7 +651,8 @@ inline Vector<bool>::const_reference Vector<bool>::operator[](size_type pos) con
     auto chunk = pos / CHUNK_SIZE;
     auto reminder = pos % CHUNK_SIZE;
 
-    return chunks_[chunk][reminder];
+    // return chunks_[chunk][reminder];
+    return chunks_[chunk][CHUNK_SIZE - 1 - reminder];
 }
 
 // template <typename Type, typename Allocator>
@@ -1097,15 +1124,19 @@ constexpr Vector<bool>::size_type Vector<bool>::capacity() const noexcept
 
 constexpr Vector<bool>::iterator Vector<bool>::begin() noexcept
 {
-    return chunks_;
+    // TODO: VERIFY
+    //  return chunks_ ? &(chunks_[0][0])
+    //                 : nullptr;
+    return iterator {};
 }
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::const_iterator
-//     Vector<Type, Allocator>::begin() const noexcept
-// {
-//     return begin_;
-// }
+constexpr Vector<bool>::const_iterator Vector<bool>::begin() const noexcept
+{
+    // TODO: VERIFY
+    //  return chunks_ ? &(chunks_[0][0])
+    //                 : nullptr;
+    return iterator {};
+}
 
 // template <typename Type, typename Allocator>
 // constexpr Vector<Type, Allocator>::const_iterator
@@ -1116,7 +1147,9 @@ constexpr Vector<bool>::iterator Vector<bool>::begin() noexcept
 
 constexpr Vector<bool>::iterator Vector<bool>::end() noexcept
 {
-    return std::next(chunks_, numberOfChunks_);
+    // TODO: VERIFY
+    //  return std::next(chunks_, numberOfChunks_);
+    return iterator {};
 }
 
 // template <typename Type, typename Allocator>
