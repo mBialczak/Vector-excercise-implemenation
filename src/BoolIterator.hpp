@@ -30,22 +30,22 @@ struct BoolIterator
     constexpr BoolIterator operator++(int);
     constexpr BoolIterator& operator--();
     constexpr BoolIterator operator--(int);
-    constexpr BoolIterator operator+(difference_type n) const;
-    constexpr BoolIterator operator-(difference_type n) const;
-    constexpr BoolIterator& operator+=(difference_type n);
-    constexpr BoolIterator& operator-=(difference_type n);
+    constexpr BoolIterator operator+(difference_type incrementNumber) const;
+    constexpr BoolIterator operator-(difference_type decrementNumber) const;
+    constexpr BoolIterator& operator+=(difference_type incrementNumber);
+    constexpr BoolIterator& operator-=(difference_type decrementNumber);
 
-    // constexpr Type& operator[](difference_type n) const;
-    // TODO: VERIFY
-    // constexpr std::bitset<CHUNK_SIZE>::reference& operator*() const;
-    // constexpr std::bitset<PointedBitsetSize>::reference& operator*() const;
-
-    // TODO: VERIFY test posibility of changing pointed value
+    constexpr std::bitset<PointedBitsetSize>::reference operator[](difference_type whichElement) const;
     constexpr std::bitset<PointedBitsetSize>::reference operator*() const;
-    // constexpr Type* operator->() const;
+    // TODO: VERIFY
+    constexpr bool* operator->() const = delete;
+    // constexpr BoolIterator operator->() const;
     // TODO: VERIFY tests to do
     // and most likely not full set of comparing needed because does not make sense
-    auto operator<=>(const BoolIterator& other) const = default;
+    // auto operator<=>(const BoolIterator& other) const = default;
+    constexpr bool operator==(const BoolIterator& other) const = default;
+    constexpr bool operator<(const BoolIterator& other) const;
+    constexpr bool operator<=(const BoolIterator& other) const;
 
   private:
     // TODO: VERIFY
@@ -99,35 +99,38 @@ constexpr BoolIterator<PointedBitsetSize> BoolIterator<PointedBitsetSize>::opera
 }
 
 template <std::size_t PointedBitsetSize>
-constexpr BoolIterator<PointedBitsetSize> BoolIterator<PointedBitsetSize>::operator+(difference_type n) const
+constexpr BoolIterator<PointedBitsetSize>
+    BoolIterator<PointedBitsetSize>::operator+(difference_type incrementNumber) const
 {
     BoolIterator<PointedBitsetSize> resultIterator { chunks_, numberOfElements_ };
-    resultIterator.currentElement_ = currentElement_ + n;
+    resultIterator.currentElement_ = currentElement_ + incrementNumber;
 
     return resultIterator;
 }
 
 template <std::size_t PointedBitsetSize>
-constexpr BoolIterator<PointedBitsetSize> BoolIterator<PointedBitsetSize>::operator-(difference_type n) const
+constexpr BoolIterator<PointedBitsetSize>
+    BoolIterator<PointedBitsetSize>::operator-(difference_type decrementNumber) const
 {
     BoolIterator<PointedBitsetSize> resultIterator { chunks_, numberOfElements_ };
-    resultIterator.currentElement_ = currentElement_ - n;
+    resultIterator.currentElement_ = currentElement_ - decrementNumber;
 
     return resultIterator;
 }
 
 template <std::size_t PointedBitsetSize>
-constexpr BoolIterator<PointedBitsetSize>& BoolIterator<PointedBitsetSize>::operator+=(difference_type n)
+constexpr BoolIterator<PointedBitsetSize>& BoolIterator<PointedBitsetSize>::operator+=(difference_type incrementNumber)
 {
-    currentElement_ += n;
+    currentElement_ += incrementNumber;
 
     return *this;
 }
 
 template <std::size_t PointedBitsetSize>
-constexpr BoolIterator<PointedBitsetSize>& BoolIterator<PointedBitsetSize>::operator-=(difference_type n)
+constexpr BoolIterator<PointedBitsetSize>&
+    BoolIterator<PointedBitsetSize>::operator-=(difference_type decrementNumber)
 {
-    currentElement_ -= n;
+    currentElement_ -= decrementNumber;
 
     return *this;
 }
@@ -139,6 +142,46 @@ constexpr std::bitset<PointedBitsetSize>::reference BoolIterator<PointedBitsetSi
     const auto reminderElementNumber = currentElement_ % PointedBitsetSize;
 
     return chunks_[chunk][PointedBitsetSize - 1 - reminderElementNumber];
+}
+
+// TODO: REMOVE
+// template <std::size_t PointedBitsetSize>
+// // constexpr BoolIterator<PointedBitsetSize> BoolIterator<PointedBitsetSize>::operator->() const
+// constexpr bool* BoolIterator<PointedBitsetSize>::operator->() const
+// {
+//     return nullptr;
+// }
+
+template <std::size_t PointedBitsetSize>
+constexpr std::bitset<PointedBitsetSize>::reference
+    BoolIterator<PointedBitsetSize>::operator[](difference_type whichElement) const
+{
+    const auto chunk = whichElement / PointedBitsetSize;
+    const auto reminderElementNumber = whichElement % PointedBitsetSize;
+
+    return chunks_[chunk][PointedBitsetSize - 1 - reminderElementNumber];
+}
+
+template <std::size_t PointedBitsetSize>
+constexpr bool BoolIterator<PointedBitsetSize>::operator<(const BoolIterator& other) const
+{
+    if (chunks_ == other.chunks_) {
+        return currentElement_ < other.currentElement_;
+    }
+    else {
+        return chunks_ < other.chunks_;
+    }
+}
+
+template <std::size_t PointedBitsetSize>
+constexpr bool BoolIterator<PointedBitsetSize>::operator<=(const BoolIterator& other) const
+{
+    if (chunks_ == other.chunks_) {
+        return currentElement_ <= other.currentElement_;
+    }
+    else {
+        return chunks_ < other.chunks_;
+    }
 }
 
 }   // namespace my

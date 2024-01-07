@@ -105,6 +105,9 @@ class OperatorPlusEqualShould : public BoolIteratorShould
 class OperatorMinusEqualShould : public BoolIteratorShould
 { };
 
+class RandomAccessOperatorShould : public BoolIteratorShould
+{ };
+
 void checkIfPreincrementedSutReturnsIncrementedSelfAndPointsToCorrectElement(BoolIterator<TEST_CHUNK_SIZE>& sut,
                                                                              bool expectedValue)
 {
@@ -488,57 +491,138 @@ TEST_F(OperatorStarForBoolIteratorShould, provideReadAccessToCorrectElement)
     checkIfSutPointsToExpectedElementsOfObservedData(sutPointingToFiveChunks, fiveFullChunksData);
 }
 
-// TEST(StartOperatorShould, allowToModifyPointedElement)
-// {
-//     TestStruct elementPointed;
-//     auto [textBefore, numberBefore] = elementPointed;
-//     ReverseIterator<TestStruct*> sut { &elementPointed };
+TEST_F(OperatorStarForBoolIteratorShould, allowToModifyPointedElement)
+{
+    BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
+    bool firstElementBeforeChange = *sutPointingToFiveChunks;
 
-//     (*sut).text = "CHANGED";
-//     (*sut).number = 111;
+    *sutPointingToFiveChunks = false;
+    bool firstElementAfterChange = *sutPointingToFiveChunks;
 
-//     EXPECT_EQ(textBefore, "DEFAULT");
-//     EXPECT_EQ(numberBefore, 0);
-//     EXPECT_EQ(elementPointed.text, "CHANGED");
-//     EXPECT_EQ(elementPointed.number, 111);
-// }
+    // go to 9th element
+    auto sutPointingTo9thElement = sutPointingToFiveChunks + 8;
+    bool ninthElementBeforeChange = *sutPointingTo9thElement;
+    *sutPointingTo9thElement = false;
+    bool ninthElementAfterChange = *sutPointingTo9thElement;
 
-// TEST_F(RandomAccessOperatorShould, provideDirectAccessToRequestedElementReverseOrder)
-// {
-//     ReverseIterator<int*> sut { &elements_[4] };
+    // go to 16th element
+    auto sutPointing16thElement = sutPointingToFiveChunks + 15;
+    bool sixteenthElementBeforeChange = *sutPointing16thElement;
 
-//     EXPECT_EQ(sut[0], 25);
-//     EXPECT_EQ(sut[1], 20);
-//     EXPECT_EQ(sut[2], 15);
-//     EXPECT_EQ(sut[3], 10);
-//     EXPECT_EQ(sut[4], 5);
-// }
+    *sutPointing16thElement = true;
+    bool sixteenthElementAfterChange = *sutPointing16thElement;
+    // go to 25th element
+    auto sutPointing25thElement = sutPointingToFiveChunks + 24;
+    bool twentyFourthElementBeforeChange = *sutPointing25thElement;
 
-// TEST_F(RandomAccessOperatorShould, allowToModifyPointedElement)
-// {
-//     ReverseIterator<int*> sut { &elements_[4] };
-//     int firstReverseValueBeforeChange = sut[0];
-//     int middleReverseValueBeforeChange = sut[2];
-//     int lastReverseValueBeforeChange = sut[4];
+    *sutPointing25thElement = true;
+    bool twentyFourthElementAfterChange = *sutPointing25thElement;
+    // go to 35th element
+    auto sutPointing35thElement = sutPointingToFiveChunks + 34;
+    bool thirtyFifthElementBeforeChange = *sutPointing35thElement;
 
-//     sut[0] = 111;
-//     sut[2] = 333;
-//     sut[4] = 555;
+    *sutPointing35thElement = false;
+    bool thirtyFifthElementAfterChange = *sutPointing35thElement;
+    // go to 40th - last element
+    auto sutPointing40thElement = sutPointingToFiveChunks + 39;
+    bool lastElementBeforeChange = *sutPointing40thElement;
 
-//     EXPECT_EQ(firstReverseValueBeforeChange, 25);
-//     EXPECT_EQ(middleReverseValueBeforeChange, 15);
-//     EXPECT_EQ(lastReverseValueBeforeChange, 5);
-//     EXPECT_EQ(sut[0], 111);
-//     EXPECT_EQ(sut[2], 333);
-//     EXPECT_EQ(sut[4], 555);
-// }
+    *sutPointing40thElement = false;
+    bool lastElementAfterChange = *sutPointing40thElement;
 
-// TEST(ArrowOperatorShould, provideArrowOperatorAccessToMembersOfPointedElements)
-// {
-//     std::array<TestStruct, 3> elements;
-//     auto [textBeforeOne, numberBeforeOne] = elements[0];
-//     auto [textBeforeTwo, numberBeforeTwo] = elements[1];
-//     auto [textBeforeThree, numberBeforeThree] = elements[2];
+    EXPECT_EQ(firstElementBeforeChange, true);
+    EXPECT_EQ(firstElementAfterChange, false);
+    EXPECT_EQ(ninthElementBeforeChange, true);
+    EXPECT_EQ(ninthElementAfterChange, false);
+    EXPECT_EQ(sixteenthElementBeforeChange, false);
+    EXPECT_EQ(sixteenthElementAfterChange, true);
+    EXPECT_EQ(twentyFourthElementBeforeChange, false);
+    EXPECT_EQ(twentyFourthElementAfterChange, true);
+    EXPECT_EQ(thirtyFifthElementBeforeChange, true);
+    EXPECT_EQ(thirtyFifthElementAfterChange, false);
+    EXPECT_EQ(lastElementBeforeChange, true);
+    EXPECT_EQ(lastElementAfterChange, false);
+}
+
+TEST_F(RandomAccessOperatorShould, provideDirectReadAccessToRequestedElement)
+{
+    BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
+
+    EXPECT_EQ(sutPointingToFiveChunks[0], true);
+    EXPECT_EQ(sutPointingToFiveChunks[3], false);
+    EXPECT_EQ(sutPointingToFiveChunks[9], true);
+    EXPECT_EQ(sutPointingToFiveChunks[13], false);
+    EXPECT_EQ(sutPointingToFiveChunks[18], true);
+    EXPECT_EQ(sutPointingToFiveChunks[25], false);
+    EXPECT_EQ(sutPointingToFiveChunks[32], false);
+    EXPECT_EQ(sutPointingToFiveChunks[35], true);
+    EXPECT_EQ(sutPointingToFiveChunks[39], true);
+}
+
+void checkIfRandomAccessOperatorAllowsElementModification(const BoolIterator<TEST_CHUNK_SIZE>& sut,
+                                                          BoolIterator<TEST_CHUNK_SIZE>::difference_type whichElement,
+                                                          bool oldExpectedValue,
+                                                          bool newValue)
+{
+    ASSERT_EQ(sut[whichElement], oldExpectedValue);
+    sut[whichElement] = newValue;
+
+    EXPECT_EQ(sut[whichElement], newValue);
+}
+
+TEST_F(RandomAccessOperatorShould, allowToModifyPointedElement)
+{
+    BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
+
+    checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 0, true, false);
+    checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 3, false, true);
+    checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 9, true, false);
+    checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 13, false, true);
+    checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 18, true, false);
+    checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 25, false, true);
+    checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 32, false, true);
+    checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 35, true, false);
+    checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 39, true, false);
+}
+
+TEST_F(BoolIteratorShould, provideEqualityComparison)
+{
+    BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
+    BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
+
+    EXPECT_EQ(sutPointingToOneFullChunk, sutPointingToOneFullChunk);
+    EXPECT_EQ(sutPointingToFiveChunks, sutPointingToFiveChunks);
+}
+
+TEST_F(BoolIteratorShould, provideInequalityComparison)
+{
+    BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
+    BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
+
+    EXPECT_NE(sutPointingToOneFullChunk, sutPointingToFiveChunks);
+}
+
+TEST_F(BoolIteratorShould, provideLessThanComparison)
+{
+    BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
+
+    EXPECT_LT(sutPointingToOneFullChunk, sutPointingToOneFullChunk + 4);
+}
+
+TEST_F(BoolIteratorShould, provideLessThanComparison)
+{
+    BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
+
+    EXPECT_LT(sutPointingToOneFullChunk, sutPointingToOneFullChunk + 4);
+}
+
+// TODO: VERIFY makes no sense ?
+//  TEST(ArrowOperatorShould, provideArrowOperatorAccessToMembersOfPointedElements)
+//  {
+//      std::array<TestStruct, 3> elements;
+//      auto [textBeforeOne, numberBeforeOne] = elements[0];
+//      auto [textBeforeTwo, numberBeforeTwo] = elements[1];
+//      auto [textBeforeThree, numberBeforeThree] = elements[2];
 
 //     ReverseIterator<TestStruct*> sutOne { &elements[0] };
 //     ReverseIterator<TestStruct*> sutTwo { &elements[1] };
@@ -558,7 +642,7 @@ TEST_F(OperatorStarForBoolIteratorShould, provideReadAccessToCorrectElement)
 //     EXPECT_EQ(numberBeforeTwo, 0);
 //     EXPECT_EQ(numberBeforeThree, 0);
 // }
-
+// TODO: VERIFY makes no sense ?
 // TEST(ArrowOperatorShould, allowToModifyPointedElement)
 // {
 //     TestStruct elementPointed;
