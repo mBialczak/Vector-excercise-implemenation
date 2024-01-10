@@ -1,7 +1,6 @@
 #include "BoolIterator.hpp"
-// TODO: VERIFY includes
+
 #include "gtest/gtest.h"
-#include <bitset>
 
 namespace my::test {
 
@@ -458,19 +457,9 @@ void checkIfSutPointsToExpectedElementsOfObservedData(BoolIterator<TEST_CHUNK_SI
 {
     auto numberOfElementsToCheck = dataUsedForObservedDataCreation.size();
 
-    // TODO: REMOVE
-    // std::cout << "size: " << numberOfElementsToCheck << std::endl;
-
     for (std::size_t i = 0; i < numberOfElementsToCheck; ++i) {
         bool convertedOriginalBitValue = dataUsedForObservedDataCreation[i] == '1' ? true
                                                                                    : false;
-        // initialDataToCheck >> convertedOriginalBitValue;
-        // TODO: REMOVE
-        // std::cout << "in string: " << dataUsedForObservedDataCreation[i]
-        //           //   << " converted: " << convertedOriginalBitValue
-        //           << " pointed by sut " << *sut
-        //           << "\n------------------------------" << std::endl;
-
         EXPECT_EQ(*sut, convertedOriginalBitValue);
         ++sut;
     }
@@ -498,35 +487,29 @@ TEST_F(OperatorStarForBoolIteratorShould, allowToModifyPointedElement)
 
     *sutPointingToFiveChunks = false;
     bool firstElementAfterChange = *sutPointingToFiveChunks;
-
     // go to 9th element
     auto sutPointingTo9thElement = sutPointingToFiveChunks + 8;
     bool ninthElementBeforeChange = *sutPointingTo9thElement;
     *sutPointingTo9thElement = false;
     bool ninthElementAfterChange = *sutPointingTo9thElement;
-
     // go to 16th element
     auto sutPointing16thElement = sutPointingToFiveChunks + 15;
     bool sixteenthElementBeforeChange = *sutPointing16thElement;
-
     *sutPointing16thElement = true;
     bool sixteenthElementAfterChange = *sutPointing16thElement;
     // go to 25th element
     auto sutPointing25thElement = sutPointingToFiveChunks + 24;
     bool twentyFourthElementBeforeChange = *sutPointing25thElement;
-
     *sutPointing25thElement = true;
     bool twentyFourthElementAfterChange = *sutPointing25thElement;
     // go to 35th element
     auto sutPointing35thElement = sutPointingToFiveChunks + 34;
     bool thirtyFifthElementBeforeChange = *sutPointing35thElement;
-
     *sutPointing35thElement = false;
     bool thirtyFifthElementAfterChange = *sutPointing35thElement;
     // go to 40th - last element
     auto sutPointing40thElement = sutPointingToFiveChunks + 39;
     bool lastElementBeforeChange = *sutPointing40thElement;
-
     *sutPointing40thElement = false;
     bool lastElementAfterChange = *sutPointing40thElement;
 
@@ -609,82 +592,27 @@ TEST_F(BoolIteratorShould, provideLessThanComparison)
     EXPECT_LT(sutPointingToOneFullChunk, sutPointingToOneFullChunk + 4);
 }
 
-TEST_F(BoolIteratorShould, provideLessThanComparison)
+TEST_F(BoolIteratorShould, provideLessThanEqualComparison)
 {
     BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
 
-    EXPECT_LT(sutPointingToOneFullChunk, sutPointingToOneFullChunk + 4);
+    EXPECT_LE(sutPointingToOneFullChunk, sutPointingToOneFullChunk + 4);
+    EXPECT_LE(sutPointingToOneFullChunk, sutPointingToOneFullChunk);
 }
 
-// TODO: VERIFY makes no sense ?
-//  TEST(ArrowOperatorShould, provideArrowOperatorAccessToMembersOfPointedElements)
-//  {
-//      std::array<TestStruct, 3> elements;
-//      auto [textBeforeOne, numberBeforeOne] = elements[0];
-//      auto [textBeforeTwo, numberBeforeTwo] = elements[1];
-//      auto [textBeforeThree, numberBeforeThree] = elements[2];
+TEST_F(BoolIteratorShould, provideGreaterThanComparison)
+{
+    BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
 
-//     ReverseIterator<TestStruct*> sutOne { &elements[0] };
-//     ReverseIterator<TestStruct*> sutTwo { &elements[1] };
-//     ReverseIterator<TestStruct*> sutThree { &elements[2] };
+    EXPECT_GT(sutPointingToOneFullChunk + 4, sutPointingToOneFullChunk);
+}
 
-//     sutOne->text = "One";
-//     sutOne->number = 1;
-//     sutTwo->text = "Two";
-//     sutTwo->number = 2;
-//     sutThree->text = "Three";
-//     sutThree->number = 3;
+TEST_F(BoolIteratorShould, provideGreaterThanEqualComparison)
+{
+    BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
 
-//     EXPECT_EQ(textBeforeOne, "DEFAULT");
-//     EXPECT_EQ(textBeforeTwo, "DEFAULT");
-//     EXPECT_EQ(textBeforeOne, "DEFAULT");
-//     EXPECT_EQ(numberBeforeOne, 0);
-//     EXPECT_EQ(numberBeforeTwo, 0);
-//     EXPECT_EQ(numberBeforeThree, 0);
-// }
-// TODO: VERIFY makes no sense ?
-// TEST(ArrowOperatorShould, allowToModifyPointedElement)
-// {
-//     TestStruct elementPointed;
-//     auto [textBefore, numberBefore] = elementPointed;
-//     ReverseIterator<TestStruct*> sut { &elementPointed };
-
-//     sut->text = "CHANGED";
-//     sut->number = 111;
-
-//     EXPECT_EQ(textBefore, "DEFAULT");
-//     EXPECT_EQ(numberBefore, 0);
-//     EXPECT_EQ(elementPointed.text, "CHANGED");
-//     EXPECT_EQ(elementPointed.number, 111);
-// }
-
-// TEST_F(ReverseIteratorShould, provideAllComparisonOperators)
-// {
-//     ReverseIterator<int*> sutOne { &elements_[0] };
-//     ReverseIterator<int*> sutTwo { &elements_[1] };
-//     ReverseIterator<int*> sutThree { &elements_[2] };
-
-//     EXPECT_TRUE(sutOne == sutOne);
-//     EXPECT_FALSE(sutOne == sutTwo);
-
-//     EXPECT_TRUE(sutOne != sutTwo);
-//     EXPECT_FALSE(sutOne != sutOne);
-
-//     EXPECT_TRUE(sutOne < sutTwo);
-//     EXPECT_FALSE(sutOne < sutOne);
-//     EXPECT_FALSE(sutTwo < sutOne);
-
-//     EXPECT_TRUE(sutOne <= sutTwo);
-//     EXPECT_TRUE(sutOne <= sutOne);
-//     EXPECT_FALSE(sutTwo <= sutOne);
-
-//     EXPECT_TRUE(sutTwo > sutOne);
-//     EXPECT_FALSE(sutTwo > sutTwo);
-//     EXPECT_FALSE(sutOne > sutTwo);
-
-//     EXPECT_TRUE(sutTwo >= sutOne);
-//     EXPECT_TRUE(sutTwo >= sutTwo);
-//     EXPECT_FALSE(sutOne >= sutTwo);
-// }
+    EXPECT_GE(sutPointingToOneFullChunk + 4, sutPointingToOneFullChunk);
+    EXPECT_GE(sutPointingToOneFullChunk, sutPointingToOneFullChunk);
+}
 
 }   // namespace my::test
