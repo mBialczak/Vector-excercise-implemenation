@@ -1,8 +1,8 @@
 #pragma once
 // TODO: VERIFY needed
 
+#include "BoolIterator.hpp"
 #include "DefaultAllocator.hpp"
-#include "ReverseIterator.hpp"
 // #include "Vector.hpp"
 // TODO: VERIFY
 
@@ -49,10 +49,10 @@ class Vector<bool>
     // using iterator = ChunkProxy<CHUNK_SIZE>*;
     // using iterator = ChunkProxy<CHUNK_SIZE>*;
     // using iterator = std::bitset<CHUNK_SIZE>*;
-    using iterator = std::bitset<CHUNK_SIZE>::reference*;
+    using iterator = BoolIterator<CHUNK_SIZE, bool>;
     // TODO: VERIFY
     // using const_iterator = const ChunkProxy<CHUNK_SIZE>*;
-    using const_iterator = const std::bitset<CHUNK_SIZE>::reference*;
+    using const_iterator = BoolIterator<CHUNK_SIZE, const bool>;
     //      using reverse_iterator = ReverseIterator<Type*>;
     //      using const_reverse_iterator = ReverseIterator<const Type*>;
 
@@ -130,7 +130,7 @@ class Vector<bool>
     //     constexpr const_iterator cbegin() const noexcept;
 
     constexpr iterator end() noexcept;
-    // constexpr const_iterator end() const noexcept;
+    constexpr const_iterator end() const noexcept;
     //     constexpr const_iterator cend() const noexcept;
 
     //     constexpr reverse_iterator rbegin() noexcept;
@@ -1124,18 +1124,16 @@ constexpr Vector<bool>::size_type Vector<bool>::capacity() const noexcept
 
 constexpr Vector<bool>::iterator Vector<bool>::begin() noexcept
 {
-    // TODO: VERIFY
-    //  return chunks_ ? &(chunks_[0][0])
-    //                 : nullptr;
-    return iterator {};
+    // return BoolIterator<CHUNK_SIZE, bool> { chunks_, currentSize_ };
+    return currentSize_ > 0 ? BoolIterator<CHUNK_SIZE, bool> { chunks_, currentSize_ + 1 }
+                            : BoolIterator<CHUNK_SIZE, bool> { nullptr, 0 };
 }
 
 constexpr Vector<bool>::const_iterator Vector<bool>::begin() const noexcept
 {
-    // TODO: VERIFY
-    //  return chunks_ ? &(chunks_[0][0])
-    //                 : nullptr;
-    return iterator {};
+    // return BoolIterator<CHUNK_SIZE, const bool> { chunks_, currentSize_ };
+    return currentSize_ > 0 ? BoolIterator<CHUNK_SIZE, const bool> { chunks_, currentSize_ + 1 }
+                            : BoolIterator<CHUNK_SIZE, const bool> { nullptr, 0 };
 }
 
 // template <typename Type, typename Allocator>
@@ -1149,15 +1147,17 @@ constexpr Vector<bool>::iterator Vector<bool>::end() noexcept
 {
     // TODO: VERIFY
     //  return std::next(chunks_, numberOfChunks_);
-    return iterator {};
+    return currentSize_ > 0 ? BoolIterator<CHUNK_SIZE, bool> { chunks_, currentSize_ + 1 }
+                            : BoolIterator<CHUNK_SIZE, bool> { nullptr, 0 };
 }
-
+// TODO: REMOVE
 // template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::const_iterator
-//     Vector<Type, Allocator>::end() const noexcept
-// {
-//     return end_;
-// }
+constexpr Vector<bool>::const_iterator Vector<bool>::end() const noexcept
+{
+    // return BoolIterator<CHUNK_SIZE, const bool> { chunks_, currentSize_ + 1 };
+    return currentSize_ > 0 ? BoolIterator<CHUNK_SIZE, const bool> { chunks_, currentSize_ + 1 }
+                            : BoolIterator<CHUNK_SIZE, const bool> { nullptr, 0 };
+}
 
 // template <typename Type, typename Allocator>
 // constexpr Vector<Type, Allocator>::const_iterator
