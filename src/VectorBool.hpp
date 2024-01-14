@@ -56,32 +56,17 @@ class Vector<bool>
     //      using reverse_iterator = ReverseIterator<Type*>;
     //      using const_reverse_iterator = ReverseIterator<const Type*>;
 
-    // TODO: VERIFY replacement defined?
-    //  constexpr Vector() noexcept(noexcept(Allocator()));
     constexpr Vector() noexcept;
-    // TODO: REMOVE
-    //     constexpr explicit Vector(const Allocator& alloc) noexcept;
-    // TODO: VERIFY replacement without allocator used
-    //     constexpr Vector(size_type count, const Type& value, const Allocator& alloc = Allocator());
     constexpr Vector(size_type count, bool value);
-
     constexpr explicit Vector(size_type count);
 
     template <typename InputIt>
         requires std::input_iterator<InputIt>
     constexpr Vector(InputIt first, InputIt last);
 
-    // TODO: VERIFY replacement without allocator used
-    //      template <typename InputIt>
-    //          requires std::input_iterator<InputIt>
-    //      constexpr Vector(InputIt first, InputIt last, const Allocator& alloc = Allocator());
+    constexpr Vector(std::initializer_list<bool> init);
 
-    // TODO: VERIFY replacement without allocator used
-    //      constexpr Vector(std::initializer_list<Type> init, const Allocator& alloc = Allocator());
-
-    // constexpr Vector(std::initializer_list<bool> init);
-
-    //     constexpr Vector(const Vector& other);
+    constexpr Vector(const Vector& other);
 
     //     template <typename OtherAllocator>
     //     constexpr Vector(const Vector<Type, OtherAllocator>& other, const Allocator& alloc);
@@ -423,32 +408,23 @@ constexpr Vector<bool>::Vector(InputIt first, InputIt last)
     }
 }
 
-// constexpr Vector<bool>::Vector(std::initializer_list<bool> init)
-// // : begin_(alloc.allocate(std::distance(init.begin(), init.end())))
-// // , end_(std::next(begin_, std::distance(init.begin(), init.end())))
-// // , capacity_(end_)
-// {
-//     // TODO: REMOVE
-//     std::cout << "CONSTRUCTOR taking INITIALIZER LIST\n";
-//     // for (auto iter = begin_;
-//     //      const auto& el : init) {
-//     //     alloc.construct(iter, Type { el });
-//     //     ++iter;
-//     // }
-// }
+constexpr Vector<bool>::Vector(std::initializer_list<bool> init)
+    : Vector(init.begin(), init.end())
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::Vector(const Vector& other)
-//     : begin_(Allocator::allocate(other.capacity()))
-//     , end_(std::next(begin_, other.size()))
-//     , capacity_(std::next(begin_, other.capacity()))
-// {
-//     for (auto iter = begin_;
-//          const auto& el : other) {
-//         Allocator::construct(iter, Type { el });
-//         ++iter;
-//     }
-// }
+{
+    //     // TODO: REMOVE
+    // std::cout << "CONSTRUCTOR taking INITIALIZER LIST\n";
+}
+
+constexpr Vector<bool>::Vector(const Vector& other)
+    : chunks_(new std::bitset<CHUNK_SIZE>[other.numberOfChunks_])
+    , currentSize_(other.currentSize_)
+    , numberOfChunks_(other.numberOfChunks_)
+{
+    for (size_type i = 0; i < numberOfChunks_; ++i) {
+        chunks_[i] = other.chunks_[i];
+    }
+}
 
 // template <typename Type, typename Allocator>
 // template <typename OtherAllocator>
@@ -1125,14 +1101,14 @@ constexpr Vector<bool>::size_type Vector<bool>::capacity() const noexcept
 constexpr Vector<bool>::iterator Vector<bool>::begin() noexcept
 {
     // return BoolIterator<CHUNK_SIZE, bool> { chunks_, currentSize_ };
-    return currentSize_ > 0 ? BoolIterator<CHUNK_SIZE, bool> { chunks_, currentSize_ + 1 }
+    return currentSize_ > 0 ? BoolIterator<CHUNK_SIZE, bool> { chunks_, currentSize_ }
                             : BoolIterator<CHUNK_SIZE, bool> { nullptr, 0 };
 }
 
 constexpr Vector<bool>::const_iterator Vector<bool>::begin() const noexcept
 {
     // return BoolIterator<CHUNK_SIZE, const bool> { chunks_, currentSize_ };
-    return currentSize_ > 0 ? BoolIterator<CHUNK_SIZE, const bool> { chunks_, currentSize_ + 1 }
+    return currentSize_ > 0 ? BoolIterator<CHUNK_SIZE, const bool> { chunks_, currentSize_ }
                             : BoolIterator<CHUNK_SIZE, const bool> { nullptr, 0 };
 }
 
@@ -1147,7 +1123,9 @@ constexpr Vector<bool>::iterator Vector<bool>::end() noexcept
 {
     // TODO: VERIFY
     //  return std::next(chunks_, numberOfChunks_);
-    return currentSize_ > 0 ? BoolIterator<CHUNK_SIZE, bool> { chunks_, currentSize_ + 1 }
+    // return currentSize_ > 0 ? BoolIterator<CHUNK_SIZE, bool> { chunks_, currentSize_, currentSize_ + 1 }
+    //                         : BoolIterator<CHUNK_SIZE, bool> { nullptr, 0 };
+    return currentSize_ > 0 ? BoolIterator<CHUNK_SIZE, bool> { chunks_, currentSize_, currentSize_ }
                             : BoolIterator<CHUNK_SIZE, bool> { nullptr, 0 };
 }
 // TODO: REMOVE
@@ -1155,7 +1133,7 @@ constexpr Vector<bool>::iterator Vector<bool>::end() noexcept
 constexpr Vector<bool>::const_iterator Vector<bool>::end() const noexcept
 {
     // return BoolIterator<CHUNK_SIZE, const bool> { chunks_, currentSize_ + 1 };
-    return currentSize_ > 0 ? BoolIterator<CHUNK_SIZE, const bool> { chunks_, currentSize_ + 1 }
+    return currentSize_ > 0 ? BoolIterator<CHUNK_SIZE, const bool> { chunks_, currentSize_, currentSize_ }
                             : BoolIterator<CHUNK_SIZE, const bool> { nullptr, 0 };
 }
 

@@ -12,7 +12,9 @@ struct BoolIterator<PointedBitsetSize, bool>
 {
     using difference_type = std::size_t;
 
-    constexpr BoolIterator(std::bitset<PointedBitsetSize>* data, std::size_t numberOfElements);
+    constexpr BoolIterator(std::bitset<PointedBitsetSize>* data,
+                           std::size_t numberOfElements,
+                           std::size_t pointedElement = 0);
 
     constexpr BoolIterator& operator++();
     constexpr BoolIterator operator++(int);
@@ -44,7 +46,9 @@ struct BoolIterator<PointedBitsetSize, const bool>
 {
     using difference_type = std::size_t;
 
-    constexpr BoolIterator(const std::bitset<PointedBitsetSize>* data, std::size_t numberOfElements);
+    constexpr BoolIterator(const std::bitset<PointedBitsetSize>* data,
+                           std::size_t numberOfElements,
+                           std::size_t pointedElement = 0);
 
     constexpr BoolIterator& operator++();
     constexpr BoolIterator operator++(int);
@@ -73,10 +77,11 @@ struct BoolIterator<PointedBitsetSize, const bool>
 
 template <std::size_t PointedBitsetSize>
 constexpr BoolIterator<PointedBitsetSize, bool>::BoolIterator(std::bitset<PointedBitsetSize>* data,
-                                                              std::size_t numberOfElements)
+                                                              std::size_t numberOfElements,
+                                                              std::size_t pointedElement)
     : chunks_ { data }
     , numberOfElements_ { numberOfElements }
-    , currentElement_ { 0 }
+    , currentElement_ { pointedElement }
 {
 }
 template <std::size_t PointedBitsetSize>
@@ -217,10 +222,11 @@ constexpr bool BoolIterator<PointedBitsetSize, bool>::operator>=(const BoolItera
 // =================== struct BoolIterator<PointedBitsetSize, const bool> implementation
 template <std::size_t PointedBitsetSize>
 constexpr BoolIterator<PointedBitsetSize, const bool>::BoolIterator(const std::bitset<PointedBitsetSize>* data,
-                                                                    std::size_t numberOfElements)
+                                                                    std::size_t numberOfElements,
+                                                                    std::size_t pointedElement)
     : chunks_ { data }
     , numberOfElements_ { numberOfElements }
-    , currentElement_ { 0 }
+    , currentElement_ { pointedElement }
 {
 }
 
