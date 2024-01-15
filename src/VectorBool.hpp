@@ -36,23 +36,13 @@ class Vector<bool>
     // class BitProxy;
 
     using value_type = bool;
-    // TODO: VERIFY maybe can be used if new is used instead
-    // using allocator_type = Allocator;
-    // using allocator_type = DefaultAllocator<std::bitset<CHUNK_SIZE>>;
-    // using allocator_type = Allocator;
     using size_type = std::size_t;
-    // using reference = ChunkProxy<CHUNK_SIZE>;
     using reference = std::bitset<CHUNK_SIZE>::reference;
     using const_reference = bool;
-    // TODO: VERIFY rest
-    //      using difference_type = std::ptrdiff_t;
-    // using iterator = ChunkProxy<CHUNK_SIZE>*;
-    // using iterator = ChunkProxy<CHUNK_SIZE>*;
-    // using iterator = std::bitset<CHUNK_SIZE>*;
+    using difference_type = BoolIterator<CHUNK_SIZE, bool>::difference_type;
     using iterator = BoolIterator<CHUNK_SIZE, bool>;
-    // TODO: VERIFY
-    // using const_iterator = const ChunkProxy<CHUNK_SIZE>*;
     using const_iterator = BoolIterator<CHUNK_SIZE, const bool>;
+    // TODO: VERIFY rest
     //      using reverse_iterator = ReverseIterator<Type*>;
     //      using const_reverse_iterator = ReverseIterator<const Type*>;
 
@@ -426,7 +416,7 @@ constexpr Vector<bool>::Vector(Vector&& other) noexcept
     , numberOfChunks_(other.numberOfChunks_)
 {
     // TODO: REMOVE
-    std::cout << "MOVE CONSTRUCTOR" << std::endl;
+    // std::cout << "MOVE CONSTRUCTOR" << std::endl;
     other.chunks_ = nullptr;
     other.currentSize_ = 0;
     other.numberOfChunks_ = 0;
