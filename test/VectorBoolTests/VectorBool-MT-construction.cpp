@@ -309,52 +309,23 @@ TEST_F(CopyConstructorTests, elementsOfCopiedAndOriginalVectorsShouldBeEqual)
     checkIfTwoVectorsHaveEqualElements(sutCopyOfThreeChunkSut, sutWithThreeChunks);
 }
 
-// TEST_F(CopyConstructorTests, iteratorsOfCopyShouldNotBeEqualToThoseFromOriginal)
-// {
-//     Vector sutInt { sutOf5ints };
-//     Vector sutString { sutOf5strings };
+TEST_F(CopyConstructorTests, iteratorsOfCopyShouldNotBeEqualToThoseFromOriginal)
+{
+    Vector<bool> sutWithJustAFewElements { false, true, true, false, true };
+    Vector<bool> sutWithOneChunk(arrayOneChunkSize.begin(), arrayOneChunkSize.end());
+    Vector<bool> sutWithSizeGreaterThanOneChunk(arrayGreaterThanOneChunk.begin(), arrayGreaterThanOneChunk.end());
+    Vector<bool> sutWithThreeChunks(arrayThreeChunksSize.begin(), arrayThreeChunksSize.end());
 
-//     EXPECT_NE(sutOf5ints.begin(), sutInt.begin());
-//     EXPECT_NE(sutOf5ints.cbegin(), sutInt.cbegin());
-//     EXPECT_NE(sutOf5ints.end(), sutInt.end());
-//     EXPECT_NE(sutOf5ints.cend(), sutInt.cend());
-//     EXPECT_NE(sutOf5ints.rbegin(), sutInt.rbegin());
-//     EXPECT_NE(sutOf5ints.crbegin(), sutInt.crbegin());
-//     EXPECT_NE(sutOf5ints.rend(), sutInt.rend());
-//     EXPECT_NE(sutOf5ints.crend(), sutInt.crend());
+    Vector sutCopyJustAFewElements { sutWithJustAFewElements };
+    Vector sutCopyOneChunkSize { sutWithOneChunk };
+    Vector sutCopySizeGreaterThanOneChunk { sutWithSizeGreaterThanOneChunk };
+    Vector sutCopyOfThreeChunkSut { sutWithThreeChunks };
 
-//     EXPECT_NE(sutOf5strings.begin(), sutString.end());
-//     EXPECT_NE(sutOf5strings.cbegin(), sutString.cend());
-//     EXPECT_NE(sutOf5strings.end(), sutString.end());
-//     EXPECT_NE(sutOf5strings.cend(), sutString.cend());
-//     EXPECT_NE(sutOf5strings.rbegin(), sutString.rbegin());
-//     EXPECT_NE(sutOf5strings.crbegin(), sutString.crbegin());
-//     EXPECT_NE(sutOf5strings.rend(), sutString.rend());
-//     EXPECT_NE(sutOf5strings.crend(), sutString.crend());
-// }
-
-// TEST_F(CopyConstructorTests, elementsInOriginalAndCopyShouldBeEqual)
-// {
-//     auto originalIntIterator = sutOf5ints.begin();
-//     auto originalStringIterator = sutOf5strings.begin();
-
-//     Vector sutInt { sutOf5ints };
-//     Vector sutString { sutOf5strings };
-//     auto sutIntIterator = sutInt.begin();
-//     auto sutStringsIterator = sutString.begin();
-
-//     while (originalIntIterator != sutOf5ints.end()) {
-//         EXPECT_EQ(*originalIntIterator, *sutIntIterator);
-//         ++originalIntIterator;
-//         ++sutIntIterator;
-//     }
-
-//     while (originalStringIterator != sutOf5strings.end()) {
-//         EXPECT_EQ(*originalStringIterator, *sutStringsIterator);
-//         ++originalStringIterator;
-//         ++sutStringsIterator;
-//     }
-// }
+    EXPECT_NE(sutCopyJustAFewElements.begin(), sutWithJustAFewElements.begin());
+    EXPECT_NE(sutCopyOneChunkSize.begin(), sutWithOneChunk.begin());
+    EXPECT_NE(sutCopySizeGreaterThanOneChunk.begin(), sutWithSizeGreaterThanOneChunk.begin());
+    EXPECT_NE(sutCopyOfThreeChunkSut.begin(), sutWithThreeChunks.begin());
+}
 
 // //  === tests for: constexpr Vector(const Vector& other, const Allocator& alloc);
 // TEST_F(CopyConstructorWithAllocatorArgumentTests, shouldRememberCorrectAllocator)
