@@ -47,6 +47,17 @@ TEST(VectorTypeAliasTest, sizeTypeAliasShouldBeDefinedAndPointToStdSizeType)
     EXPECT_THAT(sizeTypeForString, A<std::size_t>());
 }
 
+TEST(VectorTypeAliasTest, differenceTypeAliasShouldBeDefinedAndPointToPtrDifference)
+{
+    Vector<int>::difference_type differenceTypeForInt;
+    Vector<double>::difference_type differenceTypeForDouble;
+    Vector<std::string>::difference_type differenceTypeForString;
+
+    EXPECT_THAT(differenceTypeForInt, A<std::ptrdiff_t>());
+    EXPECT_THAT(differenceTypeForDouble, A<std::ptrdiff_t>());
+    EXPECT_THAT(differenceTypeForString, A<std::ptrdiff_t>());
+}
+
 TEST(VectorTypeAliasTest, iteratorTypeAliasShouldBeDefinedAndMeetExpectations)
 {
     EXPECT_TRUE(std::random_access_iterator<Vector<int>::iterator>);
