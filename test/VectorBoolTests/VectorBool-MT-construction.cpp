@@ -2,7 +2,6 @@
 
 namespace my::test {
 
-// TODO: VERIFY
 class VectorMemorySizeTest : public BoolSutExamplesAndHelpers
 { };
 
@@ -21,10 +20,11 @@ class ConstructorTakingInitializerListTests : public BoolSutExamplesAndHelpers
 class CopyConstructorTests : public BoolSutExamplesAndHelpers
 { };
 
-// TODO: VERIFY maybe test_f not needed
+class MoveConstructorTests : public BoolSutExamplesAndHelpers
+{ };
+
 TEST_F(VectorMemorySizeTest, sizeOfVectorBoolShouldBeEqualTo24)
 {
-    // TODO: VERIFY
     std::size_t requiredSize { 24 };
 
     EXPECT_EQ(sizeof(emptySutBool), requiredSize);
@@ -327,243 +327,67 @@ TEST_F(CopyConstructorTests, iteratorsOfCopyShouldNotBeEqualToThoseFromOriginal)
     EXPECT_NE(sutCopyOfThreeChunkSut.begin(), sutWithThreeChunks.begin());
 }
 
-// //  === tests for: constexpr Vector(const Vector& other, const Allocator& alloc);
-// TEST_F(CopyConstructorWithAllocatorArgumentTests, shouldRememberCorrectAllocator)
-// {
-//     Vector sutIntsCustomAlloc { sutOf5ints, customIntTestingAllocator };
-//     Vector sutStringsCustomAlloc { sutOf5strings, customStringTestingAllocator };
+//  === tests for: constexpr Vector(Vector&& other) noexcept;
+TEST_F(MoveConstructorTests, elementsInConstructedVectorShouldBeEqualToSourceVectorsElements)
+{
+    Vector<bool> sutWithJustAFewElements(arraySmallerThanChunk.begin(), arraySmallerThanChunk.end());
+    Vector<bool> sutWithOneChunk(arrayOneChunkSize.begin(), arrayOneChunkSize.end());
+    Vector<bool> sutWithSizeGreaterThanOneChunk(arrayGreaterThanOneChunk.begin(), arrayGreaterThanOneChunk.end());
+    Vector<bool> sutWithThreeChunks(arrayThreeChunksSize.begin(), arrayThreeChunksSize.end());
 
-//     EXPECT_THAT(sutOf5ints.get_allocator(), A<DefaultAllocator<int>>());
-//     EXPECT_THAT(sutOf5strings.get_allocator(), A<DefaultAllocator<std::string>>());
+    Vector sutMovedJustAFewElements { std::move(sutWithJustAFewElements) };
+    Vector sutMovedWithOneChunk { std::move(sutWithOneChunk) };
+    Vector sutMovedWithSizeGreaterThanOneChunk { std::move(sutWithSizeGreaterThanOneChunk) };
+    Vector sutMovedWithThreeChunks { std::move(sutWithThreeChunks) };
 
-//     EXPECT_THAT(sutIntsCustomAlloc.get_allocator(), A<CustomTestingAllocator<int>>());
-//     EXPECT_THAT(sutStringsCustomAlloc.get_allocator(), A<CustomTestingAllocator<std::string>>());
-// }
+    checkIfVectorHasSameElementsAsRange(sutMovedJustAFewElements,
+                                        arraySmallerThanChunk.begin(),
+                                        arraySmallerThanChunk.end());
+    checkIfVectorHasSameElementsAsRange(sutMovedWithOneChunk,
+                                        arrayOneChunkSize.begin(),
+                                        arrayOneChunkSize.end());
+    checkIfVectorHasSameElementsAsRange(sutMovedWithSizeGreaterThanOneChunk,
+                                        arrayGreaterThanOneChunk.begin(),
+                                        arrayGreaterThanOneChunk.end());
+    checkIfVectorHasSameElementsAsRange(sutMovedWithThreeChunks,
+                                        arrayThreeChunksSize.begin(),
+                                        arrayThreeChunksSize.end());
+}
 
-// TEST_F(CopyConstructorWithAllocatorArgumentTests, sizeAndCapacityOfCopyAndOriginalShouldBeEqual)
-// {
-//     Vector sutIntsCustomAlloc { sutOf5ints, customIntTestingAllocator };
-//     Vector sutStringsCustomAlloc { sutOf5strings, customStringTestingAllocator };
+TEST_F(MoveConstructorTests, iteratorsInConstructedVectorShouldBeEqualToThoseInSourceBeforeMoving)
+{
+    Vector<bool> sutWithJustAFewElements(arraySmallerThanChunk.begin(), arraySmallerThanChunk.end());
+    auto beginBeforeSutWithJustAFewElements = sutWithJustAFewElements.begin();
+    auto endBeforeSutWithJustAFewElements = sutWithJustAFewElements.end();
 
-//     EXPECT_EQ(sutOf5ints.size(), sutIntsCustomAlloc.size());
-//     EXPECT_EQ(sutOf5ints.capacity(), sutIntsCustomAlloc.capacity());
+    Vector<bool> sutWithOneChunk(arrayOneChunkSize.begin(), arrayOneChunkSize.end());
+    auto beginBeforeSutWithOneChunk = sutWithOneChunk.begin();
+    auto endBeforeSutWithOneChunk = sutWithOneChunk.end();
 
-//     EXPECT_EQ(sutOf5strings.size(), sutStringsCustomAlloc.size());
-//     EXPECT_EQ(sutOf5strings.capacity(), sutStringsCustomAlloc.capacity());
-// }
+    Vector<bool> sutWithSizeGreaterThanOneChunk(arrayGreaterThanOneChunk.begin(), arrayGreaterThanOneChunk.end());
+    auto beginBeforeSutWithSizeGreaterThanOneChunk = sutWithSizeGreaterThanOneChunk.begin();
+    auto endBeforeSutWithSizeGreaterThanOneChunk = sutWithSizeGreaterThanOneChunk.end();
 
-// TEST_F(CopyConstructorWithAllocatorArgumentTests, iteratorsOfCopyShouldNotBeEqualToThoseFromOriginal)
-// {
-//     Vector sutIntsCustomAlloc { sutOf5ints, customIntTestingAllocator };
-//     Vector sutStringsCustomAlloc { sutOf5strings, customStringTestingAllocator };
+    Vector<bool> sutWithThreeChunks(arrayThreeChunksSize.begin(), arrayThreeChunksSize.end());
+    auto beginBeforeSutWithThreeChunks = sutWithThreeChunks.begin();
+    auto endBeforeSutWithThreeChunks = sutWithThreeChunks.end();
 
-//     EXPECT_NE(sutOf5ints.begin(), sutIntsCustomAlloc.begin());
-//     EXPECT_NE(sutOf5ints.cbegin(), sutIntsCustomAlloc.cbegin());
-//     EXPECT_NE(sutOf5ints.end(), sutIntsCustomAlloc.end());
-//     EXPECT_NE(sutOf5ints.cend(), sutIntsCustomAlloc.cend());
-//     EXPECT_NE(sutOf5ints.rbegin(), sutIntsCustomAlloc.rbegin());
-//     EXPECT_NE(sutOf5ints.crbegin(), sutIntsCustomAlloc.crbegin());
-//     EXPECT_NE(sutOf5ints.rend(), sutIntsCustomAlloc.rend());
-//     EXPECT_NE(sutOf5ints.crend(), sutIntsCustomAlloc.crend());
+    Vector sutMovedJustAFewElements { std::move(sutWithJustAFewElements) };
+    Vector sutMovedWithOneChunk { std::move(sutWithOneChunk) };
+    Vector sutMovedWithSizeGreaterThanOneChunk { std::move(sutWithSizeGreaterThanOneChunk) };
+    Vector sutMovedWithThreeChunks { std::move(sutWithThreeChunks) };
 
-//     EXPECT_NE(sutOf5strings.begin(), sutStringsCustomAlloc.begin());
-//     EXPECT_NE(sutOf5strings.cbegin(), sutStringsCustomAlloc.cbegin());
-//     EXPECT_NE(sutOf5strings.end(), sutStringsCustomAlloc.end());
-//     EXPECT_NE(sutOf5strings.cend(), sutStringsCustomAlloc.cend());
-//     EXPECT_NE(sutOf5strings.rbegin(), sutStringsCustomAlloc.rbegin());
-//     EXPECT_NE(sutOf5strings.crbegin(), sutStringsCustomAlloc.crbegin());
-//     EXPECT_NE(sutOf5strings.rend(), sutStringsCustomAlloc.rend());
-//     EXPECT_NE(sutOf5strings.crend(), sutStringsCustomAlloc.crend());
-// }
+    EXPECT_EQ(sutMovedJustAFewElements.begin(), beginBeforeSutWithJustAFewElements);
+    EXPECT_EQ(sutMovedJustAFewElements.end(), endBeforeSutWithJustAFewElements);
 
-// TEST_F(CopyConstructorWithAllocatorArgumentTests, elementsInOriginalAndCopyShouldBeEqual)
-// {
-//     auto intsDefaultIterator { sutOf5ints.begin() };
-//     auto stringsDefaultIterator { sutOf5strings.begin() };
+    EXPECT_EQ(sutMovedWithOneChunk.begin(), beginBeforeSutWithOneChunk);
+    EXPECT_EQ(sutMovedWithOneChunk.end(), endBeforeSutWithOneChunk);
 
-//     Vector sutIntsCustomAlloc { sutOf5ints, customIntTestingAllocator };
-//     auto sutIntsCustomIterator { sutIntsCustomAlloc.begin() };
-//     Vector sutStringsCustomAlloc { sutOf5strings, customStringTestingAllocator };
-//     auto sutStringsIterator { sutStringsCustomAlloc.begin() };
+    EXPECT_EQ(sutMovedWithSizeGreaterThanOneChunk.begin(), beginBeforeSutWithSizeGreaterThanOneChunk);
+    EXPECT_EQ(sutMovedWithSizeGreaterThanOneChunk.end(), endBeforeSutWithSizeGreaterThanOneChunk);
 
-//     while (intsDefaultIterator != sutOf5ints.end()) {
-//         EXPECT_EQ(*intsDefaultIterator, *sutIntsCustomIterator);
-//         ++intsDefaultIterator;
-//         ++sutIntsCustomIterator;
-//     }
-
-//     while (stringsDefaultIterator != sutOf5strings.end()) {
-//         EXPECT_EQ(*stringsDefaultIterator, *sutStringsIterator);
-//         ++stringsDefaultIterator;
-//         ++sutStringsIterator;
-//     }
-// }
-
-// TEST_F(CopyConstructorWithAllocatorArgumentTests, shouldCallAllocateAndConstruct)
-// {
-//     customStringTestingAllocator.setCallDetectionHelper(&stringAllocatorCallDetector);
-
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
-//         .Times(1);
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectConstructCall(An<std::string*>(), An<std::string>()))
-//         .Times(5);
-
-//     Vector sut { sutOf5strings, customStringTestingAllocator };
-
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(AnyNumber());
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectDestroyCall(An<std::string*>()))
-//         .Times(AnyNumber());
-// }
-
-// //  === test for: constexpr Vector(Vector&& other) noexcept;
-// TEST_F(MoveConstructorTests, elementsInConstructedVectorShouldBeEqualToSourceVectorsElements)
-// {
-//     std::array intsToCompare = { 5, 10, 15, 20, 25 };
-//     Vector<int> sourceIntsSut(intsToCompare.begin(), intsToCompare.end());
-//     std::array stringsToCompare = { "five", "ten", "fifteen", "twenty", "twenty-five" };
-//     Vector<std::string> sourceStringsSut(stringsToCompare.begin(), stringsToCompare.end());
-
-//     Vector intsMovedSut { std::move(sourceIntsSut) };
-//     Vector stringsMovedSut { std::move(sourceStringsSut) };
-
-//     for (auto toCompareIter = intsToCompare.begin();
-//          const auto& el : intsMovedSut) {
-//         EXPECT_EQ(el, *toCompareIter);
-//         ++toCompareIter;
-//     }
-
-//     for (auto toCompareIter = stringsToCompare.begin();
-//          const auto& el : stringsMovedSut) {
-//         EXPECT_EQ(el, *toCompareIter);
-//         ++toCompareIter;
-//     }
-// }
-
-// TEST_F(MoveConstructorTests, internalPointersShouldBeNullptrInMovedVector)
-// {
-//     ASSERT_NE(sutOf5ints.begin(), nullptr);
-//     ASSERT_NE(sutOf5ints.end(), nullptr);
-//     ASSERT_NE(sutOf5strings.begin(), nullptr);
-//     ASSERT_NE(sutOf5strings.end(), nullptr);
-
-//     Vector movedIntsSut(std::move(sutOf5ints));
-//     Vector movedStringsSut(std::move(sutOf5strings));
-
-//     EXPECT_EQ(sutOf5ints.begin(), nullptr);
-//     EXPECT_EQ(sutOf5ints.end(), nullptr);
-//     EXPECT_EQ(sutOf5strings.begin(), nullptr);
-//     EXPECT_EQ(sutOf5strings.end(), nullptr);
-// }
-
-// TEST_F(MoveConstructorTests, internalPointersInConstructedVectorShouldBeEqualToThoseInSourceBeforeMoving)
-// {
-//     auto beginSourceIntsCopy = sutOf5ints.begin();
-//     auto endSourceIntsCopy = sutOf5ints.end();
-//     auto beginSourceStringsCopy = sutOf5strings.begin();
-//     auto endSourceStringsCopy = sutOf5strings.end();
-
-//     ASSERT_NE(beginSourceIntsCopy, nullptr);
-//     ASSERT_NE(endSourceIntsCopy, nullptr);
-//     ASSERT_NE(beginSourceStringsCopy, nullptr);
-//     ASSERT_NE(endSourceStringsCopy, nullptr);
-
-//     Vector sutIntsMoved(std::move(sutOf5ints));
-//     Vector sutStringsMoved(std::move(sutOf5strings));
-
-//     ASSERT_EQ(sutIntsMoved.begin(), beginSourceIntsCopy);
-//     ASSERT_EQ(sutIntsMoved.end(), endSourceIntsCopy);
-//     ASSERT_EQ(sutStringsMoved.begin(), beginSourceStringsCopy);
-//     ASSERT_EQ(sutStringsMoved.end(), endSourceStringsCopy);
-// }
-
-// // === tests for:  constexpr Vector(Vector&& other, const Allocator& alloc);
-// TEST_F(MoveConstructorWithAllocatorArgumentTests, shouldRememberCorrectAllocator)
-// {
-//     Vector sutIntsMovedCustomAlloc { std::move(sutOf5ints), customIntTestingAllocator };
-//     Vector sutStringsMovedCustomAlloc { std::move(sutOf5strings), customStringTestingAllocator };
-
-//     EXPECT_THAT(sutOf5ints.get_allocator(), A<DefaultAllocator<int>>());
-//     EXPECT_THAT(sutOf5strings.get_allocator(), A<DefaultAllocator<std::string>>());
-
-//     EXPECT_THAT(sutIntsMovedCustomAlloc.get_allocator(), A<CustomTestingAllocator<int>>());
-//     EXPECT_THAT(sutStringsMovedCustomAlloc.get_allocator(), A<CustomTestingAllocator<std::string>>());
-// }
-
-// TEST_F(MoveConstructorWithAllocatorArgumentTests, elementsInConstructedVectorShouldBeEqualToSourceVectorsElements)
-// {
-//     std::array intsToCompare = { 5, 10, 15, 20, 25 };
-//     Vector<int> sourceIntsSut(intsToCompare.begin(), intsToCompare.end());
-//     std::array stringsToCompare = { "five", "ten", "fifteen", "twenty", "twenty-five" };
-//     Vector<std::string> sourceStringsSut(stringsToCompare.begin(), stringsToCompare.end());
-
-//     Vector intsMovedSut { std::move(sourceIntsSut), customIntTestingAllocator };
-//     Vector stringsMovedSut { std::move(sourceStringsSut), customStringTestingAllocator };
-
-//     for (auto toCompareIter = intsToCompare.begin();
-//          const auto& el : intsMovedSut) {
-//         EXPECT_EQ(el, *toCompareIter);
-//         ++toCompareIter;
-//     }
-
-//     for (auto toCompareIter = stringsToCompare.begin();
-//          const auto& el : stringsMovedSut) {
-//         EXPECT_EQ(el, *toCompareIter);
-//         ++toCompareIter;
-//     }
-// }
-
-// TEST_F(MoveConstructorWithAllocatorArgumentTests, internalPointersShouldBeNullptrInMovedVector)
-// {
-//     ASSERT_NE(sutOf5ints.begin(), nullptr);
-//     ASSERT_NE(sutOf5ints.end(), nullptr);
-//     ASSERT_NE(sutOf5strings.begin(), nullptr);
-//     ASSERT_NE(sutOf5strings.end(), nullptr);
-
-//     Vector movedIntsSut(std::move(sutOf5ints), customIntTestingAllocator);
-//     Vector movedStringsSut(std::move(sutOf5strings), customStringTestingAllocator);
-
-//     EXPECT_EQ(sutOf5ints.begin(), nullptr);
-//     EXPECT_EQ(sutOf5ints.end(), nullptr);
-//     EXPECT_EQ(sutOf5strings.begin(), nullptr);
-//     EXPECT_EQ(sutOf5strings.end(), nullptr);
-// }
-
-// TEST_F(MoveConstructorWithAllocatorArgumentTests,
-//        internalPointersInConstructedVectorShouldBeEqualToThoseInSourceBeforeMoving)
-// {
-//     auto beginSourceIntsCopy = sutOf5ints.begin();
-//     auto endSourceIntsCopy = sutOf5ints.end();
-//     auto beginSourceStringsCopy = sutOf5strings.begin();
-//     auto endSourceStringsCopy = sutOf5strings.end();
-
-//     ASSERT_NE(beginSourceIntsCopy, nullptr);
-//     ASSERT_NE(endSourceIntsCopy, nullptr);
-//     ASSERT_NE(beginSourceStringsCopy, nullptr);
-//     ASSERT_NE(endSourceStringsCopy, nullptr);
-
-//     Vector sutIntsMoved(std::move(sutOf5ints), customIntTestingAllocator);
-//     Vector sutStringsMoved(std::move(sutOf5strings), customStringTestingAllocator);
-
-//     ASSERT_EQ(sutIntsMoved.begin(), beginSourceIntsCopy);
-//     ASSERT_EQ(sutIntsMoved.end(), endSourceIntsCopy);
-//     ASSERT_EQ(sutStringsMoved.begin(), beginSourceStringsCopy);
-//     ASSERT_EQ(sutStringsMoved.end(), endSourceStringsCopy);
-// }
-
-// TEST_F(MoveConstructorWithAllocatorArgumentTests, shouldNotCallAllocateAndConstruct)
-// {
-//     customStringTestingAllocator.setCallDetectionHelper(&stringAllocatorCallDetector);
-
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectAllocateCall((A<std::size_t>())))
-//         .Times(0);
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectConstructCall(An<std::string*>(), An<std::string>()))
-//         .Times(0);
-
-//     Vector sut { std::move(sutOf5strings), customStringTestingAllocator };
-
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectDeallocateCall()).Times(AnyNumber());
-//     EXPECT_CALL(*customStringTestingAllocator.callDetectionHelper_, detectDestroyCall(An<std::string*>()))
-//         .Times(AnyNumber());
-// }
+    EXPECT_EQ(sutMovedWithThreeChunks.begin(), beginBeforeSutWithThreeChunks);
+    EXPECT_EQ(sutMovedWithThreeChunks.end(), endBeforeSutWithThreeChunks);
+}
 
 }   // namespace my::test

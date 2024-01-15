@@ -68,13 +68,7 @@ class Vector<bool>
 
     constexpr Vector(const Vector& other);
 
-    //     template <typename OtherAllocator>
-    //     constexpr Vector(const Vector<Type, OtherAllocator>& other, const Allocator& alloc);
-
-    //     constexpr Vector(Vector&& other) noexcept;
-
-    //     template <typename OtherAllocator>
-    //     constexpr Vector(Vector<Type, OtherAllocator>&& other, const Allocator& alloc);
+    constexpr Vector(Vector&& other) noexcept;
 
     constexpr ~Vector();
 
@@ -426,43 +420,17 @@ constexpr Vector<bool>::Vector(const Vector& other)
     }
 }
 
-// template <typename Type, typename Allocator>
-// template <typename OtherAllocator>
-// constexpr Vector<Type, Allocator>::Vector(const Vector<Type, OtherAllocator>& other, const Allocator& alloc)
-//     : begin_(alloc.allocate(other.capacity()))
-//     , end_(std::next(begin_, other.size()))
-//     , capacity_(std::next(begin_, other.capacity()))
-// {
-//     for (auto iter = begin_;
-//          const auto& el : other) {
-//         Allocator::construct(iter, Type { el });
-//         ++iter;
-//     }
-// }
-
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::Vector(Vector&& other) noexcept
-//     : begin_(other.begin_)
-//     , end_(other.end())
-//     , capacity_(other.end())
-// {
-//     other.begin_ = nullptr;
-//     other.end_ = nullptr;
-//     other.capacity_ = nullptr;
-// }
-
-// template <typename Type, typename Allocator>
-// template <typename OtherAllocator>
-// constexpr Vector<Type, Allocator>::Vector(Vector<Type, OtherAllocator>&& other,
-//                                           [[maybe_unused]] const Allocator& alloc)
-//     : begin_(other.begin_)
-//     , end_(other.end())
-//     , capacity_(other.end())
-// {
-//     other.begin_ = nullptr;
-//     other.end_ = nullptr;
-//     other.capacity_ = nullptr;
-// }
+constexpr Vector<bool>::Vector(Vector&& other) noexcept
+    : chunks_(std::move(other.chunks_))
+    , currentSize_(other.currentSize_)
+    , numberOfChunks_(other.numberOfChunks_)
+{
+    // TODO: REMOVE
+    std::cout << "MOVE CONSTRUCTOR" << std::endl;
+    other.chunks_ = nullptr;
+    other.currentSize_ = 0;
+    other.numberOfChunks_ = 0;
+}
 
 constexpr Vector<bool>::~Vector()
 {
