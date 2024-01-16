@@ -76,8 +76,8 @@ class Vector<bool>
 
     //     constexpr allocator_type get_allocator() const noexcept;
 
-    //     constexpr reference at(size_type pos);
-    //     constexpr const_reference at(size_type pos) const;
+    reference at(size_type pos);
+    const_reference at(size_type pos) const;
 
     // TODO: VERIFY constexpr due to bitset operator not constexpr
     // constexpr reference operator[](size_type pos);
@@ -548,25 +548,30 @@ constexpr Vector<bool>::~Vector()
 //     return Allocator {};
 // }
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::reference Vector<Type, Allocator>::at(size_type pos)
-// {
-//     if (pos > size() - 1) {
-//         throw std::out_of_range("requested out of range element with at()");
-//     }
+inline Vector<bool>::reference Vector<bool>::at(size_type pos)
+{
+    if (pos >= currentSize_) {
+        throw std::out_of_range("requested out of range element with at()");
+    }
+    // TODO: VERIFY extract ?
+    auto chunk = pos / CHUNK_SIZE;
+    auto reminder = pos % CHUNK_SIZE;
 
-//     return *(begin_ + pos);
-// }
+    return chunks_[chunk][CHUNK_SIZE - 1 - reminder];
+}
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::const_reference Vector<Type, Allocator>::at(size_type pos) const
-// {
-//     if (pos > size() - 1) {
-//         throw std::out_of_range("requested out of range element with at()");
-//     }
+inline Vector<bool>::const_reference Vector<bool>::at(size_type pos) const
+{
+    if (pos >= currentSize_) {
+        throw std::out_of_range("requested out of range element with at()");
+    }
 
-//     return *(begin_ + pos);
-// }
+    auto chunk = pos / CHUNK_SIZE;
+    auto reminder = pos % CHUNK_SIZE;
+
+    return chunks_[chunk][CHUNK_SIZE - 1 - reminder];
+}
+
 // TODO: VERIFY constexpr due to bitset operator not constexpr
 // constexpr Vector<bool>::reference Vector<bool>::operator[](size_type pos)
 inline Vector<bool>::reference Vector<bool>::operator[](size_type pos)
@@ -585,7 +590,6 @@ inline Vector<bool>::const_reference Vector<bool>::operator[](size_type pos) con
     auto chunk = pos / CHUNK_SIZE;
     auto reminder = pos % CHUNK_SIZE;
 
-    // return chunks_[chunk][reminder];
     return chunks_[chunk][CHUNK_SIZE - 1 - reminder];
 }
 

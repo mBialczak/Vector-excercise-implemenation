@@ -87,6 +87,14 @@ class BoolSutExamplesAndHelpers : public testing::Test
 {
   public:
     BoolSutExamplesAndHelpers();
+    //     : sutWithOneNotFullChunkFalse_(Vector(countLessThenChunkSize, false))
+    //     , sutWithOneNotFullChunkTrue_(Vector(countLessThenChunkSize, true))
+    //     , sutWithOneFullChunkTrue_(Vector(countEqualToChunkSize, true))
+    //     , sutWithSizeGreaterThanOneChunkFalse_(Vector(countGreaterThanOneChunk, false))
+    //     , sutWithSizeEqualToMultipleSizeOfChunkFalse_(Vector(countEqualToMultipleSizeOfChunk, false))
+    //     , sutWithSizeEqualToMultipleSizeOfChunkTrue_(Vector(countEqualToMultipleSizeOfChunk, true))
+    //     , sutWithSizeGreaterThanFiveChunksTrue_(Vector(countGreaterThanFiveChunks, true))
+    // { }
 
   protected:
     static constexpr std::size_t countLessThenChunkSize { CHUNK_SIZE - 60 };
@@ -94,9 +102,10 @@ class BoolSutExamplesAndHelpers : public testing::Test
     static constexpr std::size_t countGreaterThanOneChunk { CHUNK_SIZE + 4 };
     static constexpr std::size_t countEqualToMultipleSizeOfChunk { CHUNK_SIZE * 5 };
     static constexpr std::size_t countGreaterThanFiveChunks { CHUNK_SIZE * 5 + 5 };
-    std::array<bool, 5> arraySmallerThanChunk { false, true, true, false, true };
+
+    std::array<bool, 5> arraySmallerThanChunk_ { false, true, true, false, true };
     // clang-format off
-    std::array<bool, CHUNK_SIZE> arrayOneChunkSize { false, true, true, false, true, false, false, true, // 8
+    std::array<bool, CHUNK_SIZE> arrayOneChunkSize_ { false, true, true, false, true, false, false, true, // 8
                                                      false, false, false, true, true, false, true, false, // 16
                                                      true , true, true, true, true, true, true, true, // 24
                                                      false, false, false, false, false, false, false, false, // 32
@@ -105,7 +114,7 @@ class BoolSutExamplesAndHelpers : public testing::Test
                                                      false, false, false, false , true, false, false, false,// 56
                                                      false, false, false, true, true, true, true, true }; // 64
 
-    std::array<bool, 75 > arrayGreaterThanOneChunk { false, true, true, false, true, false, false, true,// 8
+    std::array<bool, 75 > arrayGreaterThanOneChunk_ { false, true, true, false, true, false, false, true,// 8
                                                      false, false, false, true, true, false, true, false, // 16
                                                      true , true, true, true, true, true, true, true, // 24
                                                      false, false, false, false, false, false, false, false, //32
@@ -116,33 +125,33 @@ class BoolSutExamplesAndHelpers : public testing::Test
                                                      false, true, false, false , true, false, false, false,// 72
                                                      true, true, true, }; // 75
 
-    std::array<bool, 3 * CHUNK_SIZE> arrayThreeChunksSize { false, true, true, false, true, false, false, true, // 8
-                                                            false, false, false, true, true, false, true, false, // 16
-                                                            true , true, true, true, true, true, true, true, // 24
-                                                            false, false, false, false, false, false, false, false, //32
-                                                            true, true, true, true, false, false, false, false, // 40
-                                                            false, false, false, false, true, true, true, true, // 48
-                                                            false, true, false, false , true, false, false, false,// 56
-                                                            false, true, false, false , true, false, false, false,// 64
-                                                            false, true, false, false , true, false, false, false,// 72
-                                                            false, true, true, false , true, false, true, false,// 80
-                                                            false, false, false, true, true, false, true, false, // 88
-                                                            true , true, true, true, true, true, true, true, // 96
-                                                            true, true, true, true, false, false, false, false, // 104
-                                                            false, false, false, false, true, true, true, true, // 112
-                                                            false, true, false, false , true, false, false, false,// 120
-                                                            false, false, false, true, true, false, true, false, // 128
-                                                            true , true, true, true, true, true, true, true, // 136
-                                                            true, true, true, true, false, false, false, false, // 144
-                                                            false, true, false, false , true, false, false, false,// 152
-                                                            false, true, false, false , true, false, false, false,// 160
-                                                            false, true, true, false , true, false, true, false,// 168
-                                                            false, false, false, true, true, false, true, false, // 176
-                                                            false, false, false, true, true, false, true, false, // 184
-                                                            true, true, true, false, true, false, true, true}; // 192
+    std::array<bool, 3 * CHUNK_SIZE> arrayThreeChunksSize_ { false, true, true, false, true, false, false, true, // 8
+                                                             false, false, false, true, true, false, true, false, // 16
+                                                             true , true, true, true, true, true, true, true, // 24
+                                                             false, false, false, false, false, false, false, false,//32
+                                                             true, true, true, true, false, false, false, false, // 40
+                                                             false, false, false, false, true, true, true, true, // 48
+                                                             false, true, false, false , true, false, false, false,// 56
+                                                             false, true, false, false , true, false, false, false,// 64
+                                                             false, true, false, false , true, false, false, false,// 72
+                                                             false, true, true, false , true, false, true, false,// 80
+                                                             false, false, false, true, true, false, true, false, // 88
+                                                             true , true, true, true, true, true, true, true, // 96
+                                                             true, true, true, true, false, false, false, false, // 104
+                                                             false, false, false, false, true, true, true, true, // 112
+                                                             false, true, false, false , true, false, false, false,//120
+                                                             false, false, false, true, true, false, true, false, // 128
+                                                             true , true, true, true, true, true, true, true, // 136
+                                                             true, true, true, true, false, false, false, false, // 144
+                                                             false, true, false, false , true, false, false, false,//152
+                                                             false, true, false, false , true, false, false, false,//160
+                                                             false, true, true, false , true, false, true, false,// 168
+                                                             false, false, false, true, true, false, true, false, // 176
+                                                             false, false, false, true, true, false, true, false, // 184
+                                                             true, true, true, false, true, false, true, true}; // 192
     // clang-format on
 
-    Vector<bool> emptySutBool;
+    Vector<bool> emptySutBool_;
     Vector<bool> sutWithOneNotFullChunkFalse_;
     Vector<bool> sutWithOneNotFullChunkTrue_;
     Vector<bool> sutWithOneFullChunkTrue_;
@@ -170,20 +179,20 @@ class BoolSutExamplesAndHelpers : public testing::Test
     // const Vector<std::string> constSutOf3strings { "one", "two", "three" };
 };
 
-BoolSutExamplesAndHelpers::BoolSutExamplesAndHelpers()
-    // : initListLessThanChunkSize(std::initializer_list { false, true, true, false, true, false, false, true, true })
-    // : initListLessThanChunkSize({ false, true, true, false, true, false, false, true, true })
-    // : initListLessThanChunkSize({ false, true, true, false, true, false, false, true, true })
-    : sutWithOneNotFullChunkFalse_(Vector(countLessThenChunkSize, false))
-    , sutWithOneNotFullChunkTrue_(Vector(countLessThenChunkSize, true))
-    , sutWithOneFullChunkTrue_(Vector(countEqualToChunkSize, true))
-    , sutWithSizeGreaterThanOneChunkFalse_(Vector(countGreaterThanOneChunk, false))
-    , sutWithSizeEqualToMultipleSizeOfChunkFalse_(Vector(countEqualToMultipleSizeOfChunk, false))
-    , sutWithSizeEqualToMultipleSizeOfChunkTrue_(Vector(countEqualToMultipleSizeOfChunk, true))
-    , sutWithSizeGreaterThanFiveChunksTrue_(Vector(countGreaterThanFiveChunks, true))
-{
-    //     initListLessThanChunkSize = std::initializer_list { false, true, true, false, true, false, false, true, true };
-}
+// BoolSutExamplesAndHelpers::BoolSutExamplesAndHelpers()
+//     // : initListLessThanChunkSize(std::initializer_list { false, true, true, false, true, false, false, true, true })
+//     // : initListLessThanChunkSize({ false, true, true, false, true, false, false, true, true })
+//     // : initListLessThanChunkSize({ false, true, true, false, true, false, false, true, true })
+//     : sutWithOneNotFullChunkFalse_(Vector(countLessThenChunkSize, false))
+//     , sutWithOneNotFullChunkTrue_(Vector(countLessThenChunkSize, true))
+//     , sutWithOneFullChunkTrue_(Vector(countEqualToChunkSize, true))
+//     , sutWithSizeGreaterThanOneChunkFalse_(Vector(countGreaterThanOneChunk, false))
+//     , sutWithSizeEqualToMultipleSizeOfChunkFalse_(Vector(countEqualToMultipleSizeOfChunk, false))
+//     , sutWithSizeEqualToMultipleSizeOfChunkTrue_(Vector(countEqualToMultipleSizeOfChunk, true))
+//     , sutWithSizeGreaterThanFiveChunksTrue_(Vector(countGreaterThanFiveChunks, true))
+// {
+//     //     initListLessThanChunkSize = std::initializer_list { false, true, true, false, true, false, false, true, true };
+// }
 
 // std::initializer_list<bool> createinitListLessThanChunkSize()
 // { false, true, true, false, true, false, false, true, true })
@@ -211,12 +220,12 @@ void checkIfVectorHasSameElementsAsRange(const Vector<bool>& vec, InputIt first,
     }
 }
 
-void checkIfVectorElementsAreGivenValue(const Vector<bool>& vec, bool value)
-{
-    const auto vecSize = vec.size();
-    for (Vector<bool>::size_type i = 0; i < vecSize; ++i) {
-        EXPECT_EQ(vec[i], value);
-    }
-}
+void checkIfVectorElementsAreGivenValue(const Vector<bool>& vec, bool value);
+// {
+//     const auto vecSize = vec.size();
+//     for (Vector<bool>::size_type i = 0; i < vecSize; ++i) {
+//         EXPECT_EQ(vec[i], value);
+//     }
+// }
 
 }   // namespace my::test

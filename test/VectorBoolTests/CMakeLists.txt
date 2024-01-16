@@ -17,6 +17,7 @@ add_executable(VectorBool-MT
             #    VectorBool-MT-resize.cpp
             #    VectorBool-MT-swap.cpp
                VectorBool-MT-typeAlias.cpp
+               VectorBool-MT-utils.cpp
               )
 
 target_include_directories(VectorBool-MT
