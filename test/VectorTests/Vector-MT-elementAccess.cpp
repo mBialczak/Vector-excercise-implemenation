@@ -19,6 +19,7 @@ class DataTests : public SutExamplesAndHelpers
 
 TEST_F(AtTests, shouldThrowIfOutOfBandsElementsRequested)
 {
+    EXPECT_THROW({ emptySutInt.at(0); }, std::out_of_range);
     EXPECT_THROW({ sutOf5ints.at(5); }, std::out_of_range);
     EXPECT_THROW({ sutOf5ints.at(10); }, std::out_of_range);
     EXPECT_THROW({ constSutOf5ints.at(5); }, std::out_of_range);

@@ -432,7 +432,7 @@ constexpr Vector<Type, Allocator>::allocator_type Vector<Type, Allocator>::get_a
 template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::reference Vector<Type, Allocator>::at(size_type pos)
 {
-    if (pos > size() - 1) {
+    if (pos >= size()) {
         throw std::out_of_range("requested out of range element with at()");
     }
 
@@ -442,7 +442,7 @@ constexpr Vector<Type, Allocator>::reference Vector<Type, Allocator>::at(size_ty
 template <typename Type, typename Allocator>
 constexpr Vector<Type, Allocator>::const_reference Vector<Type, Allocator>::at(size_type pos) const
 {
-    if (pos > size() - 1) {
+    if (pos >= size()) {
         throw std::out_of_range("requested out of range element with at()");
     }
 
