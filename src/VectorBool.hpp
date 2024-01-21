@@ -80,16 +80,14 @@ class Vector<bool>
     const_reference at(size_type pos) const;
 
     // TODO: VERIFY constexpr due to bitset operator not constexpr
-    // constexpr reference operator[](size_type pos);
-    // constexpr const_reference operator[](size_type pos) const;
     reference operator[](size_type pos);
     const_reference operator[](size_type pos) const;
 
-    //     constexpr reference front();
-    //     constexpr const_reference front() const;
+    reference front();
+    const_reference front() const;
 
-    //     constexpr reference back();
-    //     constexpr const_reference back() const;
+    reference back();
+    const_reference back() const;
 
     //     constexpr Type* data() noexcept;
     //     constexpr const Type* data() const noexcept;
@@ -576,6 +574,7 @@ inline Vector<bool>::const_reference Vector<bool>::at(size_type pos) const
 // constexpr Vector<bool>::reference Vector<bool>::operator[](size_type pos)
 inline Vector<bool>::reference Vector<bool>::operator[](size_type pos)
 {
+    // TODO: VERIFY maybe extract
     auto chunk = pos / CHUNK_SIZE;
     auto reminder = pos % CHUNK_SIZE;
 
@@ -593,29 +592,25 @@ inline Vector<bool>::const_reference Vector<bool>::operator[](size_type pos) con
     return chunks_[chunk][CHUNK_SIZE - 1 - reminder];
 }
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::reference Vector<Type, Allocator>::front()
-// {
-//     return *begin_;
-// }
+inline Vector<bool>::reference Vector<bool>::front()
+{
+    return chunks_[0][CHUNK_SIZE - 1];
+}
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::const_reference Vector<Type, Allocator>::front() const
-// {
-//     return *begin_;
-// }
+inline Vector<bool>::const_reference Vector<bool>::front() const
+{
+    return chunks_[0][CHUNK_SIZE - 1];
+}
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::reference Vector<Type, Allocator>::back()
-// {
-//     return *(end_ - 1);
-// }
+inline Vector<bool>::reference Vector<bool>::back()
+{
+    return operator[](currentSize_ - 1);
+}
 
-// template <typename Type, typename Allocator>
-// constexpr Vector<Type, Allocator>::const_reference Vector<Type, Allocator>::back() const
-// {
-//     return *(end_ - 1);
-// }
+inline Vector<bool>::const_reference Vector<bool>::back() const
+{
+    return operator[](currentSize_ - 1);
+}
 
 // template <typename Type, typename Allocator>
 // constexpr Type* Vector<Type, Allocator>::data() noexcept

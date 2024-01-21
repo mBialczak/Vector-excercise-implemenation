@@ -4,18 +4,13 @@ namespace my::test {
 
 class VectorBoolAtTests : public BoolSutExamplesAndHelpers
 { };
+class VectorBoolRandomAccessOperatorTests : public BoolSutExamplesAndHelpers
+{ };
 
-// class RandomAccessOperatorTests : public BoolSutExamplesAndHelpers
-// { };
-
-// class FrontTests : public SutExamplesAndHelpers
-// { };
-
-// class BackTests : public SutExamplesAndHelpers
-// { };
-
-// class DataTests : public SutExamplesAndHelpers
-// { };
+class VectorBoolFrontTests : public BoolSutExamplesAndHelpers
+{ };
+class VectorBoolBackTests : public BoolSutExamplesAndHelpers
+{ };
 
 TEST_F(VectorBoolAtTests, shouldThrowIfOutOfBandsElementsRequested)
 {
@@ -76,86 +71,136 @@ TEST_F(VectorBoolAtTests, shouldAllowToModifyObjectPassedByReturnedReference)
     EXPECT_NE(element74valBefore, sutSizedGreaterThanOneChunk.at(74));
 }
 
-// TEST_F(RandomAccessOperatorTests, shouldReturnReferenceToCorrectElement)
-// {
-//     EXPECT_EQ(sutOf5ints[0], 5);
-//     EXPECT_EQ(sutOf5ints[1], 10);
-//     EXPECT_EQ(sutOf5ints[2], 15);
-//     EXPECT_EQ(sutOf5ints[3], 20);
-//     EXPECT_EQ(sutOf5ints[4], 25);
-//     EXPECT_TRUE(( std::is_same_v<decltype(sutOf5ints[0]), int&> ) );
-// }
+TEST_F(VectorBoolRandomAccessOperatorTests, shouldReturnReferenceToCorrectElement)
+{
+    Vector<bool> sutSizedGreaterThanOneChunk(arrayGreaterThanOneChunk_.begin(), arrayGreaterThanOneChunk_.end());
 
-// TEST_F(RandomAccessOperatorTests, shouldReturnConstReferenceToCorrectElement)
-// {
-//     EXPECT_EQ(constSutOf5ints[0], 5);
-//     EXPECT_EQ(constSutOf5ints[1], 10);
-//     EXPECT_EQ(constSutOf5ints[2], 15);
-//     EXPECT_EQ(constSutOf5ints[3], 20);
-//     EXPECT_EQ(constSutOf5ints[4], 25);
-//     EXPECT_TRUE(( std::is_same_v<decltype(constSutOf5ints[0]), const int&> ) );
-// }
+    EXPECT_EQ(sutSizedGreaterThanOneChunk[0], false);
+    EXPECT_EQ(sutSizedGreaterThanOneChunk[4], true);
+    EXPECT_EQ(sutSizedGreaterThanOneChunk[63], false);
+    EXPECT_EQ(sutSizedGreaterThanOneChunk[65], true);
+    EXPECT_EQ(sutSizedGreaterThanOneChunk[74], true);
+    EXPECT_TRUE(( std::is_same_v<decltype(sutSizedGreaterThanOneChunk[0]), std::bitset<CHUNK_SIZE>::reference> ) );
+}
 
-// TEST_F(RandomAccessOperatorTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
-// {
-//     int valueBeforeChange = sutOf5ints[1];
+TEST_F(VectorBoolRandomAccessOperatorTests, shouldReturnConstReferenceToCorrectElement)
+{
+    const Vector<bool> constSutSizedGreaterThanOneChunk(arrayGreaterThanOneChunk_.begin(),
+                                                        arrayGreaterThanOneChunk_.end());
 
-//     sutOf5ints.at(1) = 1000;
-//     int valueAfterChange = sutOf5ints[1];
+    EXPECT_EQ(constSutSizedGreaterThanOneChunk[0], false);
+    EXPECT_EQ(constSutSizedGreaterThanOneChunk[4], true);
+    EXPECT_EQ(constSutSizedGreaterThanOneChunk[63], false);
+    EXPECT_EQ(constSutSizedGreaterThanOneChunk[65], true);
+    EXPECT_EQ(constSutSizedGreaterThanOneChunk[74], true);
+    EXPECT_TRUE(( std::is_same_v<decltype(constSutSizedGreaterThanOneChunk[0]), bool> ) );
+}
 
-//     EXPECT_EQ(valueBeforeChange, 10);
-//     EXPECT_EQ(valueAfterChange, 1000);
-// }
+TEST_F(VectorBoolRandomAccessOperatorTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
+{
+    Vector<bool> sutSizedGreaterThanOneChunk(arrayGreaterThanOneChunk_.begin(), arrayGreaterThanOneChunk_.end());
+    bool element0valBefore = sutSizedGreaterThanOneChunk[0];
+    bool element63valBefore = sutSizedGreaterThanOneChunk[63];
+    bool element74valBefore = sutSizedGreaterThanOneChunk[74];
+
+    sutSizedGreaterThanOneChunk[0] = true;
+    sutSizedGreaterThanOneChunk[63] = true;
+    sutSizedGreaterThanOneChunk[74] = false;
+
+    EXPECT_EQ(sutSizedGreaterThanOneChunk[0], true);
+    EXPECT_NE(element0valBefore, sutSizedGreaterThanOneChunk[0]);
+    EXPECT_EQ(sutSizedGreaterThanOneChunk[63], true);
+    EXPECT_NE(element63valBefore, sutSizedGreaterThanOneChunk[63]);
+    EXPECT_EQ(sutSizedGreaterThanOneChunk[74], false);
+    EXPECT_NE(element74valBefore, sutSizedGreaterThanOneChunk[74]);
+}
 
 // === tests for constexpr reference front();
 // === tests for constexpr const_reference front() const;
-// TEST_F(FrontTests, shouldReturnReferenceToFirstElement)
-// {
-//     EXPECT_EQ(sutOf5ints.front(), 5);
-//     EXPECT_TRUE(( std::is_same_v<decltype(sutOf5ints.front()), int&> ) );
-// }
+TEST_F(VectorBoolFrontTests, shouldReturnReferenceToFirstElement)
+{
+    Vector<bool> sutWithJustAFewElements { true, false, true, false, true };
+    Vector<bool> sutSizedGreaterThanOneChunk(arrayGreaterThanOneChunk_.begin(), arrayGreaterThanOneChunk_.end());
 
-// TEST_F(FrontTests, shouldReturnConstReferenceToFirstElement)
-// {
-//     EXPECT_EQ(constSutOf5ints.front(), 5);
-//     EXPECT_TRUE(( std::is_same_v<decltype(constSutOf5ints.front()), const int&> ) );
-// }
+    EXPECT_EQ(sutWithJustAFewElements.front(), true);
+    EXPECT_EQ(sutSizedGreaterThanOneChunk.front(), false);
+    EXPECT_TRUE(( std::is_same_v<decltype(sutWithJustAFewElements.front()), std::bitset<CHUNK_SIZE>::reference> ) );
+}
 
-// TEST_F(FrontTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
-// {
-//     int valueBeforeChange = sutOf5ints.front();
+TEST_F(VectorBoolFrontTests, shouldReturnConstReferenceToFirstElement)
+{
+    const Vector<bool> sutWithJustAFewElements { true, false, true, false, true };
+    const Vector<bool> sutSizedGreaterThanOneChunk(arrayGreaterThanOneChunk_.begin(), arrayGreaterThanOneChunk_.end());
 
-//     sutOf5ints.front() = 1000;
-//     int valueAfterChange = sutOf5ints.front();
+    EXPECT_EQ(sutWithJustAFewElements.front(), true);
+    EXPECT_EQ(sutSizedGreaterThanOneChunk.front(), false);
+    EXPECT_TRUE(( std::is_same_v<decltype(sutWithJustAFewElements.front()), bool> ) );
+}
 
-//     EXPECT_EQ(valueBeforeChange, 5);
-//     EXPECT_EQ(valueAfterChange, 1000);
-// }
+TEST_F(VectorBoolFrontTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
+{
+    Vector<bool> sutWithJustAFewElements { true, false, true, false, false };
+    bool frontValueBeforeForSutWithJustAFewElements = sutWithJustAFewElements.front();
+    Vector<bool> sutSizedGreaterThanOneChunk(arrayGreaterThanOneChunk_.begin(), arrayGreaterThanOneChunk_.end());
+    bool frontValueBeforeForSutSizedGreaterThanOneChunk = sutSizedGreaterThanOneChunk.front();
+
+    sutWithJustAFewElements.front() = false;
+    sutSizedGreaterThanOneChunk.front() = true;
+
+    EXPECT_EQ(sutWithJustAFewElements.front(), false);
+    EXPECT_NE(sutWithJustAFewElements.front(), frontValueBeforeForSutWithJustAFewElements);
+    EXPECT_EQ(sutSizedGreaterThanOneChunk.front(), true);
+    EXPECT_NE(sutSizedGreaterThanOneChunk.front(), frontValueBeforeForSutSizedGreaterThanOneChunk);
+}
 
 // // === tests for constexpr reference back();
 // // === tests constexpr const_reference back() const;
-// TEST_F(BackTests, shouldReturnReferenceToLastElement)
+
+// TODO: REMOVE
+// void printAllElements(const Vector<bool>& vec)
 // {
-//     EXPECT_EQ(sutOf5ints.back(), 25);
-//     EXPECT_TRUE(( std::is_same_v<decltype(sutOf5ints.back()), int&> ) );
+//     std::cout << "--------------------\n";
+//     for (bool el : vec) {
+//         std::cout << el << " ";
+//     }
+//     std::cout << "--------------------\n";
 // }
 
-// TEST_F(BackTests, shouldReturnConstReferenceToLastElement)
-// {
-//     EXPECT_EQ(constSutOf5ints.back(), 25);
-//     EXPECT_TRUE(( std::is_same_v<decltype(constSutOf5ints.back()), const int&> ) );
-// }
+TEST_F(VectorBoolBackTests, shouldReturnReferenceToLastElement)
+{
+    Vector<bool> sutWithJustAFewElements { true, false, true, false, false };
+    Vector<bool> sutSizedGreaterThanOneChunk(arrayGreaterThanOneChunk_.begin(), arrayGreaterThanOneChunk_.end());
 
-// TEST_F(BackTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
-// {
-//     int valueBeforeChange = sutOf5ints.back();
+    EXPECT_EQ(sutWithJustAFewElements.back(), false);
+    EXPECT_EQ(sutSizedGreaterThanOneChunk.back(), true);
+    EXPECT_TRUE(( std::is_same_v<decltype(sutWithJustAFewElements.back()), std::bitset<CHUNK_SIZE>::reference> ) );
+}
 
-//     sutOf5ints.back() = 1000;
-//     int valueAfterChange = sutOf5ints.back();
+TEST_F(VectorBoolBackTests, shouldReturnConstReferenceToLastElement)
+{
+    const Vector<bool> sutWithJustAFewElements { true, false, true, false, false };
+    const Vector<bool> sutSizedGreaterThanOneChunk(arrayGreaterThanOneChunk_.begin(), arrayGreaterThanOneChunk_.end());
 
-//     EXPECT_EQ(valueBeforeChange, 25);
-//     EXPECT_EQ(valueAfterChange, 1000);
-// }
+    EXPECT_EQ(sutWithJustAFewElements.back(), false);
+    EXPECT_EQ(sutSizedGreaterThanOneChunk.back(), true);
+    EXPECT_TRUE(( std::is_same_v<decltype(sutWithJustAFewElements.back()), bool> ) );
+}
+
+TEST_F(VectorBoolBackTests, shouldBePossibleToModifyObjectPassedByReturnedReference)
+{
+    Vector<bool> sutWithJustAFewElements { true, false, true, false, false };
+    bool backValueBeforeForSutWithJustAFewElements = sutWithJustAFewElements.back();
+    Vector<bool> sutSizedGreaterThanOneChunk(arrayGreaterThanOneChunk_.begin(), arrayGreaterThanOneChunk_.end());
+    bool backValueBeforeForSutSizedGreaterThanOneChunk = sutSizedGreaterThanOneChunk.back();
+
+    sutWithJustAFewElements.back() = true;
+    sutSizedGreaterThanOneChunk.back() = false;
+
+    EXPECT_EQ(sutWithJustAFewElements.back(), true);
+    EXPECT_NE(sutWithJustAFewElements.back(), backValueBeforeForSutWithJustAFewElements);
+    EXPECT_EQ(sutSizedGreaterThanOneChunk.back(), false);
+    EXPECT_NE(sutSizedGreaterThanOneChunk.back(), backValueBeforeForSutSizedGreaterThanOneChunk);
+}
 
 // TEST_F(DataTests, forEmptyContainerShouldReturnNullptr)
 // {
