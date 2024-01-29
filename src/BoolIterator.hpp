@@ -84,6 +84,7 @@ constexpr BoolIterator<PointedBitsetSize, bool>::BoolIterator(std::bitset<Pointe
     , currentElement_ { pointedElement }
 {
 }
+
 template <std::size_t PointedBitsetSize>
 constexpr BoolIterator<PointedBitsetSize, bool>& BoolIterator<PointedBitsetSize, bool>::operator++()
 {

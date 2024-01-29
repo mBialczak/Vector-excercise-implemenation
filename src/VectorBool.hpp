@@ -89,8 +89,9 @@ class Vector<bool>
     reference back();
     const_reference back() const;
 
-    //     constexpr Type* data() noexcept;
-    //     constexpr const Type* data() const noexcept;
+    // TODO: VERIFY not present in std::vector<bool>()???? if done after all - bring back tests
+    //      constexpr Type* data() noexcept;
+    //      constexpr const Type* data() const noexcept;
 
     constexpr iterator begin() noexcept;
     constexpr const_iterator begin() const noexcept;

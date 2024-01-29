@@ -153,19 +153,6 @@ TEST_F(VectorBoolFrontTests, shouldBePossibleToModifyObjectPassedByReturnedRefer
     EXPECT_NE(sutSizedGreaterThanOneChunk.front(), frontValueBeforeForSutSizedGreaterThanOneChunk);
 }
 
-// // === tests for constexpr reference back();
-// // === tests constexpr const_reference back() const;
-
-// TODO: REMOVE
-// void printAllElements(const Vector<bool>& vec)
-// {
-//     std::cout << "--------------------\n";
-//     for (bool el : vec) {
-//         std::cout << el << " ";
-//     }
-//     std::cout << "--------------------\n";
-// }
-
 TEST_F(VectorBoolBackTests, shouldReturnReferenceToLastElement)
 {
     Vector<bool> sutWithJustAFewElements { true, false, true, false, false };
@@ -201,22 +188,5 @@ TEST_F(VectorBoolBackTests, shouldBePossibleToModifyObjectPassedByReturnedRefere
     EXPECT_EQ(sutSizedGreaterThanOneChunk.back(), false);
     EXPECT_NE(sutSizedGreaterThanOneChunk.back(), backValueBeforeForSutSizedGreaterThanOneChunk);
 }
-
-// TEST_F(DataTests, forEmptyContainerShouldReturnNullptr)
-// {
-//     double* dataReturned { emptySutDouble.data() };
-
-//     ASSERT_EQ(emptySutDouble.size(), 0);
-//     EXPECT_EQ(dataReturned, nullptr);
-// }
-
-// TEST_F(DataTests, forNonEmptyContainerShouldReturnBeginOrConstBegin)
-// {
-//     double* dataReturned { sutOf3doubles.data() };
-//     const double* dataReturnedConst { constSutOf3doubles.data() };
-
-//     EXPECT_EQ(dataReturned, sutOf3doubles.begin());
-//     EXPECT_EQ(dataReturnedConst, constSutOf3doubles.begin());
-// }
 
 }   // namespace my::test
