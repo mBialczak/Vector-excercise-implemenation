@@ -27,10 +27,8 @@ struct ReverseIterator<BoolIterator<PointedBitsetSize, bool>>
     constexpr ReverseIterator operator++(int);
     constexpr ReverseIterator& operator--();
     constexpr ReverseIterator operator--(int);
-    // TODO: tests
-    // constexpr ReverseIteratorBool operator+(difference_type incrementNumber) const;
-    // TODO: tests
-    // constexpr ReverseIteratorBool operator-(difference_type decrementNumber) const;
+    constexpr ReverseIterator operator+(difference_type incrementNumber) const;
+    constexpr ReverseIterator operator-(difference_type decrementNumber) const;
     // TODO: tests
     // constexpr ReverseIteratorBool& operator+=(difference_type incrementNumber);
     // TODO: tests
@@ -146,25 +144,25 @@ constexpr ReverseIterator<BoolIterator<PointedBitsetSize, bool>>
     return copy;
 }
 
-// template <std::size_t PointedBitsetSize>
-// constexpr ReverseIterator<BoolIterator<PointedBitsetSize, bool>>
-//     ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator+(difference_type incrementNumber) const
-// {
-//     ReverseIterator<BoolIterator<PointedBitsetSize, bool>> resultIterator { chunks_, numberOfElements_ };
-//     resultIterator.currentElement_ = currentElement_ + incrementNumber;
+template <std::size_t PointedBitsetSize>
+constexpr ReverseIterator<BoolIterator<PointedBitsetSize, bool>>
+    ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator+(difference_type incrementNumber) const
+{
+    auto resultIterator { *this };
+    resultIterator.internalIterator_ = internalIterator_ - incrementNumber;
 
-//     return resultIterator;
-// }
+    return resultIterator;
+}
 
-// template <std::size_t PointedBitsetSize>
-// constexpr ReverseIterator<BoolIterator<PointedBitsetSize, bool>>
-//     ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator-(difference_type decrementNumber) const
-// {
-//     ReverseIterator<BoolIterator<PointedBitsetSize, bool>> resultIterator { chunks_, numberOfElements_ };
-//     resultIterator.currentElement_ = currentElement_ - decrementNumber;
+template <std::size_t PointedBitsetSize>
+constexpr ReverseIterator<BoolIterator<PointedBitsetSize, bool>>
+    ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator-(difference_type decrementNumber) const
+{
+    auto resultIterator { *this };
+    resultIterator.internalIterator_ = internalIterator_ + decrementNumber;
 
-//     return resultIterator;
-// }
+    return resultIterator;
+}
 
 // template <std::size_t PointedBitsetSize>
 // constexpr ReverseIterator<BoolIterator<PointedBitsetSize, bool>>&
