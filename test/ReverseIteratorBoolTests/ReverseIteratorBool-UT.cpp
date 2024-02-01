@@ -96,8 +96,8 @@ class ReverseBoolIteratorOperatorPlusShould : public ReverseBoolIteratorShould
 { };
 class ReverseBoolIteratorOperatorMinusShould : public ReverseBoolIteratorShould
 { };
-// class OperatorPlusEqualShould : public BoolIteratorShould
-// { };
+class ReverseBoolIteratorOperatorPlusEqualShould : public ReverseBoolIteratorShould
+{ };
 // class OperatorMinusEqualShould : public BoolIteratorShould
 // { };
 // class RandomAccessOperatorShould : public BoolIteratorShould
@@ -278,47 +278,29 @@ TEST_F(ReverseBoolIteratorOperatorMinusShould, returnIteratorPointingToRightElem
     ASSERT_EQ(reverseCount, 39);
 }
 
-// void checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(
-//     BoolIterator<TEST_CHUNK_SIZE> sut,
-//     BoolIterator<TEST_CHUNK_SIZE>::difference_type howMuchToIncrement,
-//     bool expectedValue)
-// {
-//     auto returnedIter = sut += howMuchToIncrement;
-//     EXPECT_EQ(*sut, expectedValue);
-//     EXPECT_EQ(sut, returnedIter);
-// }
+TEST_F(ReverseBoolIteratorOperatorPlusEqualShould, causePointingToCorrectIncrementedElementAndReturnChangedIterator)
+{
+    ASSERT_EQ(fiveFullChunksData.size(), 5 * TEST_CHUNK_SIZE);
 
-// TEST_F(OperatorPlusEqualShould, causePointingToCorrectIncrementedElementAndReturnChangedIterator)
-// {
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
+    std::size_t reverseCount { 0 };
+    for (auto reverseDataIter = fiveFullChunksData.rbegin();
+         reverseDataIter != fiveFullChunksData.rend() - 1;
+         ++reverseDataIter) {
+        bool nextOriginalDataValue = *(reverseDataIter + 1) == '1' ? true
+                                                                   : false;
+        ++reverseCount;
 
-//     // go to 2nd element
-//     checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 1, true);
-//     // go to 6th element
-//     checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 5, false);
-//     // go to 8th element
-//     checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 7, true);
-//     // go to 9th element
-//     checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 8, true);
-//     // go to 12th element
-//     checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 11, false);
-//     // go to 16th element
-//     checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 15, false);
-//     // go to 17th element
-//     checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 16, false);
-//     // go to 20th element
-//     checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 19, false);
-//     // go to 23th element
-//     checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 22, false);
-//     // go to 25th element
-//     checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 24, false);
-//     // go to 30th element
-//     checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 29, true);
-//     // go to 37th element
-//     checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 36, false);
-//     // go to last element
-//     checkIfCallingPlusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 39, true);
-// }
+        TestedSutType sutPointingToFiveChunks { fiveFullChunks_,
+                                                fiveFullChunksData.size(),
+                                                fiveFullChunksData.size() - 1 };
+        auto resultIter = sutPointingToFiveChunks += reverseCount;
+
+        EXPECT_EQ(*resultIter, nextOriginalDataValue);
+        EXPECT_EQ(resultIter, sutPointingToFiveChunks);
+    }
+    // check if not miscalculated
+    ASSERT_EQ(reverseCount, 39);
+}
 
 // void checkIfCallingMinusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(
 //     BoolIterator<TEST_CHUNK_SIZE> sut,
