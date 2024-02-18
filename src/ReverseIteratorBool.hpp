@@ -29,22 +29,15 @@ struct ReverseIterator<BoolIterator<PointedBitsetSize, bool>>
     constexpr ReverseIterator operator--(int);
     constexpr ReverseIterator operator+(difference_type incrementNumber) const;
     constexpr ReverseIterator operator-(difference_type decrementNumber) const;
-    // TODO: tests
     constexpr ReverseIterator& operator+=(difference_type incrementNumber);
-    // TODO: tests
-    // constexpr ReverseIteratorBool& operator-=(difference_type decrementNumber);
+    constexpr ReverseIterator& operator-=(difference_type decrementNumber);
 
-    // TODO: tests
-    // constexpr std::bitset<PointedBitsetSize>::reference operator[](difference_type whichElement) const;
-    // TODO: tests
     constexpr std::bitset<PointedBitsetSize>::reference operator*() const;
-    // TODO: tests
-    // constexpr bool* operator->() const = delete;
+    constexpr std::bitset<PointedBitsetSize>::reference operator[](difference_type whichElement) const;
+    constexpr bool* operator->() const = delete;
 
-    // TODO: tests
     constexpr bool operator==(const ReverseIterator& other) const = default;
-    // TODO: tests
-    // constexpr bool operator<(const ReverseIteratorBool& other) const;
+    constexpr bool operator<(const ReverseIterator& other) const;
     // TODO: tests
     // constexpr bool operator<=(const ReverseIteratorBool& other) const;
     // TODO: tests
@@ -173,47 +166,36 @@ constexpr ReverseIterator<BoolIterator<PointedBitsetSize, bool>>&
     return *this;
 }
 
-// template <std::size_t PointedBitsetSize>
-// constexpr ReverseIterator<BoolIterator<PointedBitsetSize, bool>>&
-//     ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator-=(difference_type decrementNumber)
-// {
-//     currentElement_ -= decrementNumber;
+template <std::size_t PointedBitsetSize>
+constexpr ReverseIterator<BoolIterator<PointedBitsetSize, bool>>&
+    ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator-=(difference_type incrementNumber)
+{
+    internalIterator_ += incrementNumber;
 
-//     return *this;
-// }
+    return *this;
+}
 
 template <std::size_t PointedBitsetSize>
 constexpr std::bitset<PointedBitsetSize>::reference
     ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator*() const
 {
-    // TODO: VERIFY
-    //  const auto chunk = currentElement_ / PointedBitsetSize;
-    //  const auto reminderElementNumber = currentElement_ % PointedBitsetSize;
-
-    // return chunks_[chunk][PointedBitsetSize - 1 - reminderElementNumber];
     return *internalIterator_;
 }
 
-// template <std::size_t PointedBitsetSize>
-// constexpr std::bitset<PointedBitsetSize>::reference
-//     ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator[](difference_type whichElement) const
-// {
-//     const auto chunk = whichElement / PointedBitsetSize;
-//     const auto reminderElementNumber = whichElement % PointedBitsetSize;
+template <std::size_t PointedBitsetSize>
+constexpr std::bitset<PointedBitsetSize>::reference
+    ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator[](difference_type whichElement) const
+{
+    auto elementToAccess = internalIterator_.numberOfElementsHandled() - 1 - whichElement;
 
-//     return chunks_[chunk][PointedBitsetSize - 1 - reminderElementNumber];
-// }
+    return internalIterator_[elementToAccess];
+}
 
-// template <std::size_t PointedBitsetSize>
-// constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator<(const ReverseIterator& other) const
-// {
-//     if (chunks_ == other.chunks_) {
-//         return currentElement_ < other.currentElement_;
-//     }
-//     else {
-//         return chunks_ < other.chunks_;
-//     }
-// }
+template <std::size_t PointedBitsetSize>
+constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator<(const ReverseIterator& other) const
+{
+    return internalIterator_ > other.internalIterator_;
+}
 
 // template <std::size_t PointedBitsetSize>
 // constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator<=(const ReverseIterator& other) const

@@ -595,7 +595,12 @@ TEST_F(BoolIteratorShould, provideInequalityComparison)
     BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
     BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
 
+    BoolIterator<TEST_CHUNK_SIZE> incrementedPointingToOneFullChunk = sutPointingToOneFullChunk + 1;
+    BoolIterator<TEST_CHUNK_SIZE> incrementedSutPointingToFiveChunks = sutPointingToFiveChunks + 1;
+
     EXPECT_NE(sutPointingToOneFullChunk, sutPointingToFiveChunks);
+    EXPECT_NE(incrementedSutPointingToFiveChunks, sutPointingToFiveChunks);
+    EXPECT_NE(incrementedPointingToOneFullChunk, sutPointingToOneFullChunk);
 }
 
 TEST_F(BoolIteratorShould, provideLessThanComparison)
@@ -1042,7 +1047,12 @@ TEST_F(BoolConstIteratorShould, provideInequalityComparison)
     BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
     BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
 
+    BoolIterator<TEST_CHUNK_SIZE> incrementedPointingToOneFullChunk = sutPointingToOneFullChunk + 1;
+    BoolIterator<TEST_CHUNK_SIZE> incrementedSutPointingToFiveChunks = sutPointingToFiveChunks + 1;
+
     EXPECT_NE(sutPointingToOneFullChunk, sutPointingToFiveChunks);
+    EXPECT_NE(incrementedSutPointingToFiveChunks, sutPointingToFiveChunks);
+    EXPECT_NE(incrementedPointingToOneFullChunk, sutPointingToOneFullChunk);
 }
 
 TEST_F(BoolConstIteratorShould, provideLessThanComparison)

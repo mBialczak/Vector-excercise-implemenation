@@ -88,8 +88,8 @@ class ReverseBoolIteratorPostincrementOperatorShould : public ReverseBoolIterato
 class ReverseBoolIteratorPredecrementOperatorShould : public ReverseBoolIteratorShould
 { };
 // TODO: VERIFY
-//  class OperatorStarForBoolIteratorShould : public BoolIteratorShould
-//  { };
+class ReverseBoolIteratorOperatorStarShould : public ReverseBoolIteratorShould
+{ };
 class ReverseBoolIteratorPostdecrementOperatorShould : public ReverseBoolIteratorShould
 { };
 class ReverseBoolIteratorOperatorPlusShould : public ReverseBoolIteratorShould
@@ -98,10 +98,10 @@ class ReverseBoolIteratorOperatorMinusShould : public ReverseBoolIteratorShould
 { };
 class ReverseBoolIteratorOperatorPlusEqualShould : public ReverseBoolIteratorShould
 { };
-// class OperatorMinusEqualShould : public BoolIteratorShould
-// { };
-// class RandomAccessOperatorShould : public BoolIteratorShould
-// { };
+class ReverseBoolIteratorOperatorMinusEqualShould : public ReverseBoolIteratorShould
+{ };
+class ReverseBoolIteratorRandomAccessOperatorShould : public ReverseBoolIteratorShould
+{ };
 // class ConstIteratorPreincrementOperatorShould : public BoolIteratorShould
 // { };
 // class ConstIteratorPostincrementOperatorShould : public BoolIteratorShould
@@ -125,7 +125,7 @@ class ReverseBoolIteratorOperatorPlusEqualShould : public ReverseBoolIteratorSho
 // class BoolConstIteratorShould : public BoolIteratorShould
 // { };
 
-TEST_F(ReverseBoolIteratorPreincrementOperatorShould, causePointingToCorrectNextElementAndReturnChangedIterator)
+TEST_F(ReverseBoolIteratorPreincrementOperatorShould, causePointingToCorrectElementAndReturnChangedIterator)
 {
     ASSERT_EQ(fiveFullChunksData.size(), 5 * TEST_CHUNK_SIZE);
     TestedSutType sutPointingToFiveChunksLast { fiveFullChunks_,
@@ -148,7 +148,7 @@ TEST_F(ReverseBoolIteratorPreincrementOperatorShould, causePointingToCorrectNext
     }
 }
 
-TEST_F(ReverseBoolIteratorPostincrementOperatorShould, causePointingToCorrectNextElementAndReturnIteratorBeforeChange)
+TEST_F(ReverseBoolIteratorPostincrementOperatorShould, causePointingToCorrectElementAndReturnIteratorBeforeChange)
 {
     ASSERT_EQ(fiveFullChunksData.size(), 5 * TEST_CHUNK_SIZE);
     TestedSutType sutPointingToFiveChunksLast { fiveFullChunks_,
@@ -174,7 +174,7 @@ TEST_F(ReverseBoolIteratorPostincrementOperatorShould, causePointingToCorrectNex
     }
 }
 
-TEST_F(ReverseBoolIteratorPredecrementOperatorShould, decrementInternalPointerAndReturnChangedIterator)
+TEST_F(ReverseBoolIteratorPredecrementOperatorShould, setInternalPointerToCorrectElementAndReturnChangedIterator)
 {
     ASSERT_EQ(almostTwoChunksData.size(), 2 * TEST_CHUNK_SIZE - 1);
     TestedSutType sutForAlmostTwoChunksFirstElement { almostTwoFullChunks_, almostTwoChunksData.size(), 0 };
@@ -210,7 +210,7 @@ TEST_F(ReverseBoolIteratorPredecrementOperatorShould, decrementInternalPointerAn
     // std::cout << "\n--------------\n";
 }
 
-TEST_F(ReverseBoolIteratorPostdecrementOperatorShould, incrementInternalPointerAndReturnIteratorBeforeChange)
+TEST_F(ReverseBoolIteratorPostdecrementOperatorShould, setInternalPointerToCorrectElementAndReturnIteratorBeforeChange)
 {
     ASSERT_EQ(almostTwoChunksData.size(), 2 * TEST_CHUNK_SIZE - 1);
     TestedSutType sutForAlmostTwoChunksFirstElement { almostTwoFullChunks_, almostTwoChunksData.size(), 0 };
@@ -236,7 +236,7 @@ TEST_F(ReverseBoolIteratorPostdecrementOperatorShould, incrementInternalPointerA
     }
 }
 
-TEST_F(ReverseBoolIteratorOperatorPlusShould, returnIteratorPointingToRightElementIncrementedByRightValue)
+TEST_F(ReverseBoolIteratorOperatorPlusShould, returnNewIteratorPointingToCorrectElement)
 {
     ASSERT_EQ(fiveFullChunksData.size(), 5 * TEST_CHUNK_SIZE);
     TestedSutType sutPointingToFiveChunksLast { fiveFullChunks_,
@@ -258,7 +258,7 @@ TEST_F(ReverseBoolIteratorOperatorPlusShould, returnIteratorPointingToRightEleme
     ASSERT_EQ(reverseCount, 39);
 }
 
-TEST_F(ReverseBoolIteratorOperatorMinusShould, returnIteratorPointingToRightElementDecrementedByRightValue)
+TEST_F(ReverseBoolIteratorOperatorMinusShould, returnNewIteratorPointingToCorrectElement)
 {
     ASSERT_EQ(fiveFullChunksData.size(), 5 * TEST_CHUNK_SIZE);
     TestedSutType sutPointingToFiveChunksFirst { fiveFullChunks_, fiveFullChunksData.size(), 0 };
@@ -278,7 +278,7 @@ TEST_F(ReverseBoolIteratorOperatorMinusShould, returnIteratorPointingToRightElem
     ASSERT_EQ(reverseCount, 39);
 }
 
-TEST_F(ReverseBoolIteratorOperatorPlusEqualShould, causePointingToCorrectIncrementedElementAndReturnChangedIterator)
+TEST_F(ReverseBoolIteratorOperatorPlusEqualShould, ReturnChangedIteratorPointingToCorrectElement)
 {
     ASSERT_EQ(fiveFullChunksData.size(), 5 * TEST_CHUNK_SIZE);
 
@@ -302,186 +302,166 @@ TEST_F(ReverseBoolIteratorOperatorPlusEqualShould, causePointingToCorrectIncreme
     ASSERT_EQ(reverseCount, 39);
 }
 
-// void checkIfCallingMinusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(
-//     BoolIterator<TEST_CHUNK_SIZE> sut,
-//     BoolIterator<TEST_CHUNK_SIZE>::difference_type howMuchToDecrement,
-//     bool expectedValue)
-// {
-//     auto returnedIter = sut -= howMuchToDecrement;
-//     EXPECT_EQ(*sut, expectedValue);
-//     EXPECT_EQ(sut, returnedIter);
-// }
+TEST_F(ReverseBoolIteratorOperatorMinusEqualShould, ReturnChangedIteratorPointingToCorrectElement)
+{
+    ASSERT_EQ(fiveFullChunksData.size(), 5 * TEST_CHUNK_SIZE);
 
-// TEST_F(OperatorMinusEqualShould, causePointingToCorrectDecrementedElementAndReturnChangedIterator)
-// {
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
-//     // go to end
-//     sutPointingToFiveChunks += 39;
-//     EXPECT_EQ(*sutPointingToFiveChunks, true);
+    std::size_t reverseCount { 0 };
+    for (auto reverseDataIter = fiveFullChunksData.rend() - 1;
+         reverseDataIter != fiveFullChunksData.rbegin();
+         --reverseDataIter) {
+        bool nextOriginalDataValue = *(reverseDataIter - 1) == '1' ? true
+                                                                   : false;
+        ++reverseCount;
 
-//     // go to 35th element
-//     checkIfCallingMinusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 5, true);
-//     // go to 33th element
-//     checkIfCallingMinusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 7, false);
-//     // go to 31th element
-//     checkIfCallingMinusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 9, false);
-//     // go to 28th element
-//     checkIfCallingMinusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 12, true);
-//     // go to 24th element
-//     checkIfCallingMinusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 16, true);
-//     // go to 23th element
-//     checkIfCallingMinusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 17, false);
-//     // go to 17th element
-//     checkIfCallingMinusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 23, false);
-//     // go to 15th element
-//     checkIfCallingMinusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 25, true);
-//     // go to 9th element
-//     checkIfCallingMinusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 31, true);
-//     // go to 6th element
-//     checkIfCallingMinusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 34, false);
-//     // go to 1st element
-//     checkIfCallingMinusEqualOnSutReturnsIncrementedSelfAndPointsToCorrectElement(sutPointingToFiveChunks, 39, true);
-// }
+        TestedSutType sutPointingToFiveChunks { fiveFullChunks_,
+                                                fiveFullChunksData.size(),
+                                                0 };
+        auto resultIter = sutPointingToFiveChunks -= reverseCount;
 
-// void checkIfSutPointsToExpectedElementsOfObservedData(BoolIterator<TEST_CHUNK_SIZE>& sut,
-//                                                       const std::string& dataUsedForObservedDataCreation)
-// {
-//     auto numberOfElementsToCheck = dataUsedForObservedDataCreation.size();
+        EXPECT_EQ(*resultIter, nextOriginalDataValue);
+        EXPECT_EQ(resultIter, sutPointingToFiveChunks);
+    }
+    // check if not miscalculated
+    ASSERT_EQ(reverseCount, 39);
+}
 
-//     for (std::size_t i = 0; i < numberOfElementsToCheck; ++i) {
-//         bool convertedOriginalBitValue = dataUsedForObservedDataCreation[i] == '1' ? true
-//                                                                                    : false;
-//         EXPECT_EQ(*sut, convertedOriginalBitValue);
-//         ++sut;
-//     }
-// }
+TEST_F(ReverseBoolIteratorOperatorStarShould, provideReadAccessToCorrectElement)
+{
+    ASSERT_EQ(fiveFullChunksData.size(), 5 * TEST_CHUNK_SIZE);
 
-// TEST_F(OperatorStarForBoolIteratorShould, provideReadAccessToCorrectElement)
-// {
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneNotFullChunk { oneNotFullChunk_, notFullChunkData.size() };
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToMoreThanOneChunk { moreThanOneChunk_, moreThanOneChunkData.size() };
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToAlmostTwoChunks { almostTwoFullChunks_, almostTwoChunksData.size() };
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
+    std::size_t reverseCount { 0 };
+    for (auto reverseDataIter = fiveFullChunksData.rbegin();
+         reverseDataIter != fiveFullChunksData.rend();
+         ++reverseDataIter) {
+        bool expectedValue = *(reverseDataIter) == '1' ? true
+                                                       : false;
 
-//     checkIfSutPointsToExpectedElementsOfObservedData(sutPointingToOneNotFullChunk, notFullChunkData);
-//     checkIfSutPointsToExpectedElementsOfObservedData(sutPointingToOneFullChunk, oneChunkData);
-//     checkIfSutPointsToExpectedElementsOfObservedData(sutPointingToMoreThanOneChunk, moreThanOneChunkData);
-//     checkIfSutPointsToExpectedElementsOfObservedData(sutPointingToAlmostTwoChunks, almostTwoChunksData);
-//     checkIfSutPointsToExpectedElementsOfObservedData(sutPointingToFiveChunks, fiveFullChunksData);
-// }
+        TestedSutType sutPointingToFiveChunks { fiveFullChunks_,
+                                                fiveFullChunksData.size(),
+                                                fiveFullChunksData.size() - 1 - reverseCount };
 
-// TEST_F(OperatorStarForBoolIteratorShould, allowToModifyPointedElement)
-// {
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
-//     bool firstElementBeforeChange = *sutPointingToFiveChunks;
+        EXPECT_EQ(expectedValue, *sutPointingToFiveChunks);
+        ++reverseCount;
+    }
+    // check if not miscalculated
+    ASSERT_EQ(reverseCount, 40);
+}
 
-//     *sutPointingToFiveChunks = false;
-//     bool firstElementAfterChange = *sutPointingToFiveChunks;
-//     // go to 9th element
-//     auto sutPointingTo9thElement = sutPointingToFiveChunks + 8;
-//     bool ninthElementBeforeChange = *sutPointingTo9thElement;
-//     *sutPointingTo9thElement = false;
-//     bool ninthElementAfterChange = *sutPointingTo9thElement;
-//     // go to 16th element
-//     auto sutPointing16thElement = sutPointingToFiveChunks + 15;
-//     bool sixteenthElementBeforeChange = *sutPointing16thElement;
-//     *sutPointing16thElement = true;
-//     bool sixteenthElementAfterChange = *sutPointing16thElement;
-//     // go to 25th element
-//     auto sutPointing25thElement = sutPointingToFiveChunks + 24;
-//     bool twentyFourthElementBeforeChange = *sutPointing25thElement;
-//     *sutPointing25thElement = true;
-//     bool twentyFourthElementAfterChange = *sutPointing25thElement;
-//     // go to 35th element
-//     auto sutPointing35thElement = sutPointingToFiveChunks + 34;
-//     bool thirtyFifthElementBeforeChange = *sutPointing35thElement;
-//     *sutPointing35thElement = false;
-//     bool thirtyFifthElementAfterChange = *sutPointing35thElement;
-//     // go to 40th - last element
-//     auto sutPointing40thElement = sutPointingToFiveChunks + 39;
-//     bool lastElementBeforeChange = *sutPointing40thElement;
-//     *sutPointing40thElement = false;
-//     bool lastElementAfterChange = *sutPointing40thElement;
+TEST_F(ReverseBoolIteratorOperatorStarShould, allowToModifyPointedElement)
+{
+    ASSERT_EQ(fiveFullChunksData.size(), 5 * TEST_CHUNK_SIZE);
 
-//     EXPECT_EQ(firstElementBeforeChange, true);
-//     EXPECT_EQ(firstElementAfterChange, false);
-//     EXPECT_EQ(ninthElementBeforeChange, true);
-//     EXPECT_EQ(ninthElementAfterChange, false);
-//     EXPECT_EQ(sixteenthElementBeforeChange, false);
-//     EXPECT_EQ(sixteenthElementAfterChange, true);
-//     EXPECT_EQ(twentyFourthElementBeforeChange, false);
-//     EXPECT_EQ(twentyFourthElementAfterChange, true);
-//     EXPECT_EQ(thirtyFifthElementBeforeChange, true);
-//     EXPECT_EQ(thirtyFifthElementAfterChange, false);
-//     EXPECT_EQ(lastElementBeforeChange, true);
-//     EXPECT_EQ(lastElementAfterChange, false);
-// }
+    std::size_t reverseCount { 0 };
+    for (auto reverseDataIter = fiveFullChunksData.rbegin();
+         reverseDataIter != fiveFullChunksData.rend();
+         ++reverseDataIter) {
+        bool expectedValue = *(reverseDataIter) == '1' ? false
+                                                       : true;
 
-// TEST_F(RandomAccessOperatorShould, provideDirectReadAccessToRequestedElement)
-// {
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
+        TestedSutType sutPointingToFiveChunks { fiveFullChunks_,
+                                                fiveFullChunksData.size(),
+                                                fiveFullChunksData.size() - 1 - reverseCount };
 
-//     EXPECT_EQ(sutPointingToFiveChunks[0], true);
-//     EXPECT_EQ(sutPointingToFiveChunks[3], false);
-//     EXPECT_EQ(sutPointingToFiveChunks[9], true);
-//     EXPECT_EQ(sutPointingToFiveChunks[13], false);
-//     EXPECT_EQ(sutPointingToFiveChunks[18], true);
-//     EXPECT_EQ(sutPointingToFiveChunks[25], false);
-//     EXPECT_EQ(sutPointingToFiveChunks[32], false);
-//     EXPECT_EQ(sutPointingToFiveChunks[35], true);
-//     EXPECT_EQ(sutPointingToFiveChunks[39], true);
-// }
+        bool valueBefore = *sutPointingToFiveChunks;
 
-// void checkIfRandomAccessOperatorAllowsElementModification(const BoolIterator<TEST_CHUNK_SIZE>& sut,
-//                                                           BoolIterator<TEST_CHUNK_SIZE>::difference_type whichElement,
-//                                                           bool oldExpectedValue,
-//                                                           bool newValue)
-// {
-//     ASSERT_EQ(sut[whichElement], oldExpectedValue);
-//     sut[whichElement] = newValue;
+        *sutPointingToFiveChunks = expectedValue;
 
-//     EXPECT_EQ(sut[whichElement], newValue);
-// }
+        EXPECT_EQ(expectedValue, *sutPointingToFiveChunks);
+        EXPECT_NE(valueBefore, *sutPointingToFiveChunks);
+        ++reverseCount;
+    }
+    // check if not miscalculated
+    ASSERT_EQ(reverseCount, 40);
+}
 
-// TEST_F(RandomAccessOperatorShould, allowToModifyPointedElement)
-// {
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
+TEST_F(ReverseBoolIteratorRandomAccessOperatorShould, provideDirectReadAccessToRequestedElement)
+{
+    ASSERT_EQ(fiveFullChunksData.size(), 5 * TEST_CHUNK_SIZE);
 
-//     checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 0, true, false);
-//     checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 3, false, true);
-//     checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 9, true, false);
-//     checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 13, false, true);
-//     checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 18, true, false);
-//     checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 25, false, true);
-//     checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 32, false, true);
-//     checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 35, true, false);
-//     checkIfRandomAccessOperatorAllowsElementModification(sutPointingToFiveChunks, 39, true, false);
-// }
+    std::size_t reverseCount { 0 };
+    for (auto reverseDataIter = fiveFullChunksData.rbegin();
+         reverseDataIter != fiveFullChunksData.rend();
+         ++reverseDataIter) {
+        bool expectedValue = *(reverseDataIter) == '1' ? true
+                                                       : false;
 
-// TEST_F(BoolIteratorShould, provideEqualityComparison)
-// {
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
+        TestedSutType sutPointingToFiveChunks { fiveFullChunks_,
+                                                fiveFullChunksData.size(),
+                                                fiveFullChunksData.size() - 1 };
 
-//     EXPECT_EQ(sutPointingToOneFullChunk, sutPointingToOneFullChunk);
-//     EXPECT_EQ(sutPointingToFiveChunks, sutPointingToFiveChunks);
-// }
+        EXPECT_EQ(expectedValue, sutPointingToFiveChunks[reverseCount]);
+        ++reverseCount;
+    }
+    // check if not miscalculated
+    ASSERT_EQ(reverseCount, 40);
+}
 
-// TEST_F(BoolIteratorShould, provideInequalityComparison)
-// {
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToFiveChunks { fiveFullChunks_, fiveFullChunksData.size() };
+TEST_F(ReverseBoolIteratorRandomAccessOperatorShould, allowToModifyPointedElement)
+{
+    ASSERT_EQ(fiveFullChunksData.size(), 5 * TEST_CHUNK_SIZE);
 
-//     EXPECT_NE(sutPointingToOneFullChunk, sutPointingToFiveChunks);
-// }
+    std::size_t reverseCount { 0 };
+    for (auto reverseDataIter = fiveFullChunksData.rbegin();
+         reverseDataIter != fiveFullChunksData.rend();
+         ++reverseDataIter) {
+        bool expectedValue = *(reverseDataIter) == '1' ? false
+                                                       : true;
 
-// TEST_F(BoolIteratorShould, provideLessThanComparison)
-// {
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
+        TestedSutType sutPointingToFiveChunks { fiveFullChunks_,
+                                                fiveFullChunksData.size(),
+                                                fiveFullChunksData.size() - 1 };
 
-//     EXPECT_LT(sutPointingToOneFullChunk, sutPointingToOneFullChunk + 4);
-// }
+        bool valueBefore = sutPointingToFiveChunks[reverseCount];
+
+        sutPointingToFiveChunks[reverseCount] = expectedValue;
+
+        EXPECT_EQ(expectedValue, sutPointingToFiveChunks[reverseCount]);
+        EXPECT_NE(valueBefore, sutPointingToFiveChunks[reverseCount]);
+        ++reverseCount;
+    }
+    // check if not miscalculated
+    ASSERT_EQ(reverseCount, 40);
+}
+
+TEST_F(ReverseBoolIteratorShould, provideEqualityComparison)
+{
+    TestedSutType sutPointingToFiveChunks { fiveFullChunks_,
+                                            fiveFullChunksData.size(),
+                                            fiveFullChunksData.size() - 1 };
+
+    TestedSutType sutPointingToOneFullChunk { oneChunk_,
+                                              oneChunkData.size(),
+                                              oneChunkData.size() - 1 };
+
+    EXPECT_EQ(sutPointingToOneFullChunk, sutPointingToOneFullChunk);
+    EXPECT_EQ(sutPointingToFiveChunks, sutPointingToFiveChunks);
+}
+
+TEST_F(ReverseBoolIteratorShould, provideInequalityComparison)
+{
+    TestedSutType sutPointingToFiveChunks { fiveFullChunks_,
+                                            fiveFullChunksData.size(),
+                                            fiveFullChunksData.size() - 1 };
+
+    TestedSutType sutPointingToOneFullChunk { oneChunk_,
+                                              oneChunkData.size(),
+                                              oneChunkData.size() - 1 };
+
+    TestedSutType incrementedSutPointingToFiveChunks = sutPointingToFiveChunks + 1;
+    TestedSutType incrementedPointingToOneFullChunk = sutPointingToOneFullChunk + 1;
+
+    EXPECT_NE(sutPointingToOneFullChunk, sutPointingToFiveChunks);
+    EXPECT_NE(incrementedSutPointingToFiveChunks, sutPointingToFiveChunks);
+    EXPECT_NE(incrementedPointingToOneFullChunk, sutPointingToOneFullChunk);
+}
+
+TEST_F(ReverseBoolIteratorShould, provideLessThanComparison)
+{
+    TestedSutType sutPointingToOneFullChunk { oneChunk_, oneChunkData.size(), fiveFullChunksData.size() - 1 };
+
+    EXPECT_LT(sutPointingToOneFullChunk, sutPointingToOneFullChunk + 4);
+}
 
 // TEST_F(BoolIteratorShould, provideLessThanEqualComparison)
 // {

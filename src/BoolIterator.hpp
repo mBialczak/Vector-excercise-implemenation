@@ -35,6 +35,9 @@ struct BoolIterator<PointedBitsetSize, bool>
     constexpr bool operator>(const BoolIterator& other) const;
     constexpr bool operator>=(const BoolIterator& other) const;
 
+    // TODO: VERIFY
+    constexpr std::size_t numberOfElementsHandled() const;
+
   private:
     std::bitset<PointedBitsetSize>* chunks_;
     std::size_t numberOfElements_;
@@ -218,6 +221,12 @@ constexpr bool BoolIterator<PointedBitsetSize, bool>::operator>=(const BoolItera
     else {
         return chunks_ > other.chunks_;
     }
+}
+
+template <std::size_t PointedBitsetSize>
+constexpr std::size_t BoolIterator<PointedBitsetSize, bool>::numberOfElementsHandled() const
+{
+    return numberOfElements_;
 }
 
 // =================== struct BoolIterator<PointedBitsetSize, const bool> implementation
