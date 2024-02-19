@@ -38,12 +38,9 @@ struct ReverseIterator<BoolIterator<PointedBitsetSize, bool>>
 
     constexpr bool operator==(const ReverseIterator& other) const = default;
     constexpr bool operator<(const ReverseIterator& other) const;
-    // TODO: tests
-    // constexpr bool operator<=(const ReverseIteratorBool& other) const;
-    // TODO: tests
-    // constexpr bool operator>(const ReverseIteratorBool& other) const;
-    // TODO: tests
-    // constexpr bool operator>=(const ReverseIteratorBool& other) const;
+    constexpr bool operator<=(const ReverseIterator& other) const;
+    constexpr bool operator>(const ReverseIterator& other) const;
+    constexpr bool operator>=(const ReverseIterator& other) const;
 
   private:
     // TODO: VERIFY
@@ -197,38 +194,23 @@ constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator<
     return internalIterator_ > other.internalIterator_;
 }
 
-// template <std::size_t PointedBitsetSize>
-// constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator<=(const ReverseIterator& other) const
-// {
-//     if (chunks_ == other.chunks_) {
-//         return currentElement_ <= other.currentElement_;
-//     }
-//     else {
-//         return chunks_ < other.chunks_;
-//     }
-// }
+template <std::size_t PointedBitsetSize>
+constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator<=(const ReverseIterator& other) const
+{
+    return internalIterator_ >= other.internalIterator_;
+}
 
-// template <std::size_t PointedBitsetSize>
-// constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator>(const ReverseIterator& other) const
-// {
-//     if (chunks_ == other.chunks_) {
-//         return currentElement_ > other.currentElement_;
-//     }
-//     else {
-//         return chunks_ > other.chunks_;
-//     }
-// }
+template <std::size_t PointedBitsetSize>
+constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator>(const ReverseIterator& other) const
+{
+    return internalIterator_ < other.internalIterator_;
+}
 
-// template <std::size_t PointedBitsetSize>
-// constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator>=(const ReverseIterator& other) const
-// {
-//     if (chunks_ == other.chunks_) {
-//         return currentElement_ >= other.currentElement_;
-//     }
-//     else {
-//         return chunks_ > other.chunks_;
-//     }
-// }
+template <std::size_t PointedBitsetSize>
+constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator>=(const ReverseIterator& other) const
+{
+    return internalIterator_ <= other.internalIterator_;
+}
 
 // // =================== struct ReverseIteratorBool<PointedBitsetSize, const bool> implementation
 // template <std::size_t PointedBitsetSize>

@@ -463,28 +463,28 @@ TEST_F(ReverseBoolIteratorShould, provideLessThanComparison)
     EXPECT_LT(sutPointingToOneFullChunk, sutPointingToOneFullChunk + 4);
 }
 
-// TEST_F(BoolIteratorShould, provideLessThanEqualComparison)
-// {
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
+TEST_F(ReverseBoolIteratorShould, provideLessThanEqualComparison)
+{
+    TestedSutType sutPointingToOneFullChunk { oneChunk_, oneChunkData.size(), fiveFullChunksData.size() - 1 };
 
-//     EXPECT_LE(sutPointingToOneFullChunk, sutPointingToOneFullChunk + 4);
-//     EXPECT_LE(sutPointingToOneFullChunk, sutPointingToOneFullChunk);
-// }
+    EXPECT_LE(sutPointingToOneFullChunk, sutPointingToOneFullChunk + 4);
+    EXPECT_LE(sutPointingToOneFullChunk, sutPointingToOneFullChunk);
+}
 
-// TEST_F(BoolIteratorShould, provideGreaterThanComparison)
-// {
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
+TEST_F(ReverseBoolIteratorShould, provideGreaterThanComparison)
+{
+    TestedSutType sutPointingToOneFullChunk { oneChunk_, oneChunkData.size(), fiveFullChunksData.size() - 1 };
 
-//     EXPECT_GT(sutPointingToOneFullChunk + 4, sutPointingToOneFullChunk);
-// }
+    EXPECT_GT(sutPointingToOneFullChunk + 4, sutPointingToOneFullChunk);
+}
 
-// TEST_F(BoolIteratorShould, provideGreaterThanEqualComparison)
-// {
-//     BoolIterator<TEST_CHUNK_SIZE> sutPointingToOneFullChunk { oneChunk_, oneChunkData.size() };
+TEST_F(ReverseBoolIteratorShould, provideGreaterThanEqualComparison)
+{
+    TestedSutType sutPointingToOneFullChunk { oneChunk_, oneChunkData.size(), fiveFullChunksData.size() - 1 };
 
-//     EXPECT_GE(sutPointingToOneFullChunk + 4, sutPointingToOneFullChunk);
-//     EXPECT_GE(sutPointingToOneFullChunk, sutPointingToOneFullChunk);
-// }
+    EXPECT_GE(sutPointingToOneFullChunk + 4, sutPointingToOneFullChunk);
+    EXPECT_GE(sutPointingToOneFullChunk, sutPointingToOneFullChunk);
+}
 
 // // =================================================================
 // // struct BoolIterator<PointedBitsetSize, const bool> implementation
