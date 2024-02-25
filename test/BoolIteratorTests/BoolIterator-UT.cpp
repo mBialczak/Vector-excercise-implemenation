@@ -20,14 +20,13 @@ class BoolIteratorShould : public ::testing::Test
     virtual ~BoolIteratorShould();
 
   protected:
+    std::bitset<TEST_CHUNK_SIZE>* initializeDataPointerBasedOnData(const std::string& sourceOfBits);
+
     std::bitset<TEST_CHUNK_SIZE>* oneNotFullChunk_;
     std::bitset<TEST_CHUNK_SIZE>* oneChunk_;
     std::bitset<TEST_CHUNK_SIZE>* moreThanOneChunk_;
     std::bitset<TEST_CHUNK_SIZE>* almostTwoFullChunks_;
     std::bitset<TEST_CHUNK_SIZE>* fiveFullChunks_;
-
-  private:
-    std::bitset<TEST_CHUNK_SIZE>* initializeDataPointerBasedOnData(const std::string& sourceOfBits);
 };
 
 BoolIteratorShould::BoolIteratorShould()
@@ -633,8 +632,7 @@ TEST_F(BoolIteratorShould, provideGreaterThanEqualComparison)
     EXPECT_GE(sutPointingToOneFullChunk, sutPointingToOneFullChunk);
 }
 
-// =================================================================
-// struct BoolIterator<PointedBitsetSize, const bool> implementation
+// =====  struct BoolIterator<PointedBitsetSize, const bool> implementation tests ======================
 void checkIfPreincrementedSutReturnsIncrementedSelfAndPointsToCorrectElement(BoolIterator<TEST_CHUNK_SIZE,
                                                                                           const bool>& sut,
                                                                              bool expectedValue)

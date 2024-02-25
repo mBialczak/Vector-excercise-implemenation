@@ -50,39 +50,40 @@ struct ReverseIterator<BoolIterator<PointedBitsetSize, bool>>
     BoolIterator<PointedBitsetSize, bool> internalIterator_;
 };
 
-// template <std::size_t PointedBitsetSize>
-// struct ReverseIteratorBool<PointedBitsetSize, const bool>
-// {
-//     using difference_type = std::size_t;
+template <std::size_t PointedBitsetSize>
+struct ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>
+{
+    using difference_type = std::size_t;
 
-//     constexpr ReverseIteratorBool(const std::bitset<PointedBitsetSize>* data,
-//                                   std::size_t numberOfElements,
-//                                   std::size_t pointedElement = 0);
+    constexpr ReverseIterator(const std::bitset<PointedBitsetSize>* data,
+                              std::size_t numberOfElements,
+                              std::size_t pointedElement = 0);
 
-//     constexpr ReverseIteratorBool& operator++();
-//     constexpr ReverseIteratorBool operator++(int);
-//     constexpr ReverseIteratorBool& operator--();
-//     constexpr ReverseIteratorBool operator--(int);
-//     constexpr ReverseIteratorBool operator+(difference_type incrementNumber) const;
-//     constexpr ReverseIteratorBool operator-(difference_type decrementNumber) const;
-//     constexpr ReverseIteratorBool& operator+=(difference_type incrementNumber);
-//     constexpr ReverseIteratorBool& operator-=(difference_type decrementNumber);
+    constexpr ReverseIterator& operator++();
+    constexpr ReverseIterator operator++(int);
+    constexpr ReverseIterator& operator--();
+    constexpr ReverseIterator operator--(int);
+    constexpr ReverseIterator operator+(difference_type incrementNumber) const;
+    constexpr ReverseIterator operator-(difference_type decrementNumber) const;
+    constexpr ReverseIterator& operator+=(difference_type incrementNumber);
+    constexpr ReverseIterator& operator-=(difference_type decrementNumber);
 
-//     constexpr bool operator[](difference_type whichElement) const;
-//     constexpr bool operator*() const;
-//     constexpr bool* operator->() const = delete;
+    constexpr bool operator[](difference_type whichElement) const;
+    constexpr bool operator*() const;
+    constexpr bool* operator->() const = delete;
 
-//     constexpr bool operator==(const ReverseIteratorBool& other) const = default;
-//     constexpr bool operator<(const ReverseIteratorBool& other) const;
-//     constexpr bool operator<=(const ReverseIteratorBool& other) const;
-//     constexpr bool operator>(const ReverseIteratorBool& other) const;
-//     constexpr bool operator>=(const ReverseIteratorBool& other) const;
+    constexpr bool operator==(const ReverseIterator& other) const = default;
+    constexpr bool operator<(const ReverseIterator& other) const;
+    constexpr bool operator<=(const ReverseIterator& other) const;
+    constexpr bool operator>(const ReverseIterator& other) const;
+    constexpr bool operator>=(const ReverseIterator& other) const;
 
-//   private:
-//     const std::bitset<PointedBitsetSize>* chunks_;
-//     std::size_t numberOfElements_;
-//     std::size_t currentElement_;
-// };
+  private:
+    //     const std::bitset<PointedBitsetSize>* chunks_;
+    //     std::size_t numberOfElements_;
+    //     std::size_t currentElement_;
+    BoolIterator<PointedBitsetSize, const bool> internalIterator_;
+};
 
 template <std::size_t PointedBitsetSize>
 constexpr ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::ReverseIterator(std::bitset<PointedBitsetSize>* data,
@@ -212,151 +213,133 @@ constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::operator>
     return internalIterator_ <= other.internalIterator_;
 }
 
-// // =================== struct ReverseIteratorBool<PointedBitsetSize, const bool> implementation
-// template <std::size_t PointedBitsetSize>
-// constexpr ReverseIteratorBool<PointedBitsetSize, const bool>::ReverseIteratorBool(const std::bitset<PointedBitsetSize>* data,
-//                                                                                   std::size_t numberOfElements,
-//                                                                                   std::size_t pointedElement)
-//     : chunks_ { data }
-//     , numberOfElements_ { numberOfElements }
-//     , currentElement_ { pointedElement }
-// {
-// }
+// =================== struct ReverseIterator<PointedBitsetSize, const bool> implementation
+template <std::size_t PointedBitsetSize>
+constexpr ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::ReverseIterator(
+    const std::bitset<PointedBitsetSize>* data,
+    std::size_t numberOfElements,
+    std::size_t pointedElement)
+    : internalIterator_(BoolIterator<PointedBitsetSize, const bool>(data, numberOfElements, pointedElement))
+{
+}
 
-// template <std::size_t PointedBitsetSize>
-// constexpr ReverseIteratorBool<PointedBitsetSize, const bool>& ReverseIteratorBool<PointedBitsetSize, const bool>::operator++()
-// {
-//     ++currentElement_;
+template <std::size_t PointedBitsetSize>
+constexpr ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>&
+    ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator++()
+{
+    --internalIterator_;
 
-//     return *this;
-// }
+    return *this;
+}
 
-// template <std::size_t PointedBitsetSize>
-// constexpr ReverseIteratorBool<PointedBitsetSize, const bool> ReverseIteratorBool<PointedBitsetSize, const bool>::operator++(int)
-// {
-//     auto copy = *this;
-//     ++currentElement_;
+template <std::size_t PointedBitsetSize>
+constexpr ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>
+    ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator++(int)
+{
+    auto copy = *this;
+    --internalIterator_;
 
-//     return copy;
-// }
+    return copy;
+}
 
-// template <std::size_t PointedBitsetSize>
-// constexpr ReverseIteratorBool<PointedBitsetSize, const bool>& ReverseIteratorBool<PointedBitsetSize, const bool>::operator--()
-// {
-//     --currentElement_;
+template <std::size_t PointedBitsetSize>
+constexpr ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>&
+    ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator--()
+{
+    ++internalIterator_;
 
-//     return *this;
-// }
+    return *this;
+}
 
-// template <std::size_t PointedBitsetSize>
-// constexpr ReverseIteratorBool<PointedBitsetSize, const bool> ReverseIteratorBool<PointedBitsetSize, const bool>::operator--(int)
-// {
-//     auto copy = *this;
-//     --currentElement_;
+template <std::size_t PointedBitsetSize>
+constexpr ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>
+    ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator--(int)
+{
+    auto copy = *this;
+    ++internalIterator_;
 
-//     return copy;
-// }
+    return copy;
+}
 
-// template <std::size_t PointedBitsetSize>
-// constexpr ReverseIteratorBool<PointedBitsetSize, const bool>
-//     ReverseIteratorBool<PointedBitsetSize, const bool>::operator+(difference_type incrementNumber) const
-// {
-//     ReverseIteratorBool<PointedBitsetSize, const bool> resultIterator { chunks_, numberOfElements_ };
-//     resultIterator.currentElement_ = currentElement_ + incrementNumber;
+template <std::size_t PointedBitsetSize>
+constexpr ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>
+    ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator+(difference_type incrementNumber) const
+{
+    auto resultIterator { *this };
+    resultIterator.internalIterator_ = internalIterator_ - incrementNumber;
 
-//     resultIterator.currentElement_ = currentElement_ + incrementNumber;
+    return resultIterator;
+}
 
-//     return resultIterator;
-// }
+template <std::size_t PointedBitsetSize>
+constexpr ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>
+    ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator-(difference_type decrementNumber) const
+{
+    auto resultIterator { *this };
+    resultIterator.internalIterator_ = internalIterator_ + decrementNumber;
 
-// template <std::size_t PointedBitsetSize>
-// constexpr ReverseIteratorBool<PointedBitsetSize, const bool>
-//     ReverseIteratorBool<PointedBitsetSize, const bool>::operator-(difference_type decrementNumber) const
-// {
-//     ReverseIteratorBool<PointedBitsetSize, const bool> resultIterator { chunks_, numberOfElements_ };
-//     resultIterator.currentElement_ = currentElement_ - decrementNumber;
+    return resultIterator;
+}
 
-//     return resultIterator;
-// }
+template <std::size_t PointedBitsetSize>
+constexpr ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>&
+    ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator+=(difference_type incrementNumber)
+{
+    internalIterator_ -= incrementNumber;
 
-// template <std::size_t PointedBitsetSize>
-// constexpr ReverseIteratorBool<PointedBitsetSize, const bool>&
-//     ReverseIteratorBool<PointedBitsetSize, const bool>::operator+=(difference_type incrementNumber)
-// {
-//     currentElement_ += incrementNumber;
+    return *this;
+}
 
-//     return *this;
-// }
+template <std::size_t PointedBitsetSize>
+constexpr ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>&
+    ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator-=(difference_type incrementNumber)
+{
+    internalIterator_ += incrementNumber;
 
-// template <std::size_t PointedBitsetSize>
-// constexpr ReverseIteratorBool<PointedBitsetSize, const bool>&
-//     ReverseIteratorBool<PointedBitsetSize, const bool>::operator-=(difference_type decrementNumber)
-// {
-//     currentElement_ -= decrementNumber;
+    return *this;
+}
 
-//     return *this;
-// }
+template <std::size_t PointedBitsetSize>
+constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator*() const
+{
+    return *internalIterator_;
+}
 
-// template <std::size_t PointedBitsetSize>
-// constexpr bool ReverseIteratorBool<PointedBitsetSize, const bool>::operator*() const
-// {
-//     const auto chunk = currentElement_ / PointedBitsetSize;
-//     const auto reminderElementNumber = currentElement_ % PointedBitsetSize;
+template <std::size_t PointedBitsetSize>
+constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator[](
+    difference_type whichElement) const
+{
+    auto elementToAccess = internalIterator_.numberOfElementsHandled() - 1 - whichElement;
 
-//     return chunks_[chunk][PointedBitsetSize - 1 - reminderElementNumber];
-// }
+    return internalIterator_[elementToAccess];
+}
 
-// template <std::size_t PointedBitsetSize>
-// constexpr bool ReverseIteratorBool<PointedBitsetSize, const bool>::operator[](difference_type whichElement) const
-// {
-//     const auto chunk = whichElement / PointedBitsetSize;
-//     const auto reminderElementNumber = whichElement % PointedBitsetSize;
+template <std::size_t PointedBitsetSize>
+constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator<(
+    const ReverseIterator& other) const
+{
+    return internalIterator_ > other.internalIterator_;
+}
 
-//     return chunks_[chunk][PointedBitsetSize - 1 - reminderElementNumber];
-// }
+template <std::size_t PointedBitsetSize>
+constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator<=(
+    const ReverseIterator& other) const
+{
+    return internalIterator_ >= other.internalIterator_;
+}
 
-// template <std::size_t PointedBitsetSize>
-// constexpr bool ReverseIteratorBool<PointedBitsetSize, const bool>::operator<(const ReverseIteratorBool& other) const
-// {
-//     if (chunks_ == other.chunks_) {
-//         return currentElement_ < other.currentElement_;
-//     }
-//     else {
-//         return chunks_ < other.chunks_;
-//     }
-// }
+template <std::size_t PointedBitsetSize>
+constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator>(
+    const ReverseIterator& other) const
+{
+    return internalIterator_ < other.internalIterator_;
+}
 
-// template <std::size_t PointedBitsetSize>
-// constexpr bool ReverseIteratorBool<PointedBitsetSize, const bool>::operator<=(const ReverseIteratorBool& other) const
-// {
-//     if (chunks_ == other.chunks_) {
-//         return currentElement_ <= other.currentElement_;
-//     }
-//     else {
-//         return chunks_ < other.chunks_;
-//     }
-// }
-
-// template <std::size_t PointedBitsetSize>
-// constexpr bool ReverseIteratorBool<PointedBitsetSize, const bool>::operator>(const ReverseIteratorBool& other) const
-// {
-//     if (chunks_ == other.chunks_) {
-//         return currentElement_ > other.currentElement_;
-//     }
-//     else {
-//         return chunks_ > other.chunks_;
-//     }
-// }
-
-// template <std::size_t PointedBitsetSize>
-// constexpr bool ReverseIteratorBool<PointedBitsetSize, const bool>::operator>=(const ReverseIteratorBool& other) const
-// {
-//     if (chunks_ == other.chunks_) {
-//         return currentElement_ >= other.currentElement_;
-//     }
-//     else {
-//         return chunks_ > other.chunks_;
-//     }
-// }
+template <std::size_t PointedBitsetSize>
+constexpr bool ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>::operator>=(
+    const ReverseIterator& other) const
+{
+    return internalIterator_ <= other.internalIterator_;
+}
 
 }   // namespace my

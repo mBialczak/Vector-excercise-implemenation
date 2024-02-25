@@ -3,6 +3,8 @@
 
 #include "BoolIterator.hpp"
 #include "DefaultAllocator.hpp"
+// TODO: VERIFY
+#include "ReverseIteratorBool.hpp"
 // #include "Vector.hpp"
 // TODO: VERIFY
 
@@ -43,7 +45,7 @@ class Vector<bool>
     using iterator = BoolIterator<CHUNK_SIZE, bool>;
     using const_iterator = BoolIterator<CHUNK_SIZE, const bool>;
     // TODO: VERIFY rest
-    //      using reverse_iterator = ReverseIterator<Type*>;
+    using reverse_iterator = ReverseIterator<BoolIterator<CHUNK_SIZE, bool>>;
     //      using const_reverse_iterator = ReverseIterator<const Type*>;
 
     constexpr Vector() noexcept;

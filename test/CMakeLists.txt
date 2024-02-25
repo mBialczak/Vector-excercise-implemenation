@@ -25,7 +25,8 @@ set(EXECUTABLE_OUTPUT_PATH
     # //TODO: VERIFY if needed
 # add_subdirectory(BitProxyTests)
 add_subdirectory(BoolIteratorTests)
-add_subdirectory(ChunkProxyTests)
+# // TODO: REMOVE
+# add_subdirectory(ChunkProxyTests)
 add_subdirectory(DefaultAllocatorTests)
 add_subdirectory(ReverseIteratorTests)
 add_subdirectory(ReverseIteratorBoolTests)
