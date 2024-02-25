@@ -6,7 +6,8 @@ target_include_directories(ReverseIteratorBool-UT
                            ${TESTED_LIBRARY_DIR})
 
 target_link_libraries(ReverseIteratorBool-UT
-                      gtest_main)
+                      gtest_main
+                      BoolIterator-UT-utils)
 
 target_compile_options(ReverseIteratorBool-UT
                        PRIVATE

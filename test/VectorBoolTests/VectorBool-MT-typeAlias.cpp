@@ -38,20 +38,21 @@ TEST(VectorBoolTypeAliasTest, constIteratorTypeAliasShouldBeDefined)
     EXPECT_TRUE(( std::is_same_v<Vector<bool>::const_iterator, BoolIterator<CHUNK_SIZE, const bool>> ) );
 }
 
-// TODO: VERIFY
-// TEST(VectorBoolTypeAliasTest, reverseIteratorTypeAliasShouldBeDefinedAndMeetExpectations)
-// {
-//     Vector<int> sut(10, 5);
+TEST(VectorBoolTypeAliasTest, reverseIteratorTypeAliasShouldBeDefinedAndMeetExpectations)
+{
+    Vector<int> sut(10, 5);
 
-//     EXPECT_THAT(Vector<int>::reverse_iterator { sut.rbegin() }, An<ReverseIterator<int*>>());
-// }
-// TODO: VERIFY
-// TEST(VectorBoolTypeAliasTest, constReverseIteratorTypeAliasShouldBeDefinedAndMeetExpectations)
-// {
-//     Vector<int> sut(10, 5);
+    EXPECT_TRUE(( std::is_same_v<Vector<bool>::reverse_iterator,
+                                 ReverseIterator<BoolIterator<CHUNK_SIZE, bool>>> ) );
+}
 
-//     EXPECT_THAT(Vector<int>::const_reverse_iterator { sut.crbegin() }, An<ReverseIterator<const int*>>());
-// }
+TEST(VectorBoolTypeAliasTest, constReverseIteratorTypeAliasShouldBeDefinedAndMeetExpectations)
+{
+    Vector<int> sut(10, 5);
+
+    EXPECT_TRUE(( std::is_same_v<Vector<bool>::const_reverse_iterator,
+                                 ReverseIterator<BoolIterator<CHUNK_SIZE, const bool>>> ) );
+}
 
 TEST(VectorBoolTypeAliasTest, referenceAndConstReferenceAliasesShouldBeDefinedAndMeetExpectations)
 {

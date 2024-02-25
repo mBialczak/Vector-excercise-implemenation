@@ -1,24 +1,16 @@
 #pragma once
 
-// TODO: VERIFY
 #include "BoolIterator.hpp"
 #include "ReverseIterator.hpp"
 
 #include <bitset>
 
 namespace my {
-// TODO: REMOVE
-// template <std::size_t PointedBitsetSize, typename BoolType = bool>
-// struct ReverseIteratorBool;
-// TODO: REMOVE
-// template <std::size_t PointedBitsetSize>
-// struct ReverseIteratorBool<PointedBitsetSize, bool>
 template <std::size_t PointedBitsetSize>
 struct ReverseIterator<BoolIterator<PointedBitsetSize, bool>>
 {
     using difference_type = std::size_t;
 
-    // TODO: tests
     constexpr ReverseIterator(std::bitset<PointedBitsetSize>* data,
                               std::size_t numberOfElements,
                               std::size_t pointedElement);
@@ -43,10 +35,6 @@ struct ReverseIterator<BoolIterator<PointedBitsetSize, bool>>
     constexpr bool operator>=(const ReverseIterator& other) const;
 
   private:
-    // TODO: VERIFY
-    //  std::bitset<PointedBitsetSize>* chunks_;
-    //  std::size_t numberOfElements_;
-    //  std::size_t currentElement_;
     BoolIterator<PointedBitsetSize, bool> internalIterator_;
 };
 
@@ -79,9 +67,6 @@ struct ReverseIterator<BoolIterator<PointedBitsetSize, const bool>>
     constexpr bool operator>=(const ReverseIterator& other) const;
 
   private:
-    //     const std::bitset<PointedBitsetSize>* chunks_;
-    //     std::size_t numberOfElements_;
-    //     std::size_t currentElement_;
     BoolIterator<PointedBitsetSize, const bool> internalIterator_;
 };
 
@@ -89,10 +74,6 @@ template <std::size_t PointedBitsetSize>
 constexpr ReverseIterator<BoolIterator<PointedBitsetSize, bool>>::ReverseIterator(std::bitset<PointedBitsetSize>* data,
                                                                                   std::size_t numberOfElements,
                                                                                   std::size_t pointedElement)
-    // TODO: VERIFY
-    //  : chunks_ { data }
-    //  , numberOfElements_ { numberOfElements }
-    //  , currentElement_ { numberOfElements - 1 }
     : internalIterator_(BoolIterator<PointedBitsetSize, bool>(data, numberOfElements, pointedElement))
 {
 }

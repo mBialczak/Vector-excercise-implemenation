@@ -31,12 +31,6 @@ template <>
 class Vector<bool>
 {
   public:
-    // TODO: VERIFY
-    template <std::size_t SizeOfChunk = CHUNK_SIZE>
-    class ChunkProxy;
-    // // TODO: VERIFY
-    // class BitProxy;
-
     using value_type = bool;
     using size_type = std::size_t;
     using reference = std::bitset<CHUNK_SIZE>::reference;
@@ -44,9 +38,8 @@ class Vector<bool>
     using difference_type = BoolIterator<CHUNK_SIZE, bool>::difference_type;
     using iterator = BoolIterator<CHUNK_SIZE, bool>;
     using const_iterator = BoolIterator<CHUNK_SIZE, const bool>;
-    // TODO: VERIFY rest
     using reverse_iterator = ReverseIterator<BoolIterator<CHUNK_SIZE, bool>>;
-    //      using const_reverse_iterator = ReverseIterator<const Type*>;
+    using const_reverse_iterator = ReverseIterator<BoolIterator<CHUNK_SIZE, const bool>>;
 
     constexpr Vector() noexcept;
     constexpr Vector(size_type count, bool value);
@@ -193,40 +186,9 @@ class Vector<bool>
     //     Type* begin_;
     //     Type* end_;
     //     Type* capacity_;
-    // TODO: VERIFY
-    // std::unique_ptr<ChunkProxy<CHUNK_SIZE>> chunks_;
     std::bitset<CHUNK_SIZE>* chunks_;
     size_type currentSize_;
     size_type numberOfChunks_;
-};
-// TODO: REMOVE
-// template <bool, typename Allocator>
-// class Vector<bool, Allocator>::ChunkProxy<bool, typename Allocator>
-// class Vector<bool, Allocator>::ChunkProxy
-// class Vector::ChunkProxy
-// template <std::size_t SizeOfChunk = CHUNK_SIZE>
-// TODO: VERIFY
-// template <typename Allocator>
-template <std::size_t SizeOfChunk>
-// TODO: VERIFY
-//  class Vector<bool, Allocator>::ChunkProxy
-class Vector<bool>::ChunkProxy
-{
-  public:
-    ChunkProxy(std::bitset<SizeOfChunk>& chunk)
-        : chunk_(chunk)
-    { }
-    bool operator[](std::size_t index) const
-    {
-        return chunk_[index];
-    }
-    std::bitset<SizeOfChunk>::reference operator[](std::size_t index)
-    {
-        return chunk_[index];
-    }
-
-  private:
-    std::bitset<SizeOfChunk>& chunk_;
 };
 
 // TODO: VERIFY if needed and overall

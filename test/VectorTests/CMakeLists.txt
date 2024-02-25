@@ -10,7 +10,7 @@ add_executable(Vector-MT
                Vector-MT-emplaceBack.cpp
                Vector-MT-emplaceFunction.cpp
                Vector-MT-insertFunction.cpp
-               Vector-Mt-inspectingFunctions.cpp
+               Vector-MT-inspectingFunctions.cpp
                Vector-MT-moveAssignment.cpp
                Vector-MT-pushBack.cpp
                Vector-MT-removingElements.cpp

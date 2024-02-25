@@ -22,11 +22,7 @@ set(TESTED_LIBRARY_DIR
 set(EXECUTABLE_OUTPUT_PATH
     "../")
 
-    # //TODO: VERIFY if needed
-# add_subdirectory(BitProxyTests)
 add_subdirectory(BoolIteratorTests)
-# // TODO: REMOVE
-# add_subdirectory(ChunkProxyTests)
 add_subdirectory(DefaultAllocatorTests)
 add_subdirectory(ReverseIteratorTests)
 add_subdirectory(ReverseIteratorBoolTests)
@@ -34,9 +30,10 @@ add_subdirectory(removeTests)
 add_subdirectory(VectorTests)
 add_subdirectory(VectorBoolTests)
 
-add_test(NAME ChunkProxy-UT COMMAND ChunkProxy-UT)
+add_test(NAME BoolIterator-UT COMMAND BoolIterator-UT)
 add_test(NAME DefaultAllocator-UT COMMAND DefaultAllocator-UT)
 add_test(NAME ReverseIterator-UT COMMAND ReverseIterator-UT)
+add_test(NAME ReverseIteratorBool-UT COMMAND ReverseIteratorBool-UT)
 add_test(NAME removeFunction-UT COMMAND removeFunction-UT)
-add_test(NAME VectorTests-MT COMMAND Vector-MT)
+add_test(NAME Vector-MT COMMAND Vector-MT)
 add_test(NAME VectorBool-MT COMMAND VectorBool-MT)
